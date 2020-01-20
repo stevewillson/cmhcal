@@ -1,3 +1,4 @@
-# cmhcal
+# CMHCal Consolidated Multi-echelon Horseblanket Calendar
 
-The Consolidated Multi-echelon Horseblanket Calendar (cmhcal) is designed to make aggregating calendar information easy and painless.
+The cmhcal is designed to display information in an easily modifyable format that is quickly aggregated to other echelons.
+
