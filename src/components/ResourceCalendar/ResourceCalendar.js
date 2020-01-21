@@ -15,13 +15,18 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const ResourceCalendar = () => {
   // get state values from redux
-  const { calResources, calDateRangeStart, calDateRangeEnd } = useSelector(state => state)
-  const calEvents = useSelector(state => state.calEvents)
+  const { calDateRangeStart, calDateRangeEnd } = useSelector(state => state)
+  const calResources = useSelector(state => state.calResources);
+  const calEvents = useSelector(state => state.calEvents);
+  const calCategories = useSelector(state => state.calCategories);
+  
   const dispatch = useDispatch();
+
   const calState = useSelector(state => { 
     return { 
       calEvents: state.calEvents, 
       calResources: state.calResources, 
+      calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
       calDateRangeEnd: state.calDateRangeEnd, 
     }})
@@ -153,12 +158,25 @@ const ResourceCalendar = () => {
 
   };
 
-  const onSubmit = values => {
+  const onOrgSubmit = values => {
     dispatch({ 
       type: 'ADDORG', 
       payload: { 
         title: values.addOrg,
         id: uuid.v4(), 
+      }
+    });
+  }
+
+  const onCatSubmit = values => {
+    dispatch({ 
+      type: 'ADDCATEGORY', 
+      payload: { 
+        category: {
+          id: uuid.v4(),
+          name: values.addCat,
+          color: values.catColor,
+        } 
       }
     });
   }
@@ -248,7 +266,16 @@ const ResourceCalendar = () => {
     })
   }
 
-  /*
+  const deleteCategory = (id) => {
+    console.log('DELETE CATEGORY');
+    dispatch({
+      type: 'DELETECATEGORY',
+      payload: {
+        id: id,
+      }
+    })
+  }
+
   const deleteOrg = (id) => {
     console.log('DELETE ORG');
     dispatch({
@@ -258,7 +285,6 @@ const ResourceCalendar = () => {
       }
     })
   }
-  */
 
   const renameResource = (resource) => {
     console.log('RENAME RESOURCE')
@@ -275,7 +301,32 @@ const ResourceCalendar = () => {
         },
       });
     };
+    
     // when I use 'eventRender' the vertical spacing
+    // of events is incorrect, rerender the calendar to
+    // correct the spacing
+    const calendarApi = calendarRef.current.getApi()
+    calendarApi.render()
+  }
+
+  const renameOrg = (event) => {
+    console.log('RENAME ORG')
+    console.log(event)
+    if (event.target.innerText !== 'X') {
+      const resourceName = prompt("Set the organization title")
+      if (resourceName !== '' && resourceName !== null) {
+        dispatch({ 
+          type: 'EDITORGNAME', 
+          payload: {
+            resource: {
+              title: resourceName,
+              id: event.target.dataset.orgId,
+            },
+          },
+        });
+      };
+    }
+      // when I use 'eventRender' the vertical spacing
     // of events is incorrect, rerender the calendar to
     // correct the spacing
     const calendarApi = calendarRef.current.getApi()
@@ -321,7 +372,7 @@ const ResourceCalendar = () => {
         onChange={(date) => dispatch({ type: 'CALDATERANGEEND', payload: { date: date.toISOString().slice(0,10) }})} //only when value has changed
       />
       <Form 
-        onSubmit={onSubmit}
+        onSubmit={onOrgSubmit}
         initialValues={{}}
         render={({ handleSubmit, form, submitting, pristine, values }) => (
           <form onSubmit={async event => { 
@@ -346,6 +397,53 @@ const ResourceCalendar = () => {
           </form>
         )}
       />
+      <Form 
+        onSubmit={onCatSubmit}
+        initialValues={{}}
+        render={({ handleSubmit, form, submitting, pristine, values }) => (
+          <form onSubmit={async event => { 
+            await handleSubmit(event)
+            form.reset()
+          }}>
+            <div>
+              <label>Add Category: </label>
+              <Field 
+                name="addCat" 
+                component="input"
+                type="text" 
+                placeholder="Category Name" 
+              />
+              <label>Color: </label>
+              <Field 
+                name="catColor" 
+                component="input"
+                type="text" 
+                placeholder="Category Color" 
+              />
+              <button 
+                type="submit"
+                disabled={submitting || pristine}
+              >
+                Add Category
+              </button>
+            </div>
+          </form>
+        )}
+      />
+      Categories:
+      {calCategories.map((category) => 
+        <div style={{ backgroundColor: category.color }}>
+          {category.name}
+          <button onClick={() => deleteCategory(category.id)}>X</button>
+        </div>
+      )}
+      Organizations:
+      {calResources.map((resource) => 
+        <div data-org-id={resource.id} onClick={renameOrg}>
+          {resource.title}
+          <button onClick={() => deleteOrg(resource.id)}>X</button>
+        </div>
+      )}
       <FullCalendar 
         ref={calendarRef}
         //added to suppress license key prompt
@@ -355,7 +453,7 @@ const ResourceCalendar = () => {
         plugins={[ interaction, resourceTimeline ]} 
         resourceLabelText={'Organization'}
         header={{
-          left: 'prev,next',
+          left: '',
           center: 'title',
           right: 'RefreshView',
         }}

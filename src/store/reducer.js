@@ -5,6 +5,7 @@ const calDateRangeEnd = DateTime.local().plus({ days: 30 }).toFormat('yyyy-MM-dd
 const initialState = {
   calEvents: [],
   calResources: [],
+  calCategories: [],
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
 }
@@ -144,7 +145,24 @@ const reducer = (state = initialState, action) => {
       ...state,
       calResources: newCalResources
     }
-  }
+  } else if (action.type === 'ADDCATEGORY') {
+    const newCategories = [...state.calCategories, { 
+      id: action.payload.category.id, 
+      name: action.payload.category.name, 
+      color: action.payload.category.color 
+    }]
+    return {
+      ...state,
+      calCategories: newCategories
+    }
+  } else if (action.type === 'DELETECATEGORY') {
+    let newCalCategories = state.calCategories.slice()
+    newCalCategories = newCalCategories.filter(resource => resource.id !== action.payload.id);
+    return {
+      ...state,
+      calCategories: newCalCategories
+    }
+}
   return state;
 }
 
