@@ -8,6 +8,7 @@ const initialState = {
   calCategories: [],
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
+  datePickerStartDate: new Date(),
 }
 
 const reducer = (state = initialState, action) => {
@@ -185,6 +186,13 @@ const reducer = (state = initialState, action) => {
     return {
       ...state,
       calDateRangeEnd: action.payload.date,
+    }
+  
+  } else if (action.type === 'SETDATEPICKERSTARTDATE') {
+  // import the data that was read from the file
+    return {
+      ...state,
+      datePickerStartDate: action.payload.date,
     }
   }
   return state;
