@@ -15,8 +15,8 @@ const App = () => {
           <CalTools />
         </div>
         <div className="top-right-layout">
-          <ImportTemplate />
           <ExportTemplate />
+          <ImportTemplate />
         </div>
         <div className="cal-layout">
           <ResourceCalendar />

@@ -22,16 +22,12 @@ const ExportTemplate = () => {
   // local state for the number of elements in the form
 
   const [dDay, setDDay] = useState(new Date());
+  const [selOptId, setSelOptId] = useState('');
+  const [exportFilename, setExportFilename] = useState('');
 
-  const onExportClick = (dDay, calState) => {
-    // read the selected value
-    const selEl = document.getElementById('selectOrgExportOption')
-    const selVal = selEl.options[selEl.selectedIndex].value;
-
-    const outFilename = document.getElementById('filenameExport').value;
-    
+  const onExportClick = (calState, selOptId, dDay, exportFilename) => {
     // filter the events to be about the selected org
-    const orgEvents = calState.calEvents.filter(event => event.resourceId === selVal);
+    const orgEvents = calState.calEvents.filter(event => event.resourceId === selOptId);
 
     // now edit the start and end dates to be days relative to the nDay
     const templateEvents = orgEvents.map(event => {
@@ -39,8 +35,11 @@ const ExportTemplate = () => {
       const luxEnd = DateTime.fromISO(event.end);
       const luxDDay = DateTime.fromISO(dDay.toISOString().slice(0,10));
       
-      const startOffset = luxDDay.diff(luxStart, 'days');
-      const endOffset = luxDDay.diff(luxEnd, 'days');
+      // relative to the 'dDay'
+      // days in the future have positive offsets,
+      // days in the past have negative offsets
+      const startOffset = luxStart.diff(luxDDay, 'days');
+      const endOffset = luxEnd.diff(luxDDay, 'days');
       return {
         title: event.title,
         startOffset: startOffset.days,
@@ -48,7 +47,7 @@ const ExportTemplate = () => {
       }
     })
 
-    exportData(templateEvents, outFilename);
+    exportData(templateEvents, exportFilename);
   }
 
   const exportData = (jsonData, outFilename) => {
@@ -64,25 +63,51 @@ const ExportTemplate = () => {
     document.body.removeChild(downloadLink);
   }
 
+  // after a calendar is loaded, set the selected org option to be the first value if it is not set
+  if (organizations.length > 0 && selOptId === '') {
+    setSelOptId(organizations[0].id)
+  }
+
   return (
     <div>
     <h4>Export Template</h4>
     <label>Org:
-    <select id="selectOrgExportOption">
-      {organizations.map(category => <option key={uuid.v4()} value={category.id}>{category.title}</option>)}
+    <select 
+      onChange={event => setSelOptId(event.target.selectedOptions[0].value)} 
+      id="selectOrgExportOption" 
+      value={selOptId}
+    >
+      {organizations.map(category => 
+        <option 
+          key={uuid.v4()} 
+          value={category.id}
+        >
+          {category.title}
+        </option>
+      )}
     </select>
     </label>
     <label>D-Day
     <DatePicker
+      id={'exportFileDatePicker'}
       placeholderText={'Choose the Event D-Day'}
       selected={dDay}
       onChange={date => setDDay(date)}
     />
     </label>
     <label>Filename:
-    <input type="text" id="filenameExport" />
+    <input 
+      type="text" 
+      id="filenameExport"
+      onChange={event => setExportFilename(event.target.value)}
+    />
     </label>
-    <button type="button" onClick={() => {onExportClick(dDay, calState)}} >Export Template</button>
+    <button 
+      type="button" 
+      onClick={() => onExportClick(calState, selOptId, dDay, exportFilename)} 
+    >
+      Export Template
+    </button>
     </div>
   );
 }

@@ -153,7 +153,7 @@ const CalTools = () => {
 
   return (
     <React.Fragment>
-      <form>
+      <div>
         <label>Import File: 
         <input 
           type="file" 
@@ -163,7 +163,7 @@ const CalTools = () => {
         />
         </label>
         <button style={btnStyle} onClick={() => exportData(calState)}>Export</button>
-      </form>
+      </div>
       Display From: 
       <DatePicker
         selected={DateTime.fromISO(calDateRangeStart).toJSDate()}

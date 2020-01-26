@@ -220,14 +220,6 @@ const ResourceCalendar = () => {
     //console.log('RESOURCE RENDER')
     //console.log(info)
     info.el.addEventListener("click", () => renameResource(info.resource))
-    /*
-    ReactDOM.render(
-      <React.Fragment>
-      {info.resource.title} - <button onClick={() => deleteOrg(info.resource.id)}>X</button>
-      </React.Fragment>,
-      info.el
-    );
-    */
   }
 
   const calendarRef = React.useRef()

@@ -24,19 +24,24 @@ const ImportTemplate = () => {
 
   // local state for the number of elements in the form
   const [dDay, setDDay] = useState(new Date());
-  const [templateEvents, setTemplateEvents] = useState('');
+  const [selOptId, setSelOptId] = useState('');
 
-  const onImportClick = (dDay, events) => {    
+  const onImportClick = async () => {    
     // read the selected org value
-    const selEl = document.getElementById('selectOrgImportOption')
+    const selEl = document.getElementById('selectOrgImportOption') 
     const selVal = selEl.options[selEl.selectedIndex].value;
+
+    const datePickerValJSDate = new Date(document.getElementById('importFileDatePicker').value)
+
+    const importFile = document.getElementById('templateInputFile').files[0];
+    const fileContents = await readFile(importFile);
+    const jsonData = JSON.parse(fileContents)
     
     // now edit the start and end dates to be days relative to the dDay
-    events.forEach(event => {
-	    const luxDDay = DateTime.fromISO(dDay.toISOString().slice(0,10));
-			
-			const start = luxDDay.minus({ days: event.startOffset });
-			const end = luxDDay.minus({ days: event.endOffset });
+    jsonData.forEach(event => {
+	    const luxDDay = DateTime.fromISO(datePickerValJSDate.toISOString().slice(0,10));
+			const start = luxDDay.plus({ days: event.startOffset });
+			const end = luxDDay.plus({ days: event.endOffset });
 
 	    // need to do many dispatches for each event in the selection		
 			dispatch({ 
@@ -54,19 +59,6 @@ const ImportTemplate = () => {
 		});
   }
 
-  const importData = async (event) => {
-    const importFile = event.target.files[0];
-    try {
-      const fileContents = await readFile(importFile);
-      const jsonData = JSON.parse(fileContents)
-      // set the state here from redux
-      // set the local state to be the values read in to the template
-      setTemplateEvents(jsonData);
-    } catch (e) {
-      console.log(e.message);
-    }
-  };
-
   // read the binary contents of the file
   const readFile = file => {
     const temporaryFileReader = new FileReader();
@@ -83,16 +75,34 @@ const ImportTemplate = () => {
     });
   };
 
+  // after a calendar is loaded, set the selected org option to be the first value if it is not set
+  if (organizations.length > 0 && selOptId === '') {
+    setSelOptId(organizations[0].id)
+  }
+  
+
   return (
     <div>
 		<h4>Import Template</h4>
 		<label>Org:
-    <select id="selectOrgImportOption">
-      {organizations.map(category => <option key={uuid.v4()} value={category.id}>{category.title}</option>)}
+    <select
+      onChange={event => setSelOptId(event.target.selectedOptions[0].value)} 
+      id="selectOrgImportOption" 
+      value={selOptId}      
+    >
+      {organizations.map(category => 
+        <option 
+          key={uuid.v4()} 
+          value={category.id}
+        >
+          {category.title}
+        </option>
+      )}
     </select>
 		</label>
 		<label>D-Day
     <DatePicker
+      id={'importFileDatePicker'}
       placeholderText={'Choose the Event D-Day'}
       selected={dDay}
       onChange={date => setDDay(date)}
@@ -101,12 +111,11 @@ const ImportTemplate = () => {
     <label>Import File: 
 			<input 
 				type="file" 
-				id="templateInput" 
-				onChange={importData}
+        id="templateInputFile" 
 				style={btnStyle}
 			/>
     </label>
-    <button type="button" onClick={() => {onImportClick(dDay, templateEvents)}} >Import Template</button>
+    <button type="button" onClick={onImportClick} >Import Template</button>
     </div>
   );
 }
