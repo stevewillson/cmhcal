@@ -1,13 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import '../../assets/main.scss' // webpack must be configured to do this
 import uuid from 'uuid';
-import { DateTime } from 'luxon';
-import { Form, Field } from 'react-final-form';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-//import SequenceAdder from './SequenceAdder';
 
 const CalTools = () => {
   // get state values from redux
@@ -17,6 +12,10 @@ const CalTools = () => {
   const calCategories = useSelector(state => state.calCategories);
   
   const dispatch = useDispatch();
+
+  const [addOrgName, setAddOrgName] = useState('');
+  const [addCatName, setAddCatName] = useState('');
+  const [addCatColor, setAddCatColor] = useState('');
 
   const calState = useSelector(state => { 
     return { 
@@ -38,27 +37,30 @@ const CalTools = () => {
     fontSize: '16px',
   } 
   
-  const onOrgSubmit = values => {
+  const addOrg = (orgName) => {
     dispatch({ 
       type: 'ADDORG', 
       payload: { 
-        title: values.addOrg,
+        title: orgName,
         id: uuid.v4(), 
       }
     });
+    setAddOrgName('');
   }
 
-  const onCatSubmit = values => {
+  const addCat = (catName, catColor) => {
     dispatch({ 
       type: 'ADDCATEGORY', 
       payload: { 
         category: {
           id: uuid.v4(),
-          name: values.addCat,
-          color: values.catColor,
+          name: catName,
+          color: catColor,
         } 
       }
     });
+    setAddCatName('');
+    setAddCatColor('');
   }
 
   const importData = async (event) => {
@@ -112,7 +114,7 @@ const CalTools = () => {
     document.body.removeChild(downloadLink);
   }
 
-  const deleteCategory = (id) => {
+  const deleteCat = (id) => {
     console.log('DELETE CATEGORY');
     dispatch({
       type: 'DELETECATEGORY',
@@ -154,91 +156,72 @@ const CalTools = () => {
   return (
     <React.Fragment>
       <div>
-        <label>Import File: 
+        <label htmlFor='importDataFile'>Import File:</label>
         <input 
           type="file" 
-          id="timeInput" 
+          id="importDataFile" 
           onChange={importData}
           style={btnStyle}
         />
-        </label>
         <button style={btnStyle} onClick={() => exportData(calState)}>Export</button>
       </div>
-      Display From: 
-      <DatePicker
-        selected={DateTime.fromISO(calDateRangeStart).toJSDate()}
-        onChange={(date) => dispatch({ type: 'CALDATERANGESTART', payload: { date: date.toISOString().slice(0,10) }})} //only when value has changed
+      <label htmlFor='fromDate'>Display From:</label> 
+      <input
+        id='fromDate'
+        type='date'
+        value={calDateRangeStart}
+        onChange={event => dispatch({ type: 'CALDATERANGESTART', payload: { date: event.target.value }})} 
       />
-      To:
-      <DatePicker
-        selected={DateTime.fromISO(calDateRangeEnd).toJSDate()}
-        onChange={(date) => dispatch({ type: 'CALDATERANGEEND', payload: { date: date.toISOString().slice(0,10) }})} //only when value has changed
+      <label htmlFor='toDate'>To:</label>
+      <input
+        id='toDate'
+        type='date'
+        value={calDateRangeEnd}
+        onChange={event => dispatch({ type: 'CALDATERANGEEND', payload: { date: event.target.value }})}
       />
-      <Form 
-        onSubmit={onOrgSubmit}
-        initialValues={{}}
-        render={({ handleSubmit, form, submitting, pristine, values }) => (
-          <form onSubmit={async event => { 
-            await handleSubmit(event)
-            form.reset()
-          }}>
-            <div>
-              <label>Add Organization: </label>
-              <Field 
-                name="addOrg" 
-                component="input"
-                type="text" 
-                placeholder="Organization Name" 
-              />
-              <button 
-                type="submit"
-                disabled={submitting || pristine}
-              >
-                Add Organization
-              </button>
-            </div>
-          </form>
-        )}
-      />
-      <Form 
-        onSubmit={onCatSubmit}
-        initialValues={{}}
-        render={({ handleSubmit, form, submitting, pristine, values }) => (
-          <form onSubmit={async event => { 
-            await handleSubmit(event)
-            form.reset()
-          }}>
-            <div>
-              <label>Add Category: </label>
-              <Field 
-                name="addCat" 
-                component="input"
-                type="text" 
-                placeholder="Category Name" 
-              />
-              <label>Color: </label>
-              <Field 
-                name="catColor" 
-                component="input"
-                type="text" 
-                placeholder="Category Color" 
-              />
-              <button 
-                type="submit"
-                disabled={submitting || pristine}
-              >
-                Add Category
-              </button>
-            </div>
-          </form>
-        )}
-      />
+      <div>
+        <label htmlFor='addOrgText'>Add Organization:</label>
+        <input
+          id='addOrgText'
+          type='text'
+          value={addOrgName}
+          onChange={event => setAddOrgName(event.target.value)}
+        />
+        <button 
+          type="button" 
+          onClick={() => addOrg(addOrgName)} 
+        >
+          Add Organization
+        </button>
+      </div>
+      <div>
+        <label htmlFor='addCatNameText'>Add Category:</label>
+        <input
+          id='addCatNameText'
+          type='text'
+          value={addCatName}
+          onChange={event => setAddCatName(event.target.value)}
+        />
+        <label htmlFor='addCatColorText'>Color:</label>
+        <input
+          id='addCatColorText'
+          type='text'
+          value={addCatColor}
+          onChange={event => setAddCatColor(event.target.value)}
+        />
+        <button 
+          type="button" 
+          onClick={() => addCat(addCatName, addCatColor)} 
+        >
+          Add Category
+        </button>
+      </div>
       <div>
       <h4>Categories:</h4>
       {calCategories.map((category) => 
         <div key={uuid.v4()} style={{ backgroundColor: category.color }}>
           {category.name}
-          <button onClick={() => deleteCategory(category.id)}>X</button>
+          <button onClick={() => deleteCat(category.id)}>X</button>
         </div>
       )}
       </div>

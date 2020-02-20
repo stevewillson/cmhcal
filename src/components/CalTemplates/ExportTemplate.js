@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { DateTime } from 'luxon';
 import uuid from 'uuid';
 
@@ -21,7 +19,8 @@ const ExportTemplate = () => {
     }})
   // local state for the number of elements in the form
 
-  const [dDay, setDDay] = useState(new Date());
+  const today = new Date();
+  const [dDay, setDDay] = useState(today.toISOString().slice(0,10));
   const [selOptId, setSelOptId] = useState('');
   const [exportFilename, setExportFilename] = useState('');
 
@@ -33,7 +32,7 @@ const ExportTemplate = () => {
     const templateEvents = orgEvents.map(event => {
       const luxStart = DateTime.fromISO(event.start);
       const luxEnd = DateTime.fromISO(event.end);
-      const luxDDay = DateTime.fromISO(dDay.toISOString().slice(0,10));
+      const luxDDay = DateTime.fromISO(dDay);
       
       // relative to the 'dDay'
       // days in the future have positive offsets,
@@ -46,7 +45,6 @@ const ExportTemplate = () => {
         endOffset: endOffset.days,
       }
     })
-
     exportData(templateEvents, exportFilename);
   }
 
@@ -71,7 +69,7 @@ const ExportTemplate = () => {
   return (
     <div>
     <h4>Export Template</h4>
-    <label>Org:
+    <label htmlFor='selectOrgExportOption'>Org:</label>
     <select 
       onChange={event => setSelOptId(event.target.selectedOptions[0].value)} 
       id="selectOrgExportOption" 
@@ -86,22 +84,19 @@ const ExportTemplate = () => {
         </option>
       )}
     </select>
-    </label>
-    <label>D-Day
-    <DatePicker
-      id={'exportFileDatePicker'}
-      placeholderText={'Choose the Event D-Day'}
-      selected={dDay}
-      onChange={date => setDDay(date)}
+    <label htmlFor='exportDDay'>D-Day</label>
+    <input
+      id='exportDDay'
+      type='date'
+      value={dDay}
+      onChange={event => setDDay(event.target.value)}
     />
-    </label>
-    <label>Filename:
+    <label htmlFor='filenameExport'>Filename:</label>
     <input 
       type="text" 
       id="filenameExport"
       onChange={event => setExportFilename(event.target.value)}
     />
-    </label>
     <button 
       type="button" 
       onClick={() => onExportClick(calState, selOptId, dDay, exportFilename)} 

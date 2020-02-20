@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { DateTime } from 'luxon';
 import uuid from 'uuid';
 
@@ -23,23 +21,18 @@ const ImportTemplate = () => {
 	const organizations = useSelector(state => state.calResources)
 
   // local state for the number of elements in the form
-  const [dDay, setDDay] = useState(new Date());
+  const today = new Date();
+  const [dDay, setDDay] = useState(today.toISOString().slice(0,10));
   const [selOptId, setSelOptId] = useState('');
 
-  const onImportClick = async () => {    
-    // read the selected org value
-    const selEl = document.getElementById('selectOrgImportOption') 
-    const selVal = selEl.options[selEl.selectedIndex].value;
-
-    const datePickerValJSDate = new Date(document.getElementById('importFileDatePicker').value)
-
+  const onImportClick = async (dDay, selOptId) => {    
     const importFile = document.getElementById('templateInputFile').files[0];
     const fileContents = await readFile(importFile);
     const jsonData = JSON.parse(fileContents)
     
     // now edit the start and end dates to be days relative to the dDay
     jsonData.forEach(event => {
-	    const luxDDay = DateTime.fromISO(datePickerValJSDate.toISOString().slice(0,10));
+	    const luxDDay = DateTime.fromISO(dDay);
 			const start = luxDDay.plus({ days: event.startOffset });
 			const end = luxDDay.plus({ days: event.endOffset });
 
@@ -52,7 +45,7 @@ const ImportTemplate = () => {
 						start: start.toISODate(),
 						end: end.toISODate(),
 						id: uuid.v4(),
-						resourceId: selVal,
+						resourceId: selOptId,
 					},
 				},
 			});
@@ -80,11 +73,10 @@ const ImportTemplate = () => {
     setSelOptId(organizations[0].id)
   }
   
-
   return (
     <div>
 		<h4>Import Template</h4>
-		<label>Org:
+		<label htmlFor='selectOrgImportOption'>Org:</label>
     <select
       onChange={event => setSelOptId(event.target.selectedOptions[0].value)} 
       id="selectOrgImportOption" 
@@ -99,23 +91,24 @@ const ImportTemplate = () => {
         </option>
       )}
     </select>
-		</label>
-		<label>D-Day
-    <DatePicker
-      id={'importFileDatePicker'}
-      placeholderText={'Choose the Event D-Day'}
-      selected={dDay}
-      onChange={date => setDDay(date)}
+		<label htmlFor='importFileDatePicker'>D-Day</label>
+    <input
+      id='importFileDatePicker'
+      type='date'
+      value={dDay}
+      onChange={event => setDDay(event.target.value)}
     />
-		</label>
-    <label>Import File: 
+    <label htmlFor='templateInputFile'>Import File:</label> 
 			<input 
 				type="file" 
         id="templateInputFile" 
 				style={btnStyle}
 			/>
-    </label>
-    <button type="button" onClick={onImportClick} >Import Template</button>
+    <button type="button" 
+      onClick={() => onImportClick(dDay, selOptId)} 
+    >
+      Import Template
+    </button>
     </div>
   );
 }

@@ -8,8 +8,6 @@ import interaction from '@fullcalendar/interaction'
 import '../../assets/main.scss' // webpack must be configured to do this
 import uuid from 'uuid';
 import { DateTime } from 'luxon';
-import "react-datepicker/dist/react-datepicker.css";
-//import SequenceAdder from './SequenceAdder';
 
 const ResourceCalendar = () => {
   // get state values from redux
