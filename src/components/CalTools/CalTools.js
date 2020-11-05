@@ -140,7 +140,7 @@ const CalTools = () => {
       const resourceName = prompt("Set the organization title")
       if (resourceName !== '' && resourceName !== null) {
         dispatch({ 
-          type: 'EDITORGNAME', 
+          type: 'UPDATE_ORGNAME', 
           payload: {
             resource: {
               title: resourceName,
