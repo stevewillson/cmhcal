@@ -2,20 +2,15 @@ default:
   image: node:lts
 
 stages:
-  - deploy
+  - build
 
-deploy_staging:
-  stage: deploy
+build_cmhcal:
+  stage: build
   script:
     - echo "Installing dependencies"
     - npm install
     - echo "Building the app"
     - npm run build
-    - echo "Configure SSH key"
-    - echo "$SSH_DEPLOY_KEY" > "$(pwd)/ssh_key"
-    - chmod 400 $(pwd)/ssh_key
-    - echo "Deploy to staging server"
-    - scp -i $(pwd)/ssh_key -o UserKnownHostsFile=./ssh_config/known_hosts -r -P 7890 ./build/* gitlab@cmhcal.com:/var/www/html/
   only:
   - master
   - devel
