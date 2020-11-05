@@ -38,7 +38,7 @@ const ImportTemplate = () => {
 
 	    // need to do many dispatches for each event in the selection		
 			dispatch({ 
-				type: 'ADDEVENT', 
+				type: 'CREATE_EVENT', 
 				payload: {
 					event: {
 						title: event.title,

@@ -88,7 +88,7 @@ const reducer = (state = initialState, action) => {
     }
   // EDIT ORG NAME
   } else if (action.type === 'UPDATE_ORGNAME') {
-    // need to update to update the name supplied
+    // need to update consoleto update the name supplied
     // find the event that matches the id
     let resources = [];
     resources = state.calResources.slice()
