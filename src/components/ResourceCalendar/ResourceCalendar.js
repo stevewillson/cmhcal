@@ -1,11 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import FullCalendar from '@fullcalendar/react'
 import resourceTimeline from '@fullcalendar/resource-timeline'
 import interaction from '@fullcalendar/interaction'
-import '../../assets/main.scss' // webpack must be configured to do this
 import uuid from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -20,14 +18,14 @@ const ResourceCalendar = () => {
   const dispatch = useDispatch();
  
   const addEventSelected = (info) => {
-    console.log('EVENT SELECT TIME')
-    console.log(info)
+    //console.log('EVENT SELECT')
+    //console.log(info)
     const start = new DateTime.fromISO(info.startStr)
     const end = new DateTime.fromISO(info.endStr)
     const eventName = prompt("Set the title")
     if (eventName !== '' && eventName !== null) {
       dispatch({ 
-        type: 'ADDEVENT', 
+        type: 'CREATE_EVENT', 
         payload: {
           event: {
             title: eventName,
@@ -39,20 +37,15 @@ const ResourceCalendar = () => {
         },
       });
     };
-    // when I use 'eventRender' the vertical spacing
-    // of events is incorrect, rerender the calendar to
-    // correct the spacing
-    const calendarApi = calendarRef.current.getApi()
-    calendarApi.render()
   };
 
   const renameEvent = (id) => {
-    console.log('EVENT CLICK')
+    //console.log('EVENT CLICK')
     // check to see whether the button 'X' was clicked to delete the event
     const eventName = prompt("Set the title")
     if (eventName !== '' && eventName !== null) {
       dispatch({ 
-        type: 'EDITEVENTNAME', 
+        type: 'UPDATE_EVENT', 
         payload: {
           event: {
             title: eventName,
@@ -61,21 +54,14 @@ const ResourceCalendar = () => {
         },
       });
     }
-    // when I use 'eventRender' the vertical spacing
-    // of events is incorrect, rerender the calendar to
-    // correct the spacing
-    const calendarApi = calendarRef.current.getApi()
-    calendarApi.render()
   };
 
   const eventResize = (info) => {
-    //console.log('EVENT RESIZE OR DROP')
-    //console.log(info)
     const start = new DateTime.fromISO(info.event.start.toISOString());
     const end = new DateTime.fromISO(info.event.end.toISOString());
     // this will explicitly set the event end time
     dispatch({ 
-      type: 'EDITEVENTTIME', 
+      type: 'UPDATE_EVENT', 
       payload: {
         event: {
           start: start.toISODate(),
@@ -84,53 +70,36 @@ const ResourceCalendar = () => {
         },
       },
     });
-    // when I use 'eventRender' the vertical spacing
-    // of events is incorrect, rerender the calendar to
-    // correct the spacing
-    const calendarApi = calendarRef.current.getApi()
-    calendarApi.render()
   };
 
   const eventDrop = (info) => {
-    //console.log('EVENT DROP')
-    //console.log(info)
     const start = new DateTime.fromISO(info.event.start.toISOString());
     const end = new DateTime.fromISO(info.event.end.toISOString());
+    let eventResource = ''
     // set the event end time
     if (info.newResource !== null) {
-      dispatch({ 
-        type: 'EDITEVENTRESOURCETIME', 
-        payload: {
-          event: {
-            start: start.toISODate(),
-            end: end.toISODate(),
-            id: info.event.id,
-            resourceId: info.newResource.id,
-          },
-        },
-      });
+      eventResource = info.newResource.id;
     } else {
-      dispatch({ 
-        type: 'EDITEVENTTIME', 
-        payload: {
-          event: {
-            start: start.toISODate(),
-            end: end.toISODate(),
-            id: info.event.id,
-          },
-        },
-      });
+      eventResource = info.event.getResources()[0].id;
     }
-    // when I use 'eventRender' the vertical spacing
-    // of events is incorrect, rerender the calendar to
-    // correct the spacing
-    const calendarApi = calendarRef.current.getApi()
-    calendarApi.render()
+    dispatch({ 
+      type: 'UPDATE_EVENT', 
+      payload: {
+        event: {
+          start: start.toISODate(),
+          end: end.toISODate(),
+          id: info.event.id,
+          resourceId: eventResource,
+        },
+      },
+    });
   };
 
   const toggleEventCategory = (id, curCategory) => {
     // choose the next category
     const catNameList = calCategories.map(category => category.name)
+    const catColorList = calCategories.map(category => category.color)
+    
     let curIndex = catNameList.indexOf(curCategory)
     if (curIndex  === catNameList.length - 1 || curIndex === -1) {
       curIndex = 0;
@@ -139,6 +108,7 @@ const ResourceCalendar = () => {
     }
     const newIndex = curIndex;
     const newCategory = catNameList[newIndex];
+    const newColor = catColorList[newIndex];
     
     //Choose the event category
     // get a dropdown with the available categories
@@ -147,6 +117,7 @@ const ResourceCalendar = () => {
       payload: {
         event: {
           category: newCategory,
+          color: newColor,
           id: id,
         }
       }
@@ -154,38 +125,34 @@ const ResourceCalendar = () => {
   }
 
   const eventRender = (info) => {
-    console.log('EVENT RENDER');
-    //console.log(info);
-    ReactDOM.render(
-      <React.Fragment>
-        <span className="fc-title-wrap">
-          <span className="fc-title fc-sticky">
-            {info.event.title}{' - '}
-            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
-            {' - '}
-            <button onClick={() => deleteEvent(info.event.id)}>X</button>
-            {' - '}
-            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>
-          </span>
-        </span>
-        <div className="fc-resizer fc-start-resizer"></div>
-        <div className="fc-resizer fc-end-resizer"></div>
-      </React.Fragment>,
-      info.el
-    );
-    // check to see what category the event is associated with, get the color for that category
+    //console.log('EVENT RENDER');
+    // SIDE EFFECT, how to move this outside of the eventContent location?
+    /*
     if (info.event.extendedProps.category) {
       const eventCat = calCategories.filter(category => category.name === info.event.extendedProps.category) 
       if (eventCat.length > 0) {
-        info.el.style.backgroundColor = eventCat[0].color;
+        info.event.setProp('backgroundColor', eventCat[0].color);
+        //info.el.style.backgroundColor = eventCat[0].color;
       }
     }
+    */
+    return (
+      <>
+        <b>{info.event.title}</b>
+        {' - '}
+        <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+        {' - '}
+        <button onClick={() => deleteEvent(info.event.id)}>X</button>
+        {' - '}
+        <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+      </>
+    )
   }
 
   const deleteEvent = (id) => {
-    console.log('DELETE EVENT');
+    //console.log('DELETE EVENT');
     dispatch({
-      type: 'DELETEEVENT',
+      type: 'DELETE_EVENT',
       payload: {
         id: id,
       }
@@ -193,12 +160,12 @@ const ResourceCalendar = () => {
   }
 
   const renameResource = (resource) => {
-    console.log('RENAME RESOURCE')
-    console.log(resource)
+    //console.log('RENAME RESOURCE')
+    //console.log(resource)
     const resourceName = prompt("Set the organization title")
     if (resourceName !== '' && resourceName !== null) {
       dispatch({ 
-        type: 'EDITORGNAME', 
+        type: 'UPDATE_ORGNAME', 
         payload: {
           resource: {
             title: resourceName,
@@ -207,32 +174,28 @@ const ResourceCalendar = () => {
         },
       });
     };
-    // when I use 'eventRender' the vertical spacing
-    // of events is incorrect, rerender the calendar to
-    // correct the spacing
-    const calendarApi = calendarRef.current.getApi()
-    calendarApi.render()
   }
 
   const resourceRender = (info) => {
-    //console.log('RESOURCE RENDER')
-    //console.log(info)
-    info.el.addEventListener("click", () => renameResource(info.resource))
+    return (
+      <>
+        {info.resource.title}
+        {' - '}
+        <button onClick={() => renameResource(info.resource)}>Change Name</button>  
+      </>
+    )
   }
-
-  const calendarRef = React.useRef()
 
   return (
     <React.Fragment>
       <FullCalendar 
-        ref={calendarRef}
         //added to suppress license key prompt
         schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
-        defaultView={'RefreshView'}
+        initialView={'RefreshView'}
         timeZone={'local'}
         plugins={[ interaction, resourceTimeline ]} 
-        resourceLabelText={'Organization'}
-        header={{
+        resourceAreaHeaderContent={'Organization'}
+        headerToolbar={{
           left: '',
           center: 'title',
           right: 'RefreshView',
@@ -252,12 +215,12 @@ const ResourceCalendar = () => {
         events={calEvents}
         resources={calResources}
         selectable={true}
-        //eventClick={eventClick}
         eventResize={eventResize}
         eventDrop={eventDrop}
         select={addEventSelected}
-        eventRender={eventRender}
-        resourceRender={resourceRender}
+        eventContent={eventRender}
+        resourceLabelContent={resourceRender}
+      
       />
     </React.Fragment>
   );

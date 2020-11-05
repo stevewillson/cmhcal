@@ -14,22 +14,31 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   // EVENT MANIPULATION
   // ADD EVENTS
-  if (action.type === 'ADDEVENT') {
+  if (action.type === 'CREATE_EVENT') {
     const updatedEvents = [...state.calEvents, action.payload.event]
     return {
       ...state,
       calEvents: updatedEvents,
     }
-  } else if (action.type === 'EDITEVENTNAME') {
+  } else if (action.type === 'UPDATE_EVENT') {
     // need to update to update the name supplied
     // find the event that matches the id
-    let events = [];
-    events = state.calEvents.slice()
+    let events = state.calEvents.slice()
     const updatedEvents = events.map(event => {
       if (event.id === action.payload.event.id) {
+        // only update things that are set in the action.payload.event
+        let newStart = action.payload.event.start || event.start;
+        let newEnd = action.payload.event.end || event.end;
+        let newTitle = action.payload.event.title || event.title;
+        let newResourceId = action.payload.event.resourceId || event.resourceId;
+        let newCategory = action.payload.event.category || event.category;
         return {
           ...event,
-          title: action.payload.event.title,
+          start: newStart,
+          end: newEnd,
+          title: newTitle,
+          resourceId: newResourceId,
+          category: newCategory,
         }
       }
       return {
@@ -40,49 +49,6 @@ const reducer = (state = initialState, action) => {
       ...state,
       calEvents: updatedEvents,
     }
-  // EDIT EVENT NAME
-  } else if (action.type === 'EDITEVENTTIME') {
-    // find the event that matches the id do not edit the resource that the event is associated with
-    let events = [];
-    events = state.calEvents.slice()
-    const updatedEvents = events.map(event => {
-      if (event.id === action.payload.event.id) {
-        return {
-          ...event,
-          start: action.payload.event.start,
-            end: action.payload.event.end,
-        }
-      }
-      return {
-        ...event
-      };
-    })
-    return {
-      ...state,
-      calEvents: updatedEvents,
-    }
-  } else if (action.type === 'EDITEVENTRESOURCETIME') {
-    // find the event that matches the id
-    let events = [];
-    events = state.calEvents.slice()
-    const updatedEvents = events.map(event => {
-      if (event.id === action.payload.event.id) {
-        return {
-          ...event,
-          start: action.payload.event.start,
-          end: action.payload.event.end,
-          resourceId: action.payload.event.resourceId,
-        }
-      }
-      return {
-        ...event
-      };
-    })
-    return {
-      ...state,
-      calEvents: updatedEvents,
-    }
-
   } else if (action.type === 'EDITEVENTCATEGORY') {
     // find the event that matches the id
     let events = [];
@@ -92,6 +58,7 @@ const reducer = (state = initialState, action) => {
         return {
           ...event,
           category: action.payload.event.category,
+          color: action.payload.event.color
         }
       }
       return {
@@ -103,7 +70,7 @@ const reducer = (state = initialState, action) => {
       calEvents: updatedEvents,
     }
   // DELETE EVENT
-  } else if (action.type === 'DELETEEVENT') {
+  } else if (action.type === 'DELETE_EVENT') {
     let newCalEvents = state.calEvents.slice()
     newCalEvents = newCalEvents.filter(event => event.id !== action.payload.id);
     return {
@@ -120,7 +87,7 @@ const reducer = (state = initialState, action) => {
       calResources: updatedOrgs,
     }
   // EDIT ORG NAME
-  } else if (action.type === 'EDITORGNAME') {
+  } else if (action.type === 'UPDATE_ORGNAME') {
     // need to update to update the name supplied
     // find the event that matches the id
     let resources = [];

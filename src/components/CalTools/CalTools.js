@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import '../../assets/main.scss' // webpack must be configured to do this
 import uuid from 'uuid';
 
 const CalTools = () => {
