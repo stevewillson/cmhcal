@@ -5,10 +5,10 @@ import uuid from 'uuid';
 
 const CalTools = () => {
   // get state values from redux
-  const calDateRangeStart = useSelector(state => state.calDateRangeStart)
-  const calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
-  const calResources = useSelector(state => state.calResources);
-  const calCategories = useSelector(state => state.calCategories);
+  var calDateRangeStart = useSelector(state => state.calDateRangeStart)
+  var calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
+  var calResources = useSelector(state => state.calResources);
+  var calCategories = useSelector(state => state.calCategories);
   
   const dispatch = useDispatch();
 
@@ -67,17 +67,72 @@ const CalTools = () => {
     try {
       const fileContents = await readFile(importFile);
       const jsonData = JSON.parse(fileContents)
+
+      // iterate through the events in the import file and import them in one by one
       // set the state here from redux
-      dispatch({
-        type: 'IMPORTDATA',
-        payload: {
-          calEvents: jsonData.calEvents,
-          calResources: jsonData.calResources,
-          calCategories: jsonData.calCategories,
-          calDateRangeStart: jsonData.calDateRangeStart,
-          calDateRangeEnd: jsonData.calDateRangeEnd,
-        },
-      });
+
+      // if there are no events on the calendar, use the 'import data' function
+      if (calState.calEvents.length === 0) {
+        // the calendar is empty, just add the resources
+        dispatch({
+          type: 'IMPORTDATA',
+          payload: {
+            calEvents: jsonData.calEvents,
+            calResources: jsonData.calResources,
+            calCategories: jsonData.calCategories,
+            calDateRangeStart: jsonData.calDateRangeStart,
+            calDateRangeEnd: jsonData.calDateRangeEnd,
+          },
+        });  
+      } else {
+        const curCalResourceIds = calState.calResources.map(resource => resource.id);
+        const curCalCategoryIds = calState.calCategories.map(category => category.id);
+        const curCalEventIds = calState.calEvents.map(event => event.id);
+        // first create resources and categories
+        jsonData.calResources.forEach(resource => {
+          if (curCalResourceIds.indexOf(resource.id) === -1) {
+            dispatch({ 
+              type: 'ADDORG', 
+              payload: {
+                title: resource.title,
+                id: resource.id,            
+              },
+            });
+          }
+        })
+        jsonData.calCategories.forEach(category =>{
+          if (curCalCategoryIds.indexOf(category.id) === -1) {
+            dispatch({ 
+              type: 'ADDCATEGORY', 
+              payload: {
+                category: {
+                  id: category.id,
+                  name: category.name,
+                  color: category.color,       
+                }
+              },
+            });
+          }
+        })
+        jsonData.calEvents.forEach(event => {
+          if (curCalEventIds.indexOf(event.id) === -1) {
+            dispatch({ 
+              type: 'CREATE_EVENT', 
+              payload: {
+                event: {
+                  title: event.title,
+                  start: event.start,
+                  end: event.end,
+                  id: event.id,
+                  resourceId: event.resourceId,
+                  color: event.color || '',
+                },
+              },
+            });
+          }
+        })
+      }
+      // if there are events, then append the events and add categories
     } catch (e) {
       console.log(e.message);
     }
@@ -140,7 +195,7 @@ const CalTools = () => {
       const resourceName = prompt("Set the organization title")
       if (resourceName !== '' && resourceName !== null) {
         dispatch({ 
-          type: 'UPDATE_ORGNAME', 
+          type: 'UPDATE_ORG', 
           payload: {
             resource: {
               title: resourceName,

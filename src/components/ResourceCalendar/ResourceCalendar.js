@@ -165,7 +165,7 @@ const ResourceCalendar = () => {
     const resourceName = prompt("Set the organization title")
     if (resourceName !== '' && resourceName !== null) {
       dispatch({ 
-        type: 'UPDATE_ORGNAME', 
+        type: 'UPDATE_ORG', 
         payload: {
           resource: {
             title: resourceName,
@@ -220,6 +220,7 @@ const ResourceCalendar = () => {
         select={addEventSelected}
         eventContent={eventRender}
         resourceLabelContent={resourceRender}
+        resourceOrder={'title'}
       
       />
     </React.Fragment>
