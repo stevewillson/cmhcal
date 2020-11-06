@@ -11,10 +11,12 @@ build_cmhcal:
     - npm install
     - echo "Building the app"
     - npm run build
+    - echo "Generating single file at ./build/"
+    - npx gulp
   only:
   - master
   - devel
   artifacts:
     paths:
-    - ./build/
-    expire_in: 1 day
+    - ./build/index.html
+    expire_in: 1 week
