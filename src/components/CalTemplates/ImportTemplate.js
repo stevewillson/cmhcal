@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { DateTime } from 'luxon';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 const ImportTemplate = () => {
 	const btnStyle = {
@@ -44,7 +44,7 @@ const ImportTemplate = () => {
 						title: event.title,
 						start: start.toISODate(),
 						end: end.toISODate(),
-						id: uuid.v4(),
+						id: uuidv4(),
 						resourceId: selOptId,
 					},
 				},
@@ -84,7 +84,7 @@ const ImportTemplate = () => {
     >
       {organizations.map(category => 
         <option 
-          key={uuid.v4()} 
+          key={uuidv4()} 
           value={category.id}
         >
           {category.title}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 const CalTools = () => {
   // get state values from redux
@@ -41,7 +41,7 @@ const CalTools = () => {
       type: 'ADDORG', 
       payload: { 
         title: orgName,
-        id: uuid.v4(), 
+        id: uuidv4(), 
       }
     });
     setAddOrgName('');
@@ -52,7 +52,7 @@ const CalTools = () => {
       type: 'ADDCATEGORY', 
       payload: { 
         category: {
-          id: uuid.v4(),
+          id: uuidv4(),
           name: catName,
           color: catColor,
         } 
@@ -273,7 +273,7 @@ const CalTools = () => {
       <div>
       <h4>Categories:</h4>
       {calCategories.map((category) => 
-        <div key={uuid.v4()} style={{ backgroundColor: category.color }}>
+        <div key={uuidv4()} style={{ backgroundColor: category.color }}>
           {category.name}
           <button onClick={() => deleteCat(category.id)}>X</button>
         </div>
@@ -282,7 +282,7 @@ const CalTools = () => {
       <div>
       <h4>Organizations:</h4>
       {calResources.map((resource) => 
-        <div key={uuid.v4()} data-org-id={resource.id} onClick={renameOrg}>
+        <div key={uuidv4()} data-org-id={resource.id} onClick={renameOrg}>
           {resource.title}
           <button onClick={() => deleteOrg(resource.id)}>X</button>
         </div>
