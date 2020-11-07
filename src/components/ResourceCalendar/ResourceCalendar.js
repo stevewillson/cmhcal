@@ -191,27 +191,35 @@ const ResourceCalendar = () => {
       <FullCalendar 
         //added to suppress license key prompt
         schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
-        initialView={'RefreshView'}
+        initialView={'ShortRange'}
         timeZone={'local'}
         plugins={[ interaction, resourceTimeline ]} 
         resourceAreaHeaderContent={'Organization'}
         headerToolbar={{
           left: '',
           center: 'title',
-          right: 'RefreshView',
+          right: 'ShortRange LongRange',
         }}
         editable={true}
         height={'auto'}
         views={{
-          RefreshView: {
+          "ShortRange": {
             type: 'resourceTimeline',
             visibleRange: {
               start: calDateRangeStart,
               end: calDateRangeEnd, 
             },
+            slotLabelInterval: { days: 1 },
+          },
+          "LongRange": {
+            type: 'resourceTimeline',
+            visibleRange: {
+              start: calDateRangeStart,
+              end: calDateRangeEnd, 
+            },
+            slotLabelInterval: { weeks: 1 },
           }
         }}
-        slotLabelInterval={{ days: 1 }}
         events={calEvents}
         resources={calResources}
         selectable={true}
