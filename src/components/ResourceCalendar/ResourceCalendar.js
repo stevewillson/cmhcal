@@ -9,11 +9,7 @@ import { DateTime } from 'luxon';
 
 const ResourceCalendar = () => {
   // get state values from redux
-  const calDateRangeStart = useSelector(state => state.calDateRangeStart)
-  const calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
-  const calResources = useSelector(state => state.calResources);
-  const calEvents = useSelector(state => state.calEvents);
-  const calCategories = useSelector(state => state.calCategories);
+  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources } = useSelector(state => state);
   
   const dispatch = useDispatch();
  
@@ -136,17 +132,36 @@ const ResourceCalendar = () => {
       }
     }
     */
-    return (
-      <>
-        <b>{info.event.title}</b>
-        {' - '}
-        <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
-        {' - '}
-        <button onClick={() => deleteEvent(info.event.id)}>X</button>
-        {' - '}
-        <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
-      </>
-    )
+    //debugger;
+    if (info.view.type === "ShortRange") {
+      return (
+        <>
+          <b>{info.event.title}</b>
+          {' - '}
+          <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+          {' - '}
+          <button onClick={() => deleteEvent(info.event.id)}>X</button>
+          {' - '}
+          <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+        </>
+      )
+    } else if (info.view.type === "LongRange") {
+      return (
+        <>
+          <b>{info.event.title}</b>
+          {' - '}
+          <b>{info.event.start.toISOString().slice(5,10)}</b>
+          {' - '}
+          <b>{info.event.end.toISOString().slice(5,10)}</b>
+          {' - '}
+          <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+          {' - '}
+          <button onClick={() => deleteEvent(info.event.id)}>X</button>
+          {' - '}
+          <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+        </>
+      )
+    }
   }
 
   const deleteEvent = (id) => {
@@ -186,15 +201,41 @@ const ResourceCalendar = () => {
     )
   }
 
+  /*
+  const resourceGroupRender = (info) => {
+    // CONSTRAINT - the resource groups will always be within the resources
+    if (info.groupValue !== undefined) {
+      let calendarApi = calendarRef.current.getApi();
+      let calResource = calendarApi.getResourceById(info.groupValue);
+      //debugger;
+      let resourceTitle = calResource.title;   
+      return (
+        <>
+          {resourceTitle}
+          {' - '}
+          <button onClick={() => renameResource(calResource._resource)}>Change Name</button>  
+        </>
+      )
+    } else {
+      return (
+        <>
+          {""}
+        </>
+      )
+    }   
+  }
+  */
+  var calendarRef = React.createRef();
+
   return (
     <React.Fragment>
-      <FullCalendar 
+      <FullCalendar
+        ref={calendarRef}
         //added to suppress license key prompt
         schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
         initialView={'ShortRange'}
         timeZone={'local'}
         plugins={[ interaction, resourceTimeline ]} 
-        resourceAreaHeaderContent={'Organization'}
         headerToolbar={{
           left: '',
           center: 'title',
@@ -227,8 +268,11 @@ const ResourceCalendar = () => {
         eventDrop={eventDrop}
         select={addEventSelected}
         eventContent={eventRender}
+        resourceAreaHeaderContent={'Organization'}
         resourceLabelContent={resourceRender}
         resourceOrder={'title'}
+        //resourceGroupField={'parent'}
+        //resourceGroupLabelContent={resourceGroupRender}
       
       />
     </React.Fragment>
