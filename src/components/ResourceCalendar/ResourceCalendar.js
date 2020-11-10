@@ -23,13 +23,11 @@ const ResourceCalendar = () => {
       dispatch({ 
         type: 'CREATE_EVENT', 
         payload: {
-          event: {
-            title: eventName,
-            start: start.toISODate(),
-            end: end.toISODate(),
-            id: uuidv4(),
-            resourceId: info.resource.id,
-          },
+          title: eventName,
+          start: start.toISODate(),
+          end: end.toISODate(),
+          id: uuidv4(),
+          resourceId: info.resource.id,
         },
       });
     };
@@ -43,10 +41,8 @@ const ResourceCalendar = () => {
       dispatch({ 
         type: 'UPDATE_EVENT', 
         payload: {
-          event: {
-            title: eventName,
-            id: id,
-          },
+          title: eventName,
+          id: id,
         },
       });
     }
@@ -59,11 +55,9 @@ const ResourceCalendar = () => {
     dispatch({ 
       type: 'UPDATE_EVENT', 
       payload: {
-        event: {
-          start: start.toISODate(),
-          end: end.toISODate(),
-          id: info.event.id,
-        },
+        start: start.toISODate(),
+        end: end.toISODate(),
+        id: info.event.id,
       },
     });
   };
@@ -81,12 +75,10 @@ const ResourceCalendar = () => {
     dispatch({ 
       type: 'UPDATE_EVENT', 
       payload: {
-        event: {
-          start: start.toISODate(),
-          end: end.toISODate(),
-          id: info.event.id,
-          resourceId: eventResource,
-        },
+        start: start.toISODate(),
+        end: end.toISODate(),
+        id: info.event.id,
+        resourceId: eventResource,
       },
     });
   };
@@ -95,7 +87,6 @@ const ResourceCalendar = () => {
     // choose the next category
     const catNameList = calCategories.map(category => category.name)
     const catColorList = calCategories.map(category => category.color)
-    
     let curIndex = catNameList.indexOf(curCategory)
     if (curIndex  === catNameList.length - 1 || curIndex === -1) {
       curIndex = 0;
@@ -105,17 +96,14 @@ const ResourceCalendar = () => {
     const newIndex = curIndex;
     const newCategory = catNameList[newIndex];
     const newColor = catColorList[newIndex];
-    
     //Choose the event category
     // get a dropdown with the available categories
     dispatch({
-      type: 'EDITEVENTCATEGORY',
+      type: 'UPDATE_EVENT',
       payload: {
-        event: {
-          category: newCategory,
-          color: newColor,
-          id: id,
-        }
+        category: newCategory,
+        color: newColor,
+        id: id,
       }
     })
   }
@@ -133,19 +121,46 @@ const ResourceCalendar = () => {
     }
     */
     //debugger;
+
+    let editMode = document.getElementById("editModeCheckbox").checked;
+    //debugger;
     if (info.view.type === "ShortRange") {
+      if (editMode) {
+        return (
+          <>
+            <b>{info.event.title}</b>
+            {' - '}
+            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+            {' - '}
+            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            {' - '}
+            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+          </>
+        )
+      }
       return (
         <>
-          <b>{info.event.title}</b>
-          {' - '}
-          <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
-          {' - '}
-          <button onClick={() => deleteEvent(info.event.id)}>X</button>
-          {' - '}
-          <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+          <b>{info.event.title}</b> 
         </>
       )
     } else if (info.view.type === "LongRange") {
+      if (editMode) {
+        return (
+          <>
+            <b>{info.event.title}</b>
+            {' - '}
+            <b>{info.event.start.toISOString().slice(5,10)}</b>
+            {' - '}
+            <b>{info.event.end.toISOString().slice(5,10)}</b>
+            {' - '}
+            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+            {' - '}
+            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            {' - '}
+            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+          </>
+        )
+      }
       return (
         <>
           <b>{info.event.title}</b>
@@ -153,17 +168,10 @@ const ResourceCalendar = () => {
           <b>{info.event.start.toISOString().slice(5,10)}</b>
           {' - '}
           <b>{info.event.end.toISOString().slice(5,10)}</b>
-          {' - '}
-          <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
-          {' - '}
-          <button onClick={() => deleteEvent(info.event.id)}>X</button>
-          {' - '}
-          <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
         </>
       )
     }
   }
-
   const deleteEvent = (id) => {
     //console.log('DELETE EVENT');
     dispatch({
@@ -182,21 +190,27 @@ const ResourceCalendar = () => {
       dispatch({ 
         type: 'UPDATE_ORG', 
         payload: {
-          resource: {
-            title: resourceName,
-            id: resource.id,
-          },
+          title: resourceName,
+          id: resource.id,
         },
       });
     };
   }
 
   const resourceRender = (info) => {
+    let editMode = document.getElementById("editModeCheckbox").checked;
+    if (editMode) {
+      return (
+        <>
+          {info.resource.title}
+          {' - '}
+          <button onClick={() => renameResource(info.resource)}>Change Name</button>  
+        </>
+      )  
+    }
     return (
       <>
         {info.resource.title}
-        {' - '}
-        <button onClick={() => renameResource(info.resource)}>Change Name</button>  
       </>
     )
   }
@@ -251,6 +265,11 @@ const ResourceCalendar = () => {
               end: calDateRangeEnd, 
             },
             slotLabelInterval: { days: 1 },
+            slotLabelFormat: [
+              { month: 'short', year: '2-digit' },
+              { week: 'short' },
+              { day: 'numeric' },
+            ]
           },
           "LongRange": {
             type: 'resourceTimeline',
@@ -259,6 +278,10 @@ const ResourceCalendar = () => {
               end: calDateRangeEnd, 
             },
             slotLabelInterval: { weeks: 1 },
+            slotLabelFormat: [
+              { month: 'short', year: '2-digit' },
+              { week: 'short' }
+            ]
           }
         }}
         events={calEvents}

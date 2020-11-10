@@ -82,12 +82,12 @@ const ImportTemplate = () => {
       id="selectOrgImportOption" 
       value={selOptId}      
     >
-      {organizations.map(category => 
+      {organizations.map(org => 
         <option 
           key={uuidv4()} 
-          value={category.id}
+          value={org.id}
         >
-          {category.title}
+          {org.title}
         </option>
       )}
     </select>
