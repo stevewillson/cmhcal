@@ -8,17 +8,16 @@ const ExportTemplate = () => {
   // have a selection box for the resource
   // have an 'Export' button
   // get the events for that resource and export them to a json file
-  const organizations = useSelector(state => state.calResources);
+  const { calResources } = useSelector(state => state);
   const calState = useSelector(state => { 
     return { 
-      calEvents: state.calEvents, 
-      calResources: state.calResources, 
+      calEvents: state.calEvents,
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
       calDateRangeEnd: state.calDateRangeEnd, 
     }})
+    
   // local state for the number of elements in the form
-
   const today = new Date();
   const [dDay, setDDay] = useState(today.toISOString().slice(0,10));
   const [selOptId, setSelOptId] = useState('');
@@ -43,6 +42,8 @@ const ExportTemplate = () => {
         title: event.title,
         startOffset: startOffset.days,
         endOffset: endOffset.days,
+        category: event.category,
+        color: event.color,
       }
     })
     exportData(templateEvents, exportFilename);
@@ -62,8 +63,8 @@ const ExportTemplate = () => {
   }
 
   // after a calendar is loaded, set the selected org option to be the first value if it is not set
-  if (organizations.length > 0 && selOptId === '') {
-    setSelOptId(organizations[0].id)
+  if (calResources.length > 0 && selOptId === '') {
+    setSelOptId(calResources[0].id)
   }
 
   return (
@@ -75,12 +76,12 @@ const ExportTemplate = () => {
       id="selectOrgExportOption" 
       value={selOptId}
     >
-      {organizations.map(category => 
+      {calResources.map(organization => 
         <option 
           key={uuidv4()} 
-          value={category.id}
+          value={organization.id}
         >
-          {category.title}
+          {organization.title}
         </option>
       )}
     </select>

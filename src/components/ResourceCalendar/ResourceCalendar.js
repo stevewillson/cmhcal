@@ -120,10 +120,8 @@ const ResourceCalendar = () => {
       }
     }
     */
-    //debugger;
 
     let editMode = document.getElementById("editModeCheckbox").checked;
-    //debugger;
     if (info.view.type === "ShortRange") {
       if (editMode) {
         return (
@@ -221,7 +219,6 @@ const ResourceCalendar = () => {
     if (info.groupValue !== undefined) {
       let calendarApi = calendarRef.current.getApi();
       let calResource = calendarApi.getResourceById(info.groupValue);
-      //debugger;
       let resourceTitle = calResource.title;   
       return (
         <>
@@ -260,9 +257,39 @@ const ResourceCalendar = () => {
         return 'T+' + weekNum;
       }
       return 'T' + weekNum;
+    } else if (arg.level ===3 && arg.view.type === "LongRange") {
+      // put in start / stop dates for the long range calendar week view
+      let calDate = DateTime.fromJSDate(arg.date);
+      let weekEndDate = calDate.plus({ days: 6 })
+      return calDate.toFormat('ddMMM').toUpperCase() + ' - ' + weekEndDate.toFormat('ddMMM').toUpperCase()
     }
-
   }
+
+  // make sure that the LongRange view starts on a Monday,
+  // if not, then fullCalendar will not allow the left most date column
+  // to be selected because it is not fully included in the visible range 
+  const setLongRangeStartDate = () => {
+    // take the input date and find the previous monday to set the start date in long range mode
+    let calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
+    let newCalDateStart = calDateStart;
+    // hacky way of making sure that the calendar starts on a Monday when set to week granularity
+    while (newCalDateStart.weekday !== 1) {
+      newCalDateStart = newCalDateStart.minus({ days: 1 })
+    }
+    return newCalDateStart.toISODate();
+  }
+
+  const setLongRangeEndDate = () => {
+    // take the input date and find the next Monday to set the end date in long range mode
+    let calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
+    let newCalDateEnd = calDateEnd;
+    // hacky way of making sure that the calendar ends on a Monday when set to week granularity
+    while (newCalDateEnd.weekday !== 1) {
+      newCalDateEnd = newCalDateEnd.plus({ days: 1 })
+    }
+    return newCalDateEnd.toISODate();
+  }
+
   var calendarRef = React.createRef();
 
   return (
@@ -277,11 +304,27 @@ const ResourceCalendar = () => {
         headerToolbar={{
           left: '',
           center: 'title',
-          right: 'ShortRange LongRange',
+          right: 'SuperShortRange ShortRange LongRange',
         }}
         editable={true}
         height={'auto'}
         views={{
+          "SuperShortRange": {
+            type: 'resourceTimeline',
+            visibleRange: {
+              start: calDateRangeStart,
+              end: calDateRangeEnd, 
+            },
+            slotDuration: { minutes: 30 },
+            slotLabelInterval: { hours: 1 },
+            slotLabelFormat: [
+              { month: 'short', year: '2-digit' },
+              { week: 'short' },
+              { week: 'short' },
+              { day: 'numeric', weekday: 'narrow' },
+              { hour: 'numeric' }
+            ],
+          },
           "ShortRange": {
             type: 'resourceTimeline',
             visibleRange: {
@@ -293,23 +336,31 @@ const ResourceCalendar = () => {
               { month: 'short', year: '2-digit' },
               { week: 'short' },
               { week: 'short' },
-              { day: 'numeric' },
+              { day: 'numeric', weekday: 'narrow' },
             ],
-            slotLabelContent: customSlotLabelContent,
           },
           "LongRange": {
             type: 'resourceTimeline',
             visibleRange: {
-              start: calDateRangeStart,
-              end: calDateRangeEnd, 
+              // find the previous Monday to set the start date to before the selected date
+              start: setLongRangeStartDate(),
+              // find the next Monday to set the end date to after the selected date
+              end: setLongRangeEndDate(), 
             },
+            slotDuration: { weeks: 1 },
             slotLabelInterval: { weeks: 1 },
             slotLabelFormat: [
               { month: 'short', year: '2-digit' },
-              { week: 'short' }
+              { week: 'short' },
+              { week: 'short' },
+              { week: 'short' },
             ]
           }
         }}
+        // set the top rows with custom data to display Month Year, Fiscal Year Week
+        // Relative 'T' Week
+        // Then various settings (Day and Narrow Day of the Week or Start / Stop day for weekly view)
+        slotLabelContent={customSlotLabelContent}
         events={calEvents}
         resources={calResources}
         selectable={true}
@@ -318,11 +369,12 @@ const ResourceCalendar = () => {
         select={addEventSelected}
         eventContent={eventRender}
         resourceAreaHeaderContent={'Organization'}
+        // add a 'Change Name' button when displaying resources (Organizations) on the left column
         resourceLabelContent={resourceRender}
+        // order the resources (Organizations) by Title
         resourceOrder={'title'}
-        //resourceGroupField={'parent'}
-        //resourceGroupLabelContent={resourceGroupRender}
-      
+        // set week to begin on Monday
+        firstDay={'1'}
       />
     </React.Fragment>
   );

@@ -88,7 +88,6 @@ const reducer = (state = initialState, action) => {
         return org;
       })  
     } else {
-      debugger
       newOrgs = [
         ...state.calResources, 
         { 

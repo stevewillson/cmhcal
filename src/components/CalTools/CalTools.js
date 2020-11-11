@@ -38,7 +38,6 @@ const CalTools = () => {
   } 
   
   const addOrg = (orgName, parentOrgName) => {
-    debugger
     dispatch({ 
       type: 'CREATE_ORG', 
       payload: { 
