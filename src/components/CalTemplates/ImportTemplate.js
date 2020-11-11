@@ -36,18 +36,17 @@ const ImportTemplate = () => {
 			const start = luxDDay.plus({ days: event.startOffset });
 			const end = luxDDay.plus({ days: event.endOffset });
 
-	    // need to do many dispatches for each event in the selection		
+	    // do a dispatch for each event in the selection		
 			dispatch({ 
 				type: 'CREATE_EVENT', 
 				payload: {
-					event: {
-						title: event.title,
-						start: start.toISODate(),
-						end: end.toISODate(),
-						id: uuidv4(),
-						resourceId: selOptId,
-					},
-				},
+          title: event.title,
+          start: start.toISODate(),
+          end: end.toISODate(),
+          id: uuidv4(),
+          resourceId: selOptId,
+          color: event.color || '',
+        },
 			});
 		});
   }
@@ -82,12 +81,12 @@ const ImportTemplate = () => {
       id="selectOrgImportOption" 
       value={selOptId}      
     >
-      {organizations.map(category => 
+      {organizations.map(org => 
         <option 
           key={uuidv4()} 
-          value={category.id}
+          value={org.id}
         >
-          {category.title}
+          {org.title}
         </option>
       )}
     </select>

@@ -13,6 +13,7 @@ const CalTools = () => {
   const dispatch = useDispatch();
 
   const [addOrgName, setAddOrgName] = useState('');
+  const [addParentOrgName, setAddParentOrgName] = useState('None');
   const [addCatName, setAddCatName] = useState('');
   const [addCatColor, setAddCatColor] = useState('');
 
@@ -36,12 +37,13 @@ const CalTools = () => {
     fontSize: '16px',
   } 
   
-  const addOrg = (orgName) => {
+  const addOrg = (orgName, parentOrgName) => {
     dispatch({ 
-      type: 'ADDORG', 
+      type: 'CREATE_ORG', 
       payload: { 
         title: orgName,
-        id: uuidv4(), 
+        id: uuidv4(),
+        parent: parentOrgName || 'None',
       }
     });
     setAddOrgName('');
@@ -49,13 +51,11 @@ const CalTools = () => {
 
   const addCat = (catName, catColor) => {
     dispatch({ 
-      type: 'ADDCATEGORY', 
-      payload: { 
-        category: {
-          id: uuidv4(),
-          name: catName,
-          color: catColor,
-        } 
+      type: 'CREATE_CATEGORY', 
+      payload: {
+        id: uuidv4(),
+        name: catName,
+        color: catColor,
       }
     });
     setAddCatName('');
@@ -75,7 +75,7 @@ const CalTools = () => {
       if (calState.calEvents.length === 0) {
         // the calendar is empty, just add the resources
         dispatch({
-          type: 'IMPORTDATA',
+          type: 'IMPORT_DATA',
           payload: {
             calEvents: jsonData.calEvents,
             calResources: jsonData.calResources,
@@ -92,10 +92,10 @@ const CalTools = () => {
         jsonData.calResources.forEach(resource => {
           if (curCalResourceIds.indexOf(resource.id) === -1) {
             dispatch({ 
-              type: 'ADDORG', 
+              type: 'CREATE_ORG', 
               payload: {
                 title: resource.title,
-                id: resource.id,            
+                id: resource.id,        
               },
             });
           }
@@ -103,13 +103,11 @@ const CalTools = () => {
         jsonData.calCategories.forEach(category =>{
           if (curCalCategoryIds.indexOf(category.id) === -1) {
             dispatch({ 
-              type: 'ADDCATEGORY', 
+              type: 'CREATE_CATEGORY', 
               payload: {
-                category: {
-                  id: category.id,
-                  name: category.name,
-                  color: category.color,       
-                }
+                id: category.id,
+                name: category.name,
+                color: category.color,       
               },
             });
           }
@@ -119,14 +117,12 @@ const CalTools = () => {
             dispatch({ 
               type: 'CREATE_EVENT', 
               payload: {
-                event: {
-                  title: event.title,
-                  start: event.start,
-                  end: event.end,
-                  id: event.id,
-                  resourceId: event.resourceId,
-                  color: event.color || '',
-                },
+                title: event.title,
+                start: event.start,
+                end: event.end,
+                id: event.id,
+                resourceId: event.resourceId,
+                color: event.color || '',
               },
             });
           }
@@ -171,7 +167,7 @@ const CalTools = () => {
   const deleteCat = (id) => {
     console.log('DELETE CATEGORY');
     dispatch({
-      type: 'DELETECATEGORY',
+      type: 'DELETE_CATEGORY',
       payload: {
         id: id,
       }
@@ -181,7 +177,7 @@ const CalTools = () => {
   const deleteOrg = (id) => {
     console.log('DELETE ORG');
     dispatch({
-      type: 'DELETEORG',
+      type: 'DELETE_ORG',
       payload: {
         id: id,
       }
@@ -189,18 +185,16 @@ const CalTools = () => {
   }
 
   const renameOrg = (event) => {
-    console.log('RENAME ORG')
-    console.log(event)
+    //console.log('RENAME ORG')
+    //console.log(event)
     if (event.target.innerText !== 'X') {
       const resourceName = prompt("Set the organization title")
       if (resourceName !== '' && resourceName !== null) {
         dispatch({ 
           type: 'UPDATE_ORG', 
           payload: {
-            resource: {
-              title: resourceName,
-              id: event.target.dataset.orgId,
-            },
+            title: resourceName,
+            id: event.target.dataset.orgId,
           },
         });
       };
@@ -224,14 +218,14 @@ const CalTools = () => {
         id='fromDate'
         type='date'
         value={calDateRangeStart}
-        onChange={event => dispatch({ type: 'CALDATERANGESTART', payload: { date: event.target.value }})} 
+        onChange={event => dispatch({ type: 'CAL_DATE_RANGE_START', payload: { date: event.target.value }})} 
       />
       <label htmlFor='toDate'>To:</label>
       <input
         id='toDate'
         type='date'
         value={calDateRangeEnd}
-        onChange={event => dispatch({ type: 'CALDATERANGEEND', payload: { date: event.target.value }})}
+        onChange={event => dispatch({ type: 'CAL_DATE_RANGE_END', payload: { date: event.target.value }})}
       />
       <div>
         <label htmlFor='addOrgText'>Add Organization:</label>
@@ -241,9 +235,32 @@ const CalTools = () => {
           value={addOrgName}
           onChange={event => setAddOrgName(event.target.value)}
         />
+        
+        <label htmlFor='addOrgParent'>Set Parent Organization:</label>
+        <select
+          onChange={event => setAddParentOrgName(event.target.selectedOptions[0].value)} 
+          id="addOrgParent" 
+          value={addParentOrgName}      
+        >
+          <option 
+            key={uuidv4()} 
+            value={"None"}
+          >
+          {"None"}
+          </option>
+          {calResources.map(org => 
+            <option 
+              key={uuidv4()} 
+              value={org.id}
+            >
+            {org.title}
+            </option>
+          )}
+        </select>
+
         <button 
           type="button" 
-          onClick={() => addOrg(addOrgName)} 
+          onClick={() => addOrg(addOrgName, addParentOrgName)} 
         >
           Add Organization
         </button>
@@ -269,6 +286,14 @@ const CalTools = () => {
         >
           Add Category
         </button>
+        <input
+          type="checkbox" 
+          id="editModeCheckbox"
+          defaultChecked={true}
+          //onChange={() => refreshCal()} 
+          // TODO: Refresh the calendar when the box is toggled
+        />
+        <label htmlFor="editModeCheckbox">Edit Mode On</label>
       </div>
       <div>
       <h4>Categories:</h4>

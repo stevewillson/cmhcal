@@ -9,11 +9,7 @@ import { DateTime } from 'luxon';
 
 const ResourceCalendar = () => {
   // get state values from redux
-  const calDateRangeStart = useSelector(state => state.calDateRangeStart)
-  const calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
-  const calResources = useSelector(state => state.calResources);
-  const calEvents = useSelector(state => state.calEvents);
-  const calCategories = useSelector(state => state.calCategories);
+  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources } = useSelector(state => state);
   
   const dispatch = useDispatch();
  
@@ -27,13 +23,11 @@ const ResourceCalendar = () => {
       dispatch({ 
         type: 'CREATE_EVENT', 
         payload: {
-          event: {
-            title: eventName,
-            start: start.toISODate(),
-            end: end.toISODate(),
-            id: uuidv4(),
-            resourceId: info.resource.id,
-          },
+          title: eventName,
+          start: start.toISODate(),
+          end: end.toISODate(),
+          id: uuidv4(),
+          resourceId: info.resource.id,
         },
       });
     };
@@ -47,10 +41,8 @@ const ResourceCalendar = () => {
       dispatch({ 
         type: 'UPDATE_EVENT', 
         payload: {
-          event: {
-            title: eventName,
-            id: id,
-          },
+          title: eventName,
+          id: id,
         },
       });
     }
@@ -63,11 +55,9 @@ const ResourceCalendar = () => {
     dispatch({ 
       type: 'UPDATE_EVENT', 
       payload: {
-        event: {
-          start: start.toISODate(),
-          end: end.toISODate(),
-          id: info.event.id,
-        },
+        start: start.toISODate(),
+        end: end.toISODate(),
+        id: info.event.id,
       },
     });
   };
@@ -85,12 +75,10 @@ const ResourceCalendar = () => {
     dispatch({ 
       type: 'UPDATE_EVENT', 
       payload: {
-        event: {
-          start: start.toISODate(),
-          end: end.toISODate(),
-          id: info.event.id,
-          resourceId: eventResource,
-        },
+        start: start.toISODate(),
+        end: end.toISODate(),
+        id: info.event.id,
+        resourceId: eventResource,
       },
     });
   };
@@ -99,7 +87,6 @@ const ResourceCalendar = () => {
     // choose the next category
     const catNameList = calCategories.map(category => category.name)
     const catColorList = calCategories.map(category => category.color)
-    
     let curIndex = catNameList.indexOf(curCategory)
     if (curIndex  === catNameList.length - 1 || curIndex === -1) {
       curIndex = 0;
@@ -109,17 +96,14 @@ const ResourceCalendar = () => {
     const newIndex = curIndex;
     const newCategory = catNameList[newIndex];
     const newColor = catColorList[newIndex];
-    
     //Choose the event category
     // get a dropdown with the available categories
     dispatch({
-      type: 'EDITEVENTCATEGORY',
+      type: 'UPDATE_EVENT',
       payload: {
-        event: {
-          category: newCategory,
-          color: newColor,
-          id: id,
-        }
+        category: newCategory,
+        color: newColor,
+        id: id,
       }
     })
   }
@@ -136,19 +120,56 @@ const ResourceCalendar = () => {
       }
     }
     */
-    return (
-      <>
-        <b>{info.event.title}</b>
-        {' - '}
-        <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
-        {' - '}
-        <button onClick={() => deleteEvent(info.event.id)}>X</button>
-        {' - '}
-        <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
-      </>
-    )
-  }
 
+    let editMode = document.getElementById("editModeCheckbox").checked;
+    if (info.view.type === "ShortRange") {
+      if (editMode) {
+        return (
+          <>
+            <b>{info.event.title}</b>
+            {' - '}
+            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+            {' - '}
+            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            {' - '}
+            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+          </>
+        )
+      }
+      return (
+        <>
+          <b>{info.event.title}</b> 
+        </>
+      )
+    } else if (info.view.type === "LongRange") {
+      if (editMode) {
+        return (
+          <>
+            <b>{info.event.title}</b>
+            {' - '}
+            <b>{info.event.start.toISOString().slice(5,10)}</b>
+            {' - '}
+            <b>{info.event.end.toISOString().slice(5,10)}</b>
+            {' - '}
+            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+            {' - '}
+            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            {' - '}
+            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+          </>
+        )
+      }
+      return (
+        <>
+          <b>{info.event.title}</b>
+          {' - '}
+          <b>{info.event.start.toISOString().slice(5,10)}</b>
+          {' - '}
+          <b>{info.event.end.toISOString().slice(5,10)}</b>
+        </>
+      )
+    }
+  }
   const deleteEvent = (id) => {
     //console.log('DELETE EVENT');
     dispatch({
@@ -167,42 +188,143 @@ const ResourceCalendar = () => {
       dispatch({ 
         type: 'UPDATE_ORG', 
         payload: {
-          resource: {
-            title: resourceName,
-            id: resource.id,
-          },
+          title: resourceName,
+          id: resource.id,
         },
       });
     };
   }
 
   const resourceRender = (info) => {
+    let editMode = document.getElementById("editModeCheckbox").checked;
+    if (editMode) {
+      return (
+        <>
+          {info.resource.title}
+          {' - '}
+          <button onClick={() => renameResource(info.resource)}>Change Name</button>  
+        </>
+      )  
+    }
     return (
       <>
         {info.resource.title}
-        {' - '}
-        <button onClick={() => renameResource(info.resource)}>Change Name</button>  
       </>
     )
   }
 
+  /*
+  const resourceGroupRender = (info) => {
+    // CONSTRAINT - the resource groups will always be within the resources
+    if (info.groupValue !== undefined) {
+      let calendarApi = calendarRef.current.getApi();
+      let calResource = calendarApi.getResourceById(info.groupValue);
+      let resourceTitle = calResource.title;   
+      return (
+        <>
+          {resourceTitle}
+          {' - '}
+          <button onClick={() => renameResource(calResource._resource)}>Change Name</button>  
+        </>
+      )
+    } else {
+      return (
+        <>
+          {""}
+        </>
+      )
+    }   
+  }
+  */
+  const customSlotLabelContent = (arg) => {
+    // for arg.level '1', display the FY Week (starting on week 1)
+    if (arg.level === 1) {
+      let calDate = DateTime.fromJSDate(arg.date);
+      let fyStart = DateTime.local(2020, 10, 1);
+      let weekDiff = calDate.diff(fyStart, ['weeks']);
+      let weekNum = Math.ceil(weekDiff.weeks);
+      return 'FY W' + weekNum;
+      // get the date, calculate how many weeks after October 1st this date is
+      // return that for the weeks
+    } else if (arg.level === 2) {
+      // here put in the 'T' week with relative 'T' + / - numbers
+      // get he current date, calculate week differences
+      let calDate = DateTime.fromJSDate(arg.date);
+      let nowDate = DateTime.local();
+      let weekDiff = calDate.diff(nowDate, ['weeks']);
+      let weekNum = Math.ceil(weekDiff.weeks);
+      if (weekNum > 0) {
+        return 'T+' + weekNum;
+      }
+      return 'T' + weekNum;
+    } else if (arg.level ===3 && arg.view.type === "LongRange") {
+      // put in start / stop dates for the long range calendar week view
+      let calDate = DateTime.fromJSDate(arg.date);
+      let weekEndDate = calDate.plus({ days: 6 })
+      return calDate.toFormat('ddMMM').toUpperCase() + ' - ' + weekEndDate.toFormat('ddMMM').toUpperCase()
+    }
+  }
+
+  // make sure that the LongRange view starts on a Monday,
+  // if not, then fullCalendar will not allow the left most date column
+  // to be selected because it is not fully included in the visible range 
+  const setLongRangeStartDate = () => {
+    // take the input date and find the previous monday to set the start date in long range mode
+    let calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
+    let newCalDateStart = calDateStart;
+    // hacky way of making sure that the calendar starts on a Monday when set to week granularity
+    while (newCalDateStart.weekday !== 1) {
+      newCalDateStart = newCalDateStart.minus({ days: 1 })
+    }
+    return newCalDateStart.toISODate();
+  }
+
+  const setLongRangeEndDate = () => {
+    // take the input date and find the next Monday to set the end date in long range mode
+    let calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
+    let newCalDateEnd = calDateEnd;
+    // hacky way of making sure that the calendar ends on a Monday when set to week granularity
+    while (newCalDateEnd.weekday !== 1) {
+      newCalDateEnd = newCalDateEnd.plus({ days: 1 })
+    }
+    return newCalDateEnd.toISODate();
+  }
+
+  var calendarRef = React.createRef();
+
   return (
     <React.Fragment>
-      <FullCalendar 
+      <FullCalendar
+        ref={calendarRef}
         //added to suppress license key prompt
         schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
         initialView={'ShortRange'}
         timeZone={'local'}
         plugins={[ interaction, resourceTimeline ]} 
-        resourceAreaHeaderContent={'Organization'}
         headerToolbar={{
           left: '',
           center: 'title',
-          right: 'ShortRange LongRange',
+          right: 'SuperShortRange ShortRange LongRange',
         }}
         editable={true}
         height={'auto'}
         views={{
+          "SuperShortRange": {
+            type: 'resourceTimeline',
+            visibleRange: {
+              start: calDateRangeStart,
+              end: calDateRangeEnd, 
+            },
+            slotDuration: { minutes: 30 },
+            slotLabelInterval: { hours: 1 },
+            slotLabelFormat: [
+              { month: 'short', year: '2-digit' },
+              { week: 'short' },
+              { week: 'short' },
+              { day: 'numeric', weekday: 'narrow' },
+              { hour: 'numeric' }
+            ],
+          },
           "ShortRange": {
             type: 'resourceTimeline',
             visibleRange: {
@@ -210,16 +332,35 @@ const ResourceCalendar = () => {
               end: calDateRangeEnd, 
             },
             slotLabelInterval: { days: 1 },
+            slotLabelFormat: [
+              { month: 'short', year: '2-digit' },
+              { week: 'short' },
+              { week: 'short' },
+              { day: 'numeric', weekday: 'narrow' },
+            ],
           },
           "LongRange": {
             type: 'resourceTimeline',
             visibleRange: {
-              start: calDateRangeStart,
-              end: calDateRangeEnd, 
+              // find the previous Monday to set the start date to before the selected date
+              start: setLongRangeStartDate(),
+              // find the next Monday to set the end date to after the selected date
+              end: setLongRangeEndDate(), 
             },
+            slotDuration: { weeks: 1 },
             slotLabelInterval: { weeks: 1 },
+            slotLabelFormat: [
+              { month: 'short', year: '2-digit' },
+              { week: 'short' },
+              { week: 'short' },
+              { week: 'short' },
+            ]
           }
         }}
+        // set the top rows with custom data to display Month Year, Fiscal Year Week
+        // Relative 'T' Week
+        // Then various settings (Day and Narrow Day of the Week or Start / Stop day for weekly view)
+        slotLabelContent={customSlotLabelContent}
         events={calEvents}
         resources={calResources}
         selectable={true}
@@ -227,9 +368,13 @@ const ResourceCalendar = () => {
         eventDrop={eventDrop}
         select={addEventSelected}
         eventContent={eventRender}
+        resourceAreaHeaderContent={'Organization'}
+        // add a 'Change Name' button when displaying resources (Organizations) on the left column
         resourceLabelContent={resourceRender}
+        // order the resources (Organizations) by Title
         resourceOrder={'title'}
-      
+        // set week to begin on Monday
+        firstDay={'1'}
       />
     </React.Fragment>
   );
