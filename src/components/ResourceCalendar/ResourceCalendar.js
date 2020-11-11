@@ -248,7 +248,7 @@ const ResourceCalendar = () => {
       // return that for the weeks
     } else if (arg.level === 2) {
       // here put in the 'T' week with relative 'T' + / - numbers
-      // get he current date, calculate week differences
+      // get the current date, calculate week differences
       let calDate = DateTime.fromJSDate(arg.date);
       let nowDate = DateTime.local();
       let weekDiff = calDate.diff(nowDate, ['weeks']);
