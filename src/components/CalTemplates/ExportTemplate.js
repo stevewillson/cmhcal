@@ -44,6 +44,7 @@ const ExportTemplate = () => {
         endOffset: endOffset.days,
         category: event.category,
         color: event.color,
+        url: event.url,
       }
     })
     exportData(templateEvents, exportFilename);

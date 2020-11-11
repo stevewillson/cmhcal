@@ -48,6 +48,21 @@ const ResourceCalendar = () => {
     }
   };
 
+  const setEventLink = (id) => {
+    //console.log('EVENT CLICK')
+    // check to see whether the button 'X' was clicked to delete the event
+    const eventLinkName = prompt("Set the event link")
+    if (eventLinkName !== '' && eventLinkName !== null) {
+      dispatch({ 
+        type: 'UPDATE_EVENT', 
+        payload: {
+          url: eventLinkName ,
+          id: id,
+        },
+      });
+    }
+  };
+
   const eventResize = (info) => {
     const start = new DateTime.fromISO(info.event.start.toISOString());
     const end = new DateTime.fromISO(info.event.end.toISOString());
@@ -130,9 +145,11 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
             {' - '}
-            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            <button onClick={() => setEventLink(info.event.id)}>Edit Link</button>
             {' - '}
             <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+            {' - '}
+            <button onClick={() => deleteEvent(info.event.id)}>X</button>
           </>
         )
       }
@@ -153,9 +170,11 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
             {' - '}
-            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            <button onClick={() => setEventLink(info.event.id)}>Edit Link</button>
             {' - '}
             <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+            {' - '}
+            <button onClick={() => deleteEvent(info.event.id)}>X</button>
           </>
         )
       }
@@ -213,29 +232,6 @@ const ResourceCalendar = () => {
     )
   }
 
-  /*
-  const resourceGroupRender = (info) => {
-    // CONSTRAINT - the resource groups will always be within the resources
-    if (info.groupValue !== undefined) {
-      let calendarApi = calendarRef.current.getApi();
-      let calResource = calendarApi.getResourceById(info.groupValue);
-      let resourceTitle = calResource.title;   
-      return (
-        <>
-          {resourceTitle}
-          {' - '}
-          <button onClick={() => renameResource(calResource._resource)}>Change Name</button>  
-        </>
-      )
-    } else {
-      return (
-        <>
-          {""}
-        </>
-      )
-    }   
-  }
-  */
   const customSlotLabelContent = (arg) => {
     // for arg.level '1', display the FY Week (starting on week 1)
     if (arg.level === 1) {
