@@ -70,6 +70,8 @@ const reducer = (state = initialState, action) => {
     if (action.payload.parent !== "None") {
       newOrgs = origOrgs.map(org => {
         if(org.id === action.payload.parent) {
+          // check to see if there is a 'children' property
+          // if not, create an empty 'children' array
           if (!org.hasOwnProperty('children')) {
             org.children = [];
           }

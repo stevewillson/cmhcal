@@ -239,6 +239,30 @@ const ResourceCalendar = () => {
     }   
   }
   */
+  const customSlotLabelContent = (arg) => {
+    // for arg.level '1', display the FY Week (starting on week 1)
+    if (arg.level === 1) {
+      let calDate = DateTime.fromJSDate(arg.date);
+      let fyStart = DateTime.local(2020, 10, 1);
+      let weekDiff = calDate.diff(fyStart, ['weeks']);
+      let weekNum = Math.ceil(weekDiff.weeks);
+      return 'FY W' + weekNum;
+      // get the date, calculate how many weeks after October 1st this date is
+      // return that for the weeks
+    } else if (arg.level === 2) {
+      // here put in the 'T' week with relative 'T' + / - numbers
+      // get he current date, calculate week differences
+      let calDate = DateTime.fromJSDate(arg.date);
+      let nowDate = DateTime.local();
+      let weekDiff = calDate.diff(nowDate, ['weeks']);
+      let weekNum = Math.ceil(weekDiff.weeks);
+      if (weekNum > 0) {
+        return 'T+' + weekNum;
+      }
+      return 'T' + weekNum;
+    }
+
+  }
   var calendarRef = React.createRef();
 
   return (
@@ -268,8 +292,10 @@ const ResourceCalendar = () => {
             slotLabelFormat: [
               { month: 'short', year: '2-digit' },
               { week: 'short' },
+              { week: 'short' },
               { day: 'numeric' },
-            ]
+            ],
+            slotLabelContent: customSlotLabelContent,
           },
           "LongRange": {
             type: 'resourceTimeline',

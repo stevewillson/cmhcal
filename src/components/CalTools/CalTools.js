@@ -13,7 +13,7 @@ const CalTools = () => {
   const dispatch = useDispatch();
 
   const [addOrgName, setAddOrgName] = useState('');
-  const [addParentOrgName, setAddParentOrgName] = useState('');
+  const [addParentOrgName, setAddParentOrgName] = useState('None');
   const [addCatName, setAddCatName] = useState('');
   const [addCatColor, setAddCatColor] = useState('');
 
@@ -200,12 +200,6 @@ const CalTools = () => {
         });
       };
     }
-  }
-
-  // after a calendar is loaded, set the selected org option to be the first value if it is not set
-  if (calResources.length > 0 && addParentOrgName === "") {
-    debugger
-    setAddParentOrgName("None")
   }
 
   return (
