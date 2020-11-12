@@ -33,6 +33,7 @@ const reducer = (state = initialState, action) => {
         let newResourceId = action.payload.resourceId || event.resourceId;
         let newCategory = action.payload.category || event.category;
         let newColor = action.payload.color || event.color;
+        let newUrl = action.payload.url || event.url;
         return {
           ...event,
           start: newStart,
@@ -41,6 +42,7 @@ const reducer = (state = initialState, action) => {
           resourceId: newResourceId,
           category: newCategory,
           color: newColor,
+          url: newUrl,
         }
       }
       return {

@@ -46,6 +46,7 @@ const ImportTemplate = () => {
           id: uuidv4(),
           resourceId: selOptId,
           color: event.color || '',
+          url: event.url || '',
         },
 			});
 		});
