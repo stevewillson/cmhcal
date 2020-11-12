@@ -8,13 +8,13 @@ const ExportTemplate = () => {
   // have a selection box for the resource
   // have an 'Export' button
   // get the events for that resource and export them to a json file
-  const { calResources } = useSelector(state => state);
   const calState = useSelector(state => { 
     return { 
       calEvents: state.calEvents,
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
       calDateRangeEnd: state.calDateRangeEnd, 
+      calResources: state.calResources,
     }})
     
   // local state for the number of elements in the form
@@ -22,6 +22,32 @@ const ExportTemplate = () => {
   const [dDay, setDDay] = useState(today.toISOString().slice(0,10));
   const [selOptId, setSelOptId] = useState('');
   const [exportFilename, setExportFilename] = useState('');
+
+  const flatten = (obj, path = '') => {        
+    if (!(obj instanceof Object)) return {[path.replace(/\.$/g, '')]:obj};
+
+    const flatObj = Object.keys(obj).reduce((output, key) => {
+      if (obj instanceof Array) {
+        return {...output, ...flatten(obj[key], path +  '[' + key + '].')}
+      } else {
+        return {...output, ...flatten(obj[key], path + key + '.')}
+      }
+    }, {});
+    return flatObj;
+  }
+
+  const flattenGenArray = (obj) => {
+    const flatObj = flatten(obj);
+    let newFlatObj = [];
+    // loop through the flat object and then make a new object with id and title pairs
+    for(var i = 0; i < Object.keys(flatObj).length; i = i + 2) {
+      newFlatObj.push({
+        id: flatObj[Object.keys(flatObj)[i]],
+        title: flatObj[Object.keys(flatObj)[i+1]],
+      })
+    }
+    return newFlatObj;
+  }
 
   const onExportClick = (calState, selOptId, dDay, exportFilename) => {
     // filter the events to be about the selected org
@@ -64,9 +90,12 @@ const ExportTemplate = () => {
   }
 
   // after a calendar is loaded, set the selected org option to be the first value if it is not set
-  if (calResources.length > 0 && selOptId === '') {
-    setSelOptId(calResources[0].id)
+  if (calState.calResources !== undefined) {
+    if (calState.calResources.length > 0 && selOptId === '') {
+      setSelOptId(calState.calResources[0].id)
+    }  
   }
+  
 
   return (
     <div>
@@ -77,7 +106,7 @@ const ExportTemplate = () => {
       id="selectOrgExportOption" 
       value={selOptId}
     >
-      {calResources.map(organization => 
+      {flattenGenArray(calState.calResources).map(organization => 
         <option 
           key={uuidv4()} 
           value={organization.id}

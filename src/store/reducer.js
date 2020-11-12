@@ -12,6 +12,29 @@ const initialState = {
 }
 
 const reducer = (state = initialState, action) => {
+
+  // take an initial object, a label, search value (id) and newValue
+  // go through the object until the particular ID is found, then update that object
+  // object = calResource
+  // key 'id'
+  // val 'parentId'
+  // if found, then set 'children' to newVal
+  var updateObjectById = function(obj, key, val, newVal) {
+    var newValue = newVal;
+    var objects = [];
+    for (var i in obj) {
+      if (!obj.hasOwnProperty(i)) { continue };
+      if (typeof obj[i] == 'object') {
+        objects = objects.concat(updateObjectById(obj[i], key, val, newValue));
+      } else if (i === key && obj[key] === val) {
+        if (!obj.hasOwnProperty('children')) {
+          obj.children = [];  
+        }
+        obj.children.push(newVal)
+      }
+    }
+    return obj
+  }
   // EVENT MANIPULATION
   // ADD EVENTS
   if (action.type === 'CREATE_EVENT') {
@@ -66,38 +89,29 @@ const reducer = (state = initialState, action) => {
   // Organizations will have a 'children' key that is an array of their children
   // id: uuidv4, title: string, children: [] 
   } else if (action.type === 'CREATE_ORG') {
-    const origOrgs = [...state.calResources];
+    let orgCopy;
     let newOrgs;
+    // create a 'deep copy' of the array
+    if (state.calResources !== undefined) {
+      orgCopy = JSON.parse(JSON.stringify(state.calResources));
+    }
+
     // append the organization as a child of the org with id: ID
-    if (action.payload.parent !== "None") {
-      newOrgs = origOrgs.map(org => {
-        if(org.id === action.payload.parent) {
-          // check to see if there is a 'children' property
-          // if not, create an empty 'children' array
-          if (!org.hasOwnProperty('children')) {
-            org.children = [];
-          }
-          // TODO: Add way to next organizations to arbitrary depth, 
-          // currently only allow 1 level deep
-          org.children.push(
-            { 
-              "id": action.payload.id,
-              "title": action.payload.title,
-              "children": [],
-            }
-          )
-        }
-        return org;
-      })  
+    if (action.payload.parent === "None") {
+      newOrgs = orgCopy;
+      newOrgs.push({
+        "id": action.payload.id,
+        "title": action.payload.title,
+        "children": [],
+      })
     } else {
-      newOrgs = [
-        ...state.calResources, 
-        { 
-          "id": action.payload.id, 
+      newOrgs = updateObjectById(orgCopy, 'id', action.payload.parent, 
+        {
+          "id": action.payload.id,
           "title": action.payload.title,
-          "children": [], 
+          "children": [],
         }
-      ];
+        )
     }
     // TODO: check if the org already exists in the array, if yes do not add it
     return {

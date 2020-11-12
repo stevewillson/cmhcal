@@ -13,7 +13,7 @@ const CalTools = () => {
   const dispatch = useDispatch();
 
   const [addOrgName, setAddOrgName] = useState('');
-  const [addParentOrgName, setAddParentOrgName] = useState('None');
+  const [addParentOrgId, setAddParentOrgId] = useState('None');
   const [addCatName, setAddCatName] = useState('');
   const [addCatColor, setAddCatColor] = useState('');
 
@@ -36,17 +36,47 @@ const CalTools = () => {
     textAlign: 'center',
     fontSize: '16px',
   } 
-  
-  const addOrg = (orgName, parentOrgName) => {
-    dispatch({ 
-      type: 'CREATE_ORG', 
-      payload: { 
-        title: orgName,
-        id: uuidv4(),
-        parent: parentOrgName || 'None',
+
+  const flatten = (obj, path = '') => {        
+    if (!(obj instanceof Object)) return {[path.replace(/\.$/g, '')]:obj};
+
+    const flatObj = Object.keys(obj).reduce((output, key) => {
+      if (obj instanceof Array) {
+        return {...output, ...flatten(obj[key], path +  '[' + key + '].')}
+      } else {
+        return {...output, ...flatten(obj[key], path + key + '.')}
       }
-    });
-    setAddOrgName('');
+    }, {});
+    return flatObj;
+  }
+
+  const flattenGenArray = (obj) => {
+    const flatObj = flatten(obj);
+    let newFlatObj = [];
+    // loop through the flat object and then make a new object with id and title pairs
+    for(var i = 0; i < Object.keys(flatObj).length; i = i + 2) {
+      newFlatObj.push({
+        id: flatObj[Object.keys(flatObj)[i]],
+        title: flatObj[Object.keys(flatObj)[i+1]],
+      })
+    }
+    return newFlatObj;
+  }
+
+  const addOrg = (orgName, parentOrgId) => {
+    if (orgName === '') {
+      alert('Please specify an Organization Name');
+    } else {
+      dispatch({ 
+        type: 'CREATE_ORG', 
+        payload: { 
+          title: orgName,
+          id: uuidv4(),
+          parent: parentOrgId || 'None',
+        }
+      });
+      setAddOrgName('');  
+    }
   }
 
   const addCat = (catName, catColor) => {
@@ -184,7 +214,7 @@ const CalTools = () => {
   }
 
   const deleteOrg = (id) => {
-    console.log('DELETE ORG');
+    //console.log('DELETE ORG');
     dispatch({
       type: 'DELETE_ORG',
       payload: {
@@ -253,9 +283,9 @@ const CalTools = () => {
         
         <label htmlFor='addOrgParent'>Set Parent Organization:</label>
         <select
-          onChange={event => setAddParentOrgName(event.target.selectedOptions[0].value)} 
+          onChange={event => setAddParentOrgId(event.target.selectedOptions[0].value)} 
           id="addOrgParent" 
-          value={addParentOrgName}      
+          value={addParentOrgId}      
         >
           <option 
             key={uuidv4()} 
@@ -263,7 +293,7 @@ const CalTools = () => {
           >
           {"None"}
           </option>
-          {calResources.map(org => 
+          {flattenGenArray(calState.calResources).map(org => 
             <option 
               key={uuidv4()} 
               value={org.id}
@@ -275,7 +305,7 @@ const CalTools = () => {
 
         <button 
           type="button" 
-          onClick={() => addOrg(addOrgName, addParentOrgName)} 
+          onClick={() => addOrg(addOrgName, addParentOrgId)} 
         >
           Add Organization
         </button>
@@ -321,7 +351,7 @@ const CalTools = () => {
       </div>
       <div>
       <h4>Organizations:</h4>
-      {calResources.map((resource) => 
+      {flattenGenArray(calState.calResources).map((resource) => 
         <div key={uuidv4()} data-org-id={resource.id} onClick={renameOrg}>
           {resource.title}
           <button onClick={() => deleteOrg(resource.id)}>X</button>

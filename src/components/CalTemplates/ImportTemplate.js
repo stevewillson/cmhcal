@@ -15,6 +15,33 @@ const ImportTemplate = () => {
     textAlign: 'center',
     fontSize: '16px',
   } 
+
+
+  const flatten = (obj, path = '') => {        
+    if (!(obj instanceof Object)) return {[path.replace(/\.$/g, '')]:obj};
+
+    const flatObj = Object.keys(obj).reduce((output, key) => {
+      if (obj instanceof Array) {
+        return {...output, ...flatten(obj[key], path +  '[' + key + '].')}
+      } else {
+        return {...output, ...flatten(obj[key], path + key + '.')}
+      }
+    }, {});
+    return flatObj;
+  }
+
+  const flattenGenArray = (obj) => {
+    const flatObj = flatten(obj);
+    let newFlatObj = [];
+    // loop through the flat object and then make a new object with id and title pairs
+    for(var i = 0; i < Object.keys(flatObj).length; i = i + 2) {
+      newFlatObj.push({
+        id: flatObj[Object.keys(flatObj)[i]],
+        title: flatObj[Object.keys(flatObj)[i+1]],
+      })
+    }
+    return newFlatObj;
+  }
 	
   const dispatch = useDispatch();
 	// get the events for that resource and export them to a json file
@@ -69,8 +96,10 @@ const ImportTemplate = () => {
   };
 
   // after a calendar is loaded, set the selected org option to be the first value if it is not set
-  if (organizations.length > 0 && selOptId === '') {
-    setSelOptId(organizations[0].id)
+  if (organizations !== undefined) {
+    if (organizations.length > 0 && selOptId === '') {
+      setSelOptId(organizations[0].id)
+    }  
   }
   
   return (
@@ -82,7 +111,7 @@ const ImportTemplate = () => {
       id="selectOrgImportOption" 
       value={selOptId}      
     >
-      {organizations.map(org => 
+      {flattenGenArray(organizations).map(org => 
         <option 
           key={uuidv4()} 
           value={org.id}
