@@ -136,7 +136,11 @@ const ResourceCalendar = () => {
     }
     */
 
-    let editMode = document.getElementById("editModeCheckbox").checked;
+    let editModeBtn = document.getElementById("editModeCheckbox");
+    let editMode = true;
+    if (editModeBtn !== null) {
+      editMode = editModeBtn.checked;
+    } 
     if (info.view.type === "ShortRange") {
       if (editMode) {
         return (
@@ -215,7 +219,11 @@ const ResourceCalendar = () => {
   }
 
   const resourceRender = (info) => {
-    let editMode = document.getElementById("editModeCheckbox").checked;
+    let editModeBtn = document.getElementById("editModeCheckbox");
+    let editMode = true;
+    if (editModeBtn !== null) {
+      editMode = editModeBtn.checked;
+    } 
     if (editMode) {
       return (
         <>

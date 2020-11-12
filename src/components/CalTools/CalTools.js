@@ -164,6 +164,15 @@ const CalTools = () => {
     document.body.removeChild(downloadLink);
   }
 
+  const purgeCalendar = () => {
+    let yesClear = prompt("Type 'yes' to confirm clearing the calendar");
+    if (yesClear === "yes") {
+      dispatch({
+        type: 'PURGE_CALENDAR',
+      })  
+    }
+  }
+
   const deleteCat = (id) => {
     console.log('DELETE CATEGORY');
     dispatch({
@@ -212,6 +221,12 @@ const CalTools = () => {
           style={btnStyle}
         />
         <button style={btnStyle} onClick={() => exportData(calState)}>Export</button>
+        <button 
+          style={btnStyle} 
+          onClick={() => purgeCalendar()} 
+        >
+          Clear Calendar and Local Storage
+        </button>
       </div>
       <label htmlFor='fromDate'>Display From:</label> 
       <input

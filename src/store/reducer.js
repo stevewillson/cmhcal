@@ -175,6 +175,9 @@ const reducer = (state = initialState, action) => {
       ...state,
       calDateRangeEnd: action.payload.date,
     }
+  } else if(action.type === 'PURGE_CALENDAR') {
+    //console.log('Purging calendar')
+    return initialState;
   }
   return state;
 }
