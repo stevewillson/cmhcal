@@ -7,7 +7,7 @@ const CalTools = () => {
   // get state values from redux
   var calDateRangeStart = useSelector(state => state.calDateRangeStart)
   var calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
-  var calResources = useSelector(state => state.calResources);
+  //var calResources = useSelector(state => state.calResources);
   var calCategories = useSelector(state => state.calCategories);
   
   const dispatch = useDispatch();
@@ -38,7 +38,7 @@ const CalTools = () => {
   } 
 
   const flatten = (obj, path = '') => {      
-    if (!(obj instanceof Object)) return {[path.replace(/\-$/g, '')]:obj};
+    if (!(obj instanceof Object)) return {[path.replace(/-$/g, '')]:obj};
     // get the keys
     // check if the descended object have a 'children' property, if yes, then call flatten recursively on the children
     // if no, or the children array is empty, then this is a 'leaf' node with no children
@@ -73,11 +73,10 @@ const CalTools = () => {
     
     return newFlatObj;
   }
-  
 
   const addOrg = (orgName, parentOrgId) => {
     if (orgName === '') {
-      alert('Please specify an Organization Name');
+      alert('Please specify an organization name');
     } else {
       dispatch({ 
         type: 'CREATE_ORG', 
@@ -92,16 +91,20 @@ const CalTools = () => {
   }
 
   const addCat = (catName, catColor) => {
-    dispatch({ 
-      type: 'CREATE_CATEGORY', 
-      payload: {
-        id: uuidv4(),
-        name: catName,
-        color: catColor,
-      }
-    });
-    setAddCatName('');
-    setAddCatColor('');
+    if (catName === '') {
+      alert('Please specify a category name');
+    } else {
+      dispatch({ 
+        type: 'CREATE_CATEGORY', 
+        payload: {
+          id: uuidv4(),
+          name: catName,
+          color: catColor,
+        }
+      });
+      setAddCatName('');
+      setAddCatColor('');  
+    }
   }
 
   const importData = async (event) => {
@@ -165,6 +168,7 @@ const CalTools = () => {
                 id: event.id,
                 resourceId: event.resourceId,
                 color: event.color || '',
+                url: event.url || '',
               },
             });
           }
@@ -207,16 +211,17 @@ const CalTools = () => {
   }
 
   const purgeCalendar = () => {
-    let yesClear = prompt("Type 'yes' to confirm clearing the calendar");
-    if (yesClear === "yes") {
-      dispatch({
-        type: 'PURGE_CALENDAR',
-      })  
-    }
+    let purgePrompt = prompt("Type 'yes' to confirm clearing the calendar,\ntype 'initial' to load a new default state");
+    dispatch({
+      type: 'PURGE_CALENDAR',
+      payload: {
+        purgeType: purgePrompt,
+      }
+    })  
   }
 
   const deleteCat = (id) => {
-    console.log('DELETE CATEGORY');
+    // console.log('DELETE CATEGORY');
     dispatch({
       type: 'DELETE_CATEGORY',
       payload: {
@@ -246,6 +251,23 @@ const CalTools = () => {
           payload: {
             title: resourceName,
             id: event.target.dataset.orgId,
+          },
+        });
+      };
+    }
+  }
+
+  const renameCat = (event) => {
+    //console.log('RENAME CAT')
+    //console.log(event)
+    if (event.target.innerText !== 'X') {
+      const categoryName = prompt("Set the category title")
+      if (categoryName !== '' && categoryName !== null) {
+        dispatch({ 
+          type: 'UPDATE_CATEGORY', 
+          payload: {
+            title: categoryName,
+            id: event.target.dataset.catId,
           },
         });
       };
@@ -355,7 +377,7 @@ const CalTools = () => {
       <div>
       <h4>Categories:</h4>
       {calCategories.map((category) => 
-        <div key={uuidv4()} style={{ backgroundColor: category.color }}>
+        <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
           {category.name}
           <button onClick={() => deleteCat(category.id)}>X</button>
         </div>

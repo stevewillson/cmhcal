@@ -8,8 +8,7 @@ import './App.css';
 
 const App = () => {
   return (
-    <div className="App">
-
+    <div className="App">    
       <div className="grid-container">
         <div className="top-left-layout">
           <CalTools />

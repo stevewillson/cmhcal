@@ -3,25 +3,6 @@
   list-style-position: inside;
 }
 
-.App-logo {
-  height: 40vmin;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #09d3ac;
-}
-
 .grid-container {
   display: grid;
 }
@@ -41,10 +22,9 @@
   grid-row-start: 2;
 }
 
-/*
-* make the datepicker popper appear in front of the fullcalendar section
-* may need to add !important if this is overwritten somewhere
-*/
-.react-datepicker-popper {
-  z-index: 9999;
-}
+/* highlight weekends */
+.fc-day-sun { background-color:lightgray; }
+.fc-day-sat { background-color:lightgray;  }
+
+/* highlight the current day */
+.fc-day-today { background-color: lightgoldenrodyellow }
