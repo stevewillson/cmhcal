@@ -1,5 +1,4 @@
 JSON.unflatten = function(data) {
-    "use strict";
     if (Object(data) !== data || Array.isArray(data))
         return data;
     var result = {}, cur, prop, idx, last, temp;

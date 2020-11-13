@@ -191,7 +191,7 @@ const reducer = (state = initialState, action) => {
     let flatObj = JSON.flatten(state.calResources);
     let flatObjKeys = Object.keys(flatObj);
     let path = '';
-    for (var i = 0; i < flatObjKeys.length; i = i + 1) {
+    for (let i = 0; i < flatObjKeys.length; i = i + 1) {
       if (flatObj[flatObjKeys[i]] === action.payload.id) {
         // found the object! now get the path
         path = flatObjKeys[i];
@@ -208,6 +208,7 @@ const reducer = (state = initialState, action) => {
       if (key.indexOf(modPath) === -1) {
         return key
       }
+      return '';
     })
     let modFlatObj = {};
     modFlatObjKeys.forEach((key) => {
