@@ -17,29 +17,40 @@ const ImportTemplate = () => {
   } 
 
 
-  const flatten = (obj, path = '') => {        
-    if (!(obj instanceof Object)) return {[path.replace(/\.$/g, '')]:obj};
-
-    const flatObj = Object.keys(obj).reduce((output, key) => {
+  const flatten = (obj, path = '') => {      
+    if (!(obj instanceof Object)) return {[path.replace(/\-$/g, '')]:obj};
+    // get the keys
+    // check if the descended object have a 'children' property, if yes, then call flatten recursively on the children
+    // if no, or the children array is empty, then this is a 'leaf' node with no children
+    return Object.keys(obj).reduce((output, key) => {
       if (obj instanceof Array) {
-        return {...output, ...flatten(obj[key], path +  '[' + key + '].')}
-      } else {
-        return {...output, ...flatten(obj[key], path + key + '.')}
+        return {...output, ...flatten(obj[key], path)}
       }
+      if (key === 'children' && obj.children.length > 0) {
+        // we have a non-zero length children object, call flatten again
+        return {...output, ...flatten(obj.children, path + obj.title + '-' )}
+      } else if (key === 'id') {
+        return {...output, [path + obj.title]: obj[key]}
+      }
+      return {...output}
     }, {});
-    return flatObj;
   }
-
+  
+  // this will take an array with the following structure
+  // { id: 'ID', title: 'TITLE', children: [] }
+  // it will then output the following objects
+  // { id: 'ID', path: 'PATH-PATH-PATH' }
   const flattenGenArray = (obj) => {
     const flatObj = flatten(obj);
     let newFlatObj = [];
     // loop through the flat object and then make a new object with id and title pairs
-    for(var i = 0; i < Object.keys(flatObj).length; i = i + 2) {
+    for(var i = 0; i < Object.keys(flatObj).length; i = i + 1) {
       newFlatObj.push({
+        title: Object.keys(flatObj)[i],
         id: flatObj[Object.keys(flatObj)[i]],
-        title: flatObj[Object.keys(flatObj)[i+1]],
       })
     }
+    
     return newFlatObj;
   }
 	
