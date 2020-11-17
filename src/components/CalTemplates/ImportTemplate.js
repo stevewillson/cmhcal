@@ -18,7 +18,7 @@ const ImportTemplate = () => {
 
 
   const flatten = (obj, path = '') => {      
-    if (!(obj instanceof Object)) return {[path.replace(/\-$/g, '')]:obj};
+    if (!(obj instanceof Object)) return {[path.replace(/-$/g, '')]:obj};
     // get the keys
     // check if the descended object have a 'children' property, if yes, then call flatten recursively on the children
     // if no, or the children array is empty, then this is a 'leaf' node with no children
