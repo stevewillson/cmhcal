@@ -184,7 +184,7 @@ const reducer = (state = initialState, action) => {
     
     // modify the object at modPath + .'title'
     flatObj[modPath + '.title'] = action.payload.title;
-    
+
     // rebuild the nested object using unflatten
     let newCalResources = JSON.unflatten(flatObj);
     
@@ -216,6 +216,7 @@ const reducer = (state = initialState, action) => {
 
     let pathParts = modPath.split('.');
 
+    // remove the object specified by the path in the object
     pathParts.reduce ((acc, key, index) => {
       if (index === pathParts.length - 1) {
         let keyNum = parseInt(key);

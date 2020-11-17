@@ -17,7 +17,7 @@ build_cmhcal:
     - echo "$SSH_DEPLOY_KEY" > "$(pwd)/ssh_key"
     - chmod 400 $(pwd)/ssh_key
     - echo "Copying index.html to remote server"
-    - scp -i $(pwd)/ssh_key -P 6789 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./build/index.html gitlab@willson.tk:/var/www/html/cmhcal/index.html
+    - scp -i $(pwd)/ssh_key -P 6789 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./build/index.html gitlab@cmhcal.com:/var/www/html/cmhcal/index.html
   only:
   - master
   artifacts:
@@ -38,7 +38,7 @@ build_dev_cmhcal:
     - echo "$SSH_DEPLOY_KEY" > "$(pwd)/ssh_key"
     - chmod 400 $(pwd)/ssh_key
     - echo "Copying index.html to remote server"
-    - scp -i $(pwd)/ssh_key -P 6789 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./build/index.html gitlab@willson.tk:/var/www/html/cmhcal/dev/index.html
+    - scp -i $(pwd)/ssh_key -P 6789 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ./build/index.html gitlab@cmhcal.com:/var/www/html/cmhcal/dev/index.html
   only:
   - devel
   artifacts:
