@@ -137,6 +137,8 @@ const reducer = (state = initialState, action) => {
     // create a 'deep copy' of the array
     if (state.calResources !== undefined) {
       orgCopy = JSON.parse(JSON.stringify(state.calResources));
+    } else {
+      orgCopy = [];
     }
 
     // append the organization as a child of the org with id: ID
@@ -177,20 +179,28 @@ const reducer = (state = initialState, action) => {
         break;
       }
     }
-    // have the path now remove the last bit of the path
-    // remove the last three characters, it's the '.id'
+    // remove the trailing '.id' from the path
     let modPath = path.slice(0,-3);
+    
     // modify the object at modPath + .'title'
     flatObj[modPath + '.title'] = action.payload.title;
+    
+    // rebuild the nested object using unflatten
     let newCalResources = JSON.unflatten(flatObj);
+    
     return {
       ...state,
       calResources: newCalResources
     }
+
   } else if (action.type === 'DELETE_ORG') {
     let flatObj = JSON.flatten(state.calResources);
+
+    // make a full copy of the calResources object
+    var newCalResources = JSON.unflatten(flatObj);
+
     let flatObjKeys = Object.keys(flatObj);
-    let path = '';
+    var path = '';
     for (let i = 0; i < flatObjKeys.length; i = i + 1) {
       if (flatObj[flatObjKeys[i]] === action.payload.id) {
         // found the object! now get the path
@@ -203,18 +213,21 @@ const reducer = (state = initialState, action) => {
     // have the path now remove the last bit of the path
     // remove the last three characters, it's the '.id'
     let modPath = path.slice(0,-3);
-    // loop through again and remove anything that matches that path
-    const modFlatObjKeys = flatObjKeys.filter((key) => {
-      if (key.indexOf(modPath) === -1) {
-        return key
+
+    let pathParts = modPath.split('.');
+
+    pathParts.reduce ((acc, key, index) => {
+      if (index === pathParts.length - 1) {
+        let keyNum = parseInt(key);
+        // at the lowest child node, now remove the particular object
+        acc.splice(keyNum, 1)
+        return acc;
       }
-      return '';
-    })
-    let modFlatObj = {};
-    modFlatObjKeys.forEach((key) => {
-      modFlatObj[key] = flatObj[key];
-    })
-    let newCalResources = JSON.unflatten(modFlatObj);
+      return acc[key];
+    }, newCalResources)
+
+    // newCalResources is modified with the target value removed
+
     return {
       ...state,
       calResources: newCalResources

@@ -1,9 +1,9 @@
 import React from 'react';
+import FullCalendar from '@fullcalendar/react';
+import resourceTimeline from '@fullcalendar/resource-timeline';
+import interaction from '@fullcalendar/interaction';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import FullCalendar from '@fullcalendar/react'
-import resourceTimeline from '@fullcalendar/resource-timeline'
-import interaction from '@fullcalendar/interaction'
 import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
