@@ -1,9 +1,9 @@
 import React from 'react';
+import FullCalendar from '@fullcalendar/react';
+import resourceTimeline from '@fullcalendar/resource-timeline';
+import interaction from '@fullcalendar/interaction';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import FullCalendar from '@fullcalendar/react'
-import resourceTimeline from '@fullcalendar/resource-timeline'
-import interaction from '@fullcalendar/interaction'
 import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -28,6 +28,7 @@ const ResourceCalendar = () => {
           end: end.toISODate(),
           id: uuidv4(),
           resourceId: info.resource.id,
+          url: ''
         },
       });
     };
@@ -50,17 +51,16 @@ const ResourceCalendar = () => {
 
   const setEventLink = (id) => {
     //console.log('EVENT CLICK')
-    // check to see whether the button 'X' was clicked to delete the event
+    // check to see whether the button 'eventLink' was clicked to delete the event
+    // allow setting a blank link ''
     const eventLinkName = prompt("Set the event link")
-    if (eventLinkName !== '' && eventLinkName !== null) {
-      dispatch({ 
-        type: 'UPDATE_EVENT', 
-        payload: {
-          url: eventLinkName ,
-          id: id,
-        },
-      });
-    }
+    dispatch({ 
+      type: 'UPDATE_EVENT', 
+      payload: {
+        url: eventLinkName || '' ,
+        id: id,
+      },
+    });
   };
 
   const eventResize = (info) => {

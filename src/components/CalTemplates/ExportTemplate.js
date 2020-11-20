@@ -8,13 +8,13 @@ const ExportTemplate = () => {
   // have a selection box for the resource
   // have an 'Export' button
   // get the events for that resource and export them to a json file
-  const { calResources } = useSelector(state => state);
   const calState = useSelector(state => { 
     return { 
       calEvents: state.calEvents,
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
       calDateRangeEnd: state.calDateRangeEnd, 
+      calResources: state.calResources,
     }})
     
   // local state for the number of elements in the form
@@ -22,6 +22,43 @@ const ExportTemplate = () => {
   const [dDay, setDDay] = useState(today.toISOString().slice(0,10));
   const [selOptId, setSelOptId] = useState('');
   const [exportFilename, setExportFilename] = useState('');
+
+  const flatten = (obj, path = '') => {      
+    if (!(obj instanceof Object)) return {[path.replace(/-$/g, '')]:obj};
+    // get the keys
+    // check if the descended object have a 'children' property, if yes, then call flatten recursively on the children
+    // if no, or the children array is empty, then this is a 'leaf' node with no children
+    return Object.keys(obj).reduce((output, key) => {
+      if (obj instanceof Array) {
+        return {...output, ...flatten(obj[key], path)}
+      }
+      if (key === 'children' && obj.children.length > 0) {
+        // we have a non-zero length children object, call flatten again
+        return {...output, ...flatten(obj.children, path + obj.title + '-' )}
+      } else if (key === 'id') {
+        return {...output, [path + obj.title]: obj[key]}
+      }
+      return {...output}
+    }, {});
+  }
+  
+  // this will take an array with the following structure
+  // { id: 'ID', title: 'TITLE', children: [] }
+  // it will then output the following objects
+  // { id: 'ID', path: 'PATH-PATH-PATH' }
+  const flattenGenArray = (obj) => {
+    const flatObj = flatten(obj);
+    let newFlatObj = [];
+    // loop through the flat object and then make a new object with id and title pairs
+    for(var i = 0; i < Object.keys(flatObj).length; i = i + 1) {
+      newFlatObj.push({
+        title: Object.keys(flatObj)[i],
+        id: flatObj[Object.keys(flatObj)[i]],
+      })
+    }
+    
+    return newFlatObj;
+  }
 
   const onExportClick = (calState, selOptId, dDay, exportFilename) => {
     // filter the events to be about the selected org
@@ -64,9 +101,12 @@ const ExportTemplate = () => {
   }
 
   // after a calendar is loaded, set the selected org option to be the first value if it is not set
-  if (calResources.length > 0 && selOptId === '') {
-    setSelOptId(calResources[0].id)
+  if (calState.calResources !== undefined) {
+    if (calState.calResources.length > 0 && selOptId === '') {
+      setSelOptId(calState.calResources[0].id)
+    }  
   }
+  
 
   return (
     <div>
@@ -77,7 +117,7 @@ const ExportTemplate = () => {
       id="selectOrgExportOption" 
       value={selOptId}
     >
-      {calResources.map(organization => 
+      {flattenGenArray(calState.calResources).map(organization => 
         <option 
           key={uuidv4()} 
           value={organization.id}
