@@ -276,105 +276,110 @@ const CalTools = () => {
 
   return (
     <React.Fragment>
-      <div>
-        <label htmlFor='importDataFile'>Import File:</label>
-        <input 
-          type="file" 
-          id="importDataFile" 
-          onChange={importData}
-          style={btnStyle}
-        />
-        <button style={btnStyle} onClick={() => exportData(calState)}>Export</button>
-        <button 
-          style={btnStyle} 
-          onClick={() => purgeCalendar()} 
-        >
-          Clear Calendar and Local Storage
-        </button>
-      </div>
-      <label htmlFor='fromDate'>Display From:</label> 
-      <input
-        id='fromDate'
-        type='date'
-        value={calDateRangeStart}
-        onChange={event => dispatch({ type: 'CAL_DATE_RANGE_START', payload: { date: event.target.value }})} 
-      />
-      <label htmlFor='toDate'>To:</label>
-      <input
-        id='toDate'
-        type='date'
-        value={calDateRangeEnd}
-        onChange={event => dispatch({ type: 'CAL_DATE_RANGE_END', payload: { date: event.target.value }})}
-      />
-      <div>
-        <label htmlFor='addOrgText'>Add Organization:</label>
-        <input
-          id='addOrgText'
-          type='text'
-          value={addOrgName}
-          onChange={event => setAddOrgName(event.target.value)}
-        />
-        
-        <label htmlFor='addOrgParent'>Set Parent Organization:</label>
-        <select
-          onChange={event => setAddParentOrgId(event.target.selectedOptions[0].value)} 
-          id="addOrgParent" 
-          value={addParentOrgId}      
-        >
-          <option 
-            key={uuidv4()} 
-            value={"None"}
-          >
-          {"None"}
-          </option>
-          {flattenGenArray(calState.calResources).map(org => 
-            <option 
-              key={uuidv4()} 
-              value={org.id}
-            >
-            {org.title}
-            </option>
-          )}
-        </select>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <div>
+                <label htmlFor='importDataFile'>Import File:</label>
+                <input 
+                  type="file" 
+                  id="importDataFile" 
+                  onChange={importData}
+                  style={btnStyle}
+                />
+                <button style={btnStyle} onClick={() => exportData(calState)}>Export</button>
+                <button 
+                  style={btnStyle} 
+                  onClick={() => purgeCalendar()} 
+                >
+                  Clear Calendar and Local Storage
+                </button>
+              </div>
+              <label htmlFor='fromDate'>Display From:</label> 
+              <input
+                id='fromDate'
+                type='date'
+                value={calDateRangeStart}
+                onChange={event => dispatch({ type: 'CAL_DATE_RANGE_START', payload: { date: event.target.value }})} 
+              />
+              <label htmlFor='toDate'>To:</label>
+              <input
+                id='toDate'
+                type='date'
+                value={calDateRangeEnd}
+                onChange={event => dispatch({ type: 'CAL_DATE_RANGE_END', payload: { date: event.target.value }})}
+              />
+              <div>
+                <label htmlFor='addOrgText'>Add Organization:</label>
+                <input
+                  id='addOrgText'
+                  type='text'
+                  value={addOrgName}
+                  onChange={event => setAddOrgName(event.target.value)}
+                />
+                <label htmlFor='addOrgParent'>Set Parent Organization:</label>
+                <select
+                  onChange={event => setAddParentOrgId(event.target.selectedOptions[0].value)} 
+                  id="addOrgParent" 
+                  value={addParentOrgId}      
+                >
+                  <option 
+                    key={uuidv4()} 
+                    value={"None"}
+                  >
+                  {"None"}
+                  </option>
+                  {flattenGenArray(calState.calResources).map(org => 
+                  <option 
+                    key={uuidv4()} 
+                    value={org.id}
+                  >
+                  {org.title}
+                  </option>
+                  )}
+                </select>
 
-        <button 
-          type="button" 
-          onClick={() => addOrg(addOrgName, addParentOrgId)} 
-        >
-          Add Organization
-        </button>
-      </div>
-      <div>
-        <label htmlFor='addCatNameText'>Add Category:</label>
-        <input
-          id='addCatNameText'
-          type='text'
-          value={addCatName}
-          onChange={event => setAddCatName(event.target.value)}
-        />
-        <label htmlFor='addCatColorText'>Color:</label>
-        <input
-          id='addCatColorText'
-          type='text'
-          value={addCatColor}
-          onChange={event => setAddCatColor(event.target.value)}
-        />
-        <button 
-          type="button" 
-          onClick={() => addCat(addCatName, addCatColor)} 
-        >
-          Add Category
-        </button>
-        <input
-          type="checkbox" 
-          id="editModeCheckbox"
-          defaultChecked={true}
-          //onChange={() => refreshCal()} 
-          // TODO: Refresh the calendar when the box is toggled
-        />
-        <label htmlFor="editModeCheckbox">Edit Mode On</label>
-      </div>
-      <div>
+                <button 
+                  type="button" 
+                  onClick={() => addOrg(addOrgName, addParentOrgId)} 
+                >
+                Add Organization
+                </button>
+              </div>
+              <div>
+                <label htmlFor='addCatNameText'>Add Category:</label>
+                <input
+                  id='addCatNameText'
+                  type='text'
+                  value={addCatName}
+                  onChange={event => setAddCatName(event.target.value)}
+                />
+                <label htmlFor='addCatColorText'>Color:</label>
+                <input
+                  id='addCatColorText'
+                  type='text'
+                  value={addCatColor}
+                  onChange={event => setAddCatColor(event.target.value)}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => addCat(addCatName, addCatColor)} 
+                >
+                  Add Category
+                </button>
+                <input
+                  type="checkbox" 
+                  id="editModeCheckbox"
+                  defaultChecked={true}
+                  //onChange={() => refreshCal()} 
+                  // TODO: Refresh the calendar when the box is toggled
+                />
+                <label htmlFor="editModeCheckbox">Edit Mode On</label>
+              </div>
+            </td>
+            <td>
+              <div>
       <h4>Categories:</h4>
       {calCategories.map((category) => 
         <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
@@ -383,6 +388,8 @@ const CalTools = () => {
         </div>
       )}
       </div>
+      </td>
+      <td>
       <div>
       <h4>Organizations:</h4>
       {flattenGenArray(calState.calResources).map((resource) => 
@@ -392,6 +399,11 @@ const CalTools = () => {
         </div>
       )}
       </div>
+      </td>              
+            </tr>
+          </tbody>
+        </table>
+
     </React.Fragment>
   );
 };

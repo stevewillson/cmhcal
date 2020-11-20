@@ -98,6 +98,19 @@ const ResourceCalendar = () => {
     });
   };
 
+  const checkEventClick = (info) => {
+    // prevent the url link from being followed if one of the event buttons is clicked
+    if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Toggle Cat") {
+      info.jsEvent.preventDefault();
+    } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Edit Name") {
+      info.jsEvent.preventDefault();
+    } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Edit Link") {
+      info.jsEvent.preventDefault();
+    } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "X") {
+      info.jsEvent.preventDefault();
+    }
+  }
+
   const toggleEventCategory = (id, curCategory) => {
     // choose the next category
     const catNameList = calCategories.map(category => category.name)
@@ -141,7 +154,7 @@ const ResourceCalendar = () => {
     if (editModeBtn !== null) {
       editMode = editModeBtn.checked;
     } 
-    if (info.view.type === "ShortRange") {
+    if (info.view.type === "DayView") {
       if (editMode) {
         return (
           <>
@@ -162,7 +175,7 @@ const ResourceCalendar = () => {
           <b>{info.event.title}</b> 
         </>
       )
-    } else if (info.view.type === "LongRange") {
+    } else if (info.view.type === "WeekView") {
       if (editMode) {
         return (
           <>
@@ -244,8 +257,23 @@ const ResourceCalendar = () => {
     // for arg.level '1', display the FY Week (starting on week 1)
     if (arg.level === 1) {
       let calDate = DateTime.fromJSDate(arg.date);
-      let fyStart = DateTime.local(2020, 10, 1);
-      let weekDiff = calDate.diff(fyStart, ['weeks']);
+      // to calculate the Fiscal Year week, need to find the number of weeks from
+      // the previous Monday to the prior October 1
+
+      // first, get the Monday
+      let prevMonday = calDate;
+      // hacky way of making sure that the calendar ends on a Monday when set to week granularity
+      while (prevMonday.weekday !== 1) {
+        prevMonday = prevMonday.minus({ days: 1 })
+      }  
+      
+      let dateYear = calDate.year;
+      if (calDate.month < 10) {
+        // use October 1 from the previous year if the month is before October
+        dateYear = dateYear - 1;
+      }
+      let fyStart = DateTime.local(dateYear, 10, 1);
+      let weekDiff = prevMonday.diff(fyStart, ['weeks']);
       let weekNum = Math.ceil(weekDiff.weeks);
       return 'FY W' + weekNum;
       // get the date, calculate how many weeks after October 1st this date is
@@ -254,14 +282,25 @@ const ResourceCalendar = () => {
       // here put in the 'T' week with relative 'T' + / - numbers
       // get the current date, calculate week differences
       let calDate = DateTime.fromJSDate(arg.date);
-      let nowDate = DateTime.local();
-      let weekDiff = calDate.diff(nowDate, ['weeks']);
+      // first, get the Monday
+      let calPrevMonday = calDate;
+      // hacky way of making sure that the calendar ends on a Monday when set to week granularity
+      while (calPrevMonday.weekday !== 1) {
+        calPrevMonday = calPrevMonday.minus({ days: 1 })
+      }
+      
+      let nowPrevMonday = DateTime.local();
+      while (nowPrevMonday.weekday !== 1) {
+        nowPrevMonday = nowPrevMonday.minus({ days: 1 })
+      }
+      
+      let weekDiff = calPrevMonday.diff(nowPrevMonday, ['weeks']);
       let weekNum = Math.ceil(weekDiff.weeks);
       if (weekNum > 0) {
         return 'T+' + weekNum;
       }
       return 'T' + weekNum;
-    } else if (arg.level ===3 && arg.view.type === "LongRange") {
+    } else if (arg.level === 3 && arg.view.type === "WeekView") {
       // put in start / stop dates for the long range calendar week view
       let calDate = DateTime.fromJSDate(arg.date);
       let weekEndDate = calDate.plus({ days: 6 })
@@ -302,39 +341,24 @@ const ResourceCalendar = () => {
         ref={calendarRef}
         //added to suppress license key prompt
         schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
-        initialView={'ShortRange'}
+        initialView={'DayView'}
         timeZone={'local'}
         plugins={[ interaction, resourceTimeline ]} 
         headerToolbar={{
           left: '',
           center: 'title',
-          right: 'SuperShortRange ShortRange LongRange',
+          right: 'DayView WeekView',
         }}
         editable={true}
         height={'auto'}
         views={{
-          "SuperShortRange": {
+          "DayView": {
             type: 'resourceTimeline',
             visibleRange: {
               start: calDateRangeStart,
               end: calDateRangeEnd, 
             },
-            slotDuration: { minutes: 30 },
-            slotLabelInterval: { hours: 1 },
-            slotLabelFormat: [
-              { month: 'short', year: '2-digit' },
-              { week: 'short' },
-              { week: 'short' },
-              { day: 'numeric', weekday: 'narrow' },
-              { hour: 'numeric' }
-            ],
-          },
-          "ShortRange": {
-            type: 'resourceTimeline',
-            visibleRange: {
-              start: calDateRangeStart,
-              end: calDateRangeEnd, 
-            },
+            buttonText: "Day View",
             slotLabelInterval: { days: 1 },
             slotLabelFormat: [
               { month: 'short', year: '2-digit' },
@@ -343,7 +367,7 @@ const ResourceCalendar = () => {
               { day: 'numeric', weekday: 'narrow' },
             ],
           },
-          "LongRange": {
+          "WeekView": {
             type: 'resourceTimeline',
             visibleRange: {
               // find the previous Monday to set the start date to before the selected date
@@ -351,6 +375,7 @@ const ResourceCalendar = () => {
               // find the next Monday to set the end date to after the selected date
               end: setLongRangeEndDate(), 
             },
+            buttonText: "Week View",
             slotDuration: { weeks: 1 },
             slotLabelInterval: { weeks: 1 },
             slotLabelFormat: [
@@ -370,8 +395,10 @@ const ResourceCalendar = () => {
         selectable={true}
         eventResize={eventResize}
         eventDrop={eventDrop}
+        eventClick={checkEventClick}
         select={addEventSelected}
         eventContent={eventRender}
+        resourceAreaWidth={"10%"}
         resourceAreaHeaderContent={'Organization'}
         // add a 'Change Name' button when displaying resources (Organizations) on the left column
         resourceLabelContent={resourceRender}
