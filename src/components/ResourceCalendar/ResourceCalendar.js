@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 
 const ResourceCalendar = () => {
   // get state values from redux
-  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources } = useSelector(state => state);
+  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources, editMode } = useSelector(state => state);
   
   const dispatch = useDispatch();
  
@@ -100,6 +100,7 @@ const ResourceCalendar = () => {
 
   const checkEventClick = (info) => {
     // prevent the url link from being followed if one of the event buttons is clicked
+
     if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Toggle Cat") {
       info.jsEvent.preventDefault();
     } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Edit Name") {
@@ -149,11 +150,7 @@ const ResourceCalendar = () => {
     }
     */
 
-    let editModeBtn = document.getElementById("editModeCheckbox");
-    let editMode = true;
-    if (editModeBtn !== null) {
-      editMode = editModeBtn.checked;
-    } 
+    // edit mode is now captured in the redux state
     if (info.view.type === "DayView") {
       if (editMode) {
         return (
@@ -300,7 +297,7 @@ const ResourceCalendar = () => {
         return 'T+' + weekNum;
       }
       return 'T' + weekNum;
-    } else if (arg.level === 3 && arg.view.type === "WeekView") {
+    } else if (arg.level === 3 && arg.view.type === 'WeekView') {
       // put in start / stop dates for the long range calendar week view
       let calDate = DateTime.fromJSDate(arg.date);
       let weekEndDate = calDate.plus({ days: 6 })
@@ -352,13 +349,13 @@ const ResourceCalendar = () => {
         editable={true}
         height={'auto'}
         views={{
-          "DayView": {
+          'DayView': {
             type: 'resourceTimeline',
             visibleRange: {
               start: calDateRangeStart,
               end: calDateRangeEnd, 
             },
-            buttonText: "Day View",
+            buttonText: 'Day View',
             slotLabelInterval: { days: 1 },
             slotLabelFormat: [
               { month: 'short', year: '2-digit' },
@@ -367,7 +364,7 @@ const ResourceCalendar = () => {
               { day: 'numeric', weekday: 'narrow' },
             ],
           },
-          "WeekView": {
+          'WeekView': {
             type: 'resourceTimeline',
             visibleRange: {
               // find the previous Monday to set the start date to before the selected date
@@ -398,7 +395,7 @@ const ResourceCalendar = () => {
         eventClick={checkEventClick}
         select={addEventSelected}
         eventContent={eventRender}
-        resourceAreaWidth={"10%"}
+        resourceAreaWidth={'10%'}
         resourceAreaHeaderContent={'Organization'}
         // add a 'Change Name' button when displaying resources (Organizations) on the left column
         resourceLabelContent={resourceRender}

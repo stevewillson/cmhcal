@@ -274,13 +274,18 @@ const CalTools = () => {
     }
   }
 
+  const toggleEditMode = (event) => {
+    dispatch({
+      type: 'SET_EDIT_MODE',
+      payload: {
+        editModeOn: event.target.checked,
+      }
+    })
+  }
+
   return (
     <React.Fragment>
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              <div>
+              <div className="top-tools">
                 <label htmlFor='importDataFile'>Import File:</label>
                 <input 
                   type="file" 
@@ -372,14 +377,12 @@ const CalTools = () => {
                   type="checkbox" 
                   id="editModeCheckbox"
                   defaultChecked={true}
-                  //onChange={() => refreshCal()} 
-                  // TODO: Refresh the calendar when the box is toggled
+                  // set the redux state to capture 'editMode' for shared state
+                  onChange={toggleEditMode}
                 />
                 <label htmlFor="editModeCheckbox">Edit Mode On</label>
               </div>
-            </td>
-            <td>
-              <div>
+              <div className="top-categories">
       <h4>Categories:</h4>
       {calCategories.map((category) => 
         <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
@@ -388,9 +391,7 @@ const CalTools = () => {
         </div>
       )}
       </div>
-      </td>
-      <td>
-      <div>
+      <div className="top-organizations">
       <h4>Organizations:</h4>
       {flattenGenArray(calState.calResources).map((resource) => 
         <div key={uuidv4()} data-org-id={resource.id} onClick={renameOrg}>
@@ -399,11 +400,6 @@ const CalTools = () => {
         </div>
       )}
       </div>
-      </td>              
-            </tr>
-          </tbody>
-        </table>
-
     </React.Fragment>
   );
 };

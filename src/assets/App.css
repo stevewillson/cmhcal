@@ -7,13 +7,18 @@
   display: grid;
 }
 
-.top {
-  grid-column-start: 1 / 2;
+.top-tools {
+  grid-column-start: 1;
   grid-row: 1;
 }
 
-.top-right-layout {
+.top-categories {
   grid-column-start: 2;
+  grid-row: 1;
+}
+
+.top-organizations {
+  grid-column-start: 3;
   grid-row: 1;
 }
 

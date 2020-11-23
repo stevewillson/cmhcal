@@ -43,6 +43,7 @@ const initialState = {
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
+  editMode: true,
 }
 
 const emptyState = {
@@ -52,6 +53,7 @@ const emptyState = {
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
+  editMode: true,
 }
 
 const reducer = (state = initialState, action) => {
@@ -301,6 +303,11 @@ const reducer = (state = initialState, action) => {
       return initialState;
     } else if (action.payload.purgeType === 'yes') {
       return emptyState;
+    }
+  } else if(action.type === 'SET_EDIT_MODE') {
+    return {
+      ...state,
+      editMode: action.payload.editModeOn,
     }
   }
   return state;
