@@ -66,7 +66,6 @@ describe('test organization manipulation', () => {
   })
 
   test('remove child org', () => {
-    debugger;
     expect(
       reducer({
         calResources: [{
@@ -106,7 +105,6 @@ describe('test organization manipulation', () => {
   })
 
   test('remove child org', () => {
-    debugger;
     expect(
       reducer({
         calResources: [{
