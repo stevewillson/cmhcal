@@ -44,6 +44,8 @@ const initialState = {
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
   editMode: true,
+  displayCategories: true,
+  displayOrganizations: true,
 }
 
 const emptyState = {
@@ -54,6 +56,8 @@ const emptyState = {
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
   editMode: true,
+  displayCategories: true,
+  displayOrganizations: true,
 }
 
 const reducer = (state = initialState, action) => {
@@ -308,6 +312,16 @@ const reducer = (state = initialState, action) => {
     return {
       ...state,
       editMode: action.payload.editModeOn,
+    }
+  } else if(action.type === 'SET_DISPLAY_ORGANIZATIONS') {
+    return {
+      ...state,
+      displayOrganizations: action.payload.displayOrganizations,
+    }
+  } else if(action.type === 'SET_DISPLAY_CATEGORIES') {
+    return {
+      ...state,
+      displayCategories: action.payload.displayCategories,
     }
   }
   return state;

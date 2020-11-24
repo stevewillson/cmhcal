@@ -9,6 +9,7 @@ const CalTools = () => {
   var calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
   //var calResources = useSelector(state => state.calResources);
   var calCategories = useSelector(state => state.calCategories);
+  var { displayCategories, displayOrganizations } = useSelector(state => state);
   
   const dispatch = useDispatch();
 
@@ -283,6 +284,24 @@ const CalTools = () => {
     })
   }
 
+  const toggleDisplayCategories = (event) => {
+    dispatch({
+      type: 'SET_DISPLAY_CATEGORIES',
+      payload: {
+        displayCategories: event.target.checked,
+      }
+    })
+  }
+
+  const toggleDisplayOrganizations = (event) => {
+    dispatch({
+      type: 'SET_DISPLAY_ORGANIZATIONS',
+      payload: {
+        displayOrganizations: event.target.checked,
+      }
+    })
+  }
+
   return (
     <React.Fragment>
               <div className="top-tools">
@@ -383,8 +402,17 @@ const CalTools = () => {
                 <label htmlFor="editModeCheckbox">Edit Mode On</label>
               </div>
               <div className="top-categories">
-      <h4>Categories:</h4>
-      {calCategories.map((category) => 
+      <h4>Categories
+        <input
+          type="checkbox" 
+          id="displayCategoriesCheckbox"
+          defaultChecked={true}
+          // set the redux state to capture 'displayCategories' for shared state
+          onChange={toggleDisplayCategories}
+        />
+        <label htmlFor="displayCategoriesCheckbox">Show</label>
+      </h4>
+      {displayCategories && calCategories.map((category) => 
         <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
           {category.name}
           <button onClick={() => deleteCat(category.id)}>X</button>
@@ -392,8 +420,17 @@ const CalTools = () => {
       )}
       </div>
       <div className="top-organizations">
-      <h4>Organizations:</h4>
-      {flattenGenArray(calState.calResources).map((resource) => 
+      <h4>Organizations
+      <input
+        type="checkbox" 
+        id="displayOrganizationsCheckbox"
+        defaultChecked={true}
+        // set the redux state to capture 'displayOrganizations' for shared state
+        onChange={toggleDisplayOrganizations}
+      />
+      <label htmlFor="displayOrganizationsCheckbox">Show</label>
+      </h4>
+      {displayOrganizations && flattenGenArray(calState.calResources).map((resource) => 
         <div key={uuidv4()} data-org-id={resource.id} onClick={renameOrg}>
           {resource.title}
           <button onClick={() => deleteOrg(resource.id)}>X</button>
