@@ -1,6 +1,6 @@
 # CMHCal Consolidated Multi-echelon Horseblanket Calendar
 
-The CMHCal tool is designed to display information in an easily modifyable format that is quickly aggregated to other echelons.
+The CMHCal tool is designed to display horseblanket calendar information in an easily modifiable format that is quickly aggregated to other echelons.
 
 ![cmhcal_screenshot][screenshot_1]
 
@@ -8,7 +8,7 @@ The CMHCal tool is designed to display information in an easily modifyable forma
 
 ## Installation
 
-1. Clone the git repository `git clone git@gitlab.com:stevewillson/cmhcal.git`
+1. Clone the git repository `git clone git@gitlab.com:cmhcal/cmhcal.git`
 2. Change directory to the cloned repository `cd cmhcal`
 3. Install dependencies `npm install`
 4. Start a development server `npm start`
@@ -16,7 +16,7 @@ The CMHCal tool is designed to display information in an easily modifyable forma
 
 ## Package to a single `index.html` file
 
-1. Clone the git repository `git clone git@gitlab.com:stevewillson/cmhcal.git`
+1. Clone the git repository `git clone git@gitlab.com:cmhcal/cmhcal.git`
 2. Change directory to the cloned repository `cd cmhcal`
 3. Install dependencies `npm install`
 4. Build the application `npm run build`
