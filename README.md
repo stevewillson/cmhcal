@@ -44,5 +44,28 @@ Once calendar information has been entered, select the 'Export' button to downlo
 A JSON CMHCAL file may be imported by selecting the 'Import File' button and then selecting the file. This will include all of the Organizations, Categories, and Events.
 
 
+# CMHCal Design
 
+CMHCal is designed to run 'stand-alone'. Once the single `index.html` file is delivered to a computer, all processing is done locally. This provides the ability for CMHCal to operate on disconnected computers. At this time, users must export and import CMHCal JSON files to share information.
 
+CMHCal uses the ReactJS and `create react app` framework and Redux for state management across components. CMHCal is built using FullCalendar Resource Timeline view.
+
+There are two components used in CMHCal (in the `src/components` folder), `CalTools` and `ResourceCalendar`
+
+## CalTools
+
+CalTools provides the top bar with import / export functionality as well as setting the calendar view ranges. CalTools provide a way to add Organizations and Categories to the calendar.
+
+An 'Edit Mode On' checkbox allows a user to toggle 'Edit Mode' for better printing.
+
+## ResourceCalendar
+
+The resource calendar displays the calendar events in a 'horseblanket style' format (organizations on the left in rows, and days as columns). The top rows also display Month (MMM YY format), Fiscal Year Week (weeks since Oct 01 of that year), relative 'T' week (from today's date), and the day (DD day of the week format). In each of the rows, an organization appears on the left and events for that organization appear in the cells. There may be multiple events for a day (they will be displayed in the same row).
+
+There are two views for the ResourceCalendar, Day View and Week View. Each view displays a day or week granularity respectively. The views can be changed by selecting the 'Day View' or 'Week View' buttons at the top right of the calendar.
+
+Events may be added by highlighting days with the mouse and entering a title. Events can be moved between organizations by dragging them. Event categories may be changed by clicking the 'Toggle Category' button on the event while in 'Edit Mode'.
+
+## Redux
+
+A 'reducer' handles the dispatched actions. Components dispatch actions that are handled by the reducer and a global state is changed. Appropriate parts of the global state are read by each component. The reducer handles changes in state. Each modification action is written as a 'dispatch' with a 'payload'.
