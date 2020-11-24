@@ -8,7 +8,7 @@ const App = () => {
   return (
     <div className="App">    
       <div className="grid-container">
-        <div className="top">
+        <div>
           <CalTools />
         </div>
         <div className="cal-layout">
