@@ -8,8 +8,6 @@ import { store, persistor } from './configureStore'
 
 import App from './assets/App';
 
-import * as serviceWorker from '../../cmhcal/src/serviceWorker.js';
-
 ReactDOM.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
@@ -18,6 +16,3 @@ ReactDOM.render(
   </Provider>, 
   document.getElementById('root')
 );
-
-serviceWorker.register();
-
