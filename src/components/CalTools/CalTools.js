@@ -1,23 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
+
+import DateRangeSelect from './DateRangeSelect';
+
+import AddOrganizationDisplay from './AddOrganizationDisplay';
+import AddCategoryDisplay from './AddCategoryDisplay';
+import CategoryDisplay from './CategoryDisplay';
+import OrganizationDisplay from './OrganizationDisplay';
 
 const CalTools = () => {
-  // get state values from redux
-  var calDateRangeStart = useSelector(state => state.calDateRangeStart)
-  var calDateRangeEnd = useSelector(state => state.calDateRangeEnd)
-  //var calResources = useSelector(state => state.calResources);
-  var calCategories = useSelector(state => state.calCategories);
-  var { displayCategories, displayOrganizations } = useSelector(state => state);
-  
   const dispatch = useDispatch();
 
-  const [addOrgName, setAddOrgName] = useState('');
-  const [addParentOrgId, setAddParentOrgId] = useState('None');
-  const [addCatName, setAddCatName] = useState('');
-  const [addCatColor, setAddCatColor] = useState('');
-
+  // get state values from redux
   const calState = useSelector(state => { 
     return { 
       calEvents: state.calEvents, 
@@ -26,87 +21,6 @@ const CalTools = () => {
       calDateRangeStart: state.calDateRangeStart, 
       calDateRangeEnd: state.calDateRangeEnd, 
     }})
-
-  const btnStyle = {
-    backgroundColor: '#707070',
-    color: 'white',
-    border: 'none',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    margin: '6px',
-    textAlign: 'center',
-    fontSize: '16px',
-  } 
-
-  const flatten = (obj, path = '') => {      
-    if (!(obj instanceof Object)) return {[path.replace(/-$/g, '')]:obj};
-    // get the keys
-    // check if the descended object have a 'children' property, if yes, then call flatten recursively on the children
-    // if no, or the children array is empty, then this is a 'leaf' node with no children
-    return Object.keys(obj).reduce((output, key) => {
-      if (obj instanceof Array) {
-        return {...output, ...flatten(obj[key], path)}
-      }
-      if (key === 'children' && obj.children.length > 0) {
-        // we have a non-zero length children object, call flatten again
-        return {...output, ...flatten(obj.children, path + obj.title + '-' )}
-      } else if (key === 'id') {
-        return {...output, [path + obj.title]: obj[key]}
-      }
-      return {...output}
-    }, {});
-  }
-  
-  // this will take an array with the following structure
-  // { id: 'ID', title: 'TITLE', children: [] }
-  // it will then output the following objects
-  // { id: 'ID', path: 'PATH-PATH-PATH' }
-  const flattenGenArray = (obj) => {
-    const flatObj = flatten(obj);
-    let newFlatObj = [];
-    // loop through the flat object and then make a new object with id and title pairs
-    for(var i = 0; i < Object.keys(flatObj).length; i = i + 1) {
-      newFlatObj.push({
-        title: Object.keys(flatObj)[i],
-        id: flatObj[Object.keys(flatObj)[i]],
-      })
-    }
-    
-    return newFlatObj;
-  }
-
-  const addOrg = (orgName, parentOrgId) => {
-    if (orgName === '') {
-      alert('Please specify an organization name');
-    } else {
-      dispatch({ 
-        type: 'CREATE_ORG', 
-        payload: { 
-          title: orgName,
-          id: uuidv4(),
-          parent: parentOrgId || 'None',
-        }
-      });
-      setAddOrgName('');  
-    }
-  }
-
-  const addCat = (catName, catColor) => {
-    if (catName === '') {
-      alert('Please specify a category name');
-    } else {
-      dispatch({ 
-        type: 'CREATE_CATEGORY', 
-        payload: {
-          id: uuidv4(),
-          name: catName,
-          color: catColor,
-        }
-      });
-      setAddCatName('');
-      setAddCatColor('');  
-    }
-  }
 
   const importData = async (event) => {
     const importFile = event.target.files[0];
@@ -221,83 +135,11 @@ const CalTools = () => {
     })  
   }
 
-  const deleteCat = (id) => {
-    // console.log('DELETE CATEGORY');
-    dispatch({
-      type: 'DELETE_CATEGORY',
-      payload: {
-        id: id,
-      }
-    })
-  }
-
-  const deleteOrg = (id) => {
-    //console.log('DELETE ORG');
-    dispatch({
-      type: 'DELETE_ORG',
-      payload: {
-        id: id,
-      }
-    })
-  }
-
-  const renameOrg = (event) => {
-    //console.log('RENAME ORG')
-    //console.log(event)
-    if (event.target.innerText !== 'X') {
-      const resourceName = prompt("Set the organization title")
-      if (resourceName !== '' && resourceName !== null) {
-        dispatch({ 
-          type: 'UPDATE_ORG', 
-          payload: {
-            title: resourceName,
-            id: event.target.dataset.orgId,
-          },
-        });
-      };
-    }
-  }
-
-  const renameCat = (event) => {
-    //console.log('RENAME CAT')
-    //console.log(event)
-    if (event.target.innerText !== 'X') {
-      const categoryName = prompt("Set the category title")
-      if (categoryName !== '' && categoryName !== null) {
-        dispatch({ 
-          type: 'UPDATE_CATEGORY', 
-          payload: {
-            title: categoryName,
-            id: event.target.dataset.catId,
-          },
-        });
-      };
-    }
-  }
-
   const toggleEditMode = (event) => {
     dispatch({
       type: 'SET_EDIT_MODE',
       payload: {
         editModeOn: event.target.checked,
-      }
-    })
-  }
-
-  const toggleDisplayCategories = (event) => {
-    dispatch({
-      type: 'SET_DISPLAY_CATEGORIES',
-      payload: {
-        displayCategories: event.target.checked,
-      }
-    })
-  }
-
-  const toggleDisplayOrganizations = (event) => {
-    dispatch({
-      type: 'SET_DISPLAY_ORGANIZATIONS',
-      payload: {
-        displayOrganizations: event.target.checked,
       }
     })
   }
@@ -310,88 +152,18 @@ const CalTools = () => {
                   type="file" 
                   id="importDataFile" 
                   onChange={importData}
-                  style={btnStyle}
                 />
-                <button style={btnStyle} onClick={() => exportData(calState)}>Export</button>
-                <button 
-                  style={btnStyle} 
+                <button onClick={() => exportData(calState)}>Export</button>
+                <button  
                   onClick={() => purgeCalendar()} 
                 >
                   Clear Calendar and Local Storage
                 </button>
               </div>
-              <label htmlFor='fromDate'>Display From:</label> 
-              <input
-                id='fromDate'
-                type='date'
-                value={calDateRangeStart}
-                onChange={event => dispatch({ type: 'CAL_DATE_RANGE_START', payload: { date: event.target.value }})} 
-              />
-              <label htmlFor='toDate'>To:</label>
-              <input
-                id='toDate'
-                type='date'
-                value={calDateRangeEnd}
-                onChange={event => dispatch({ type: 'CAL_DATE_RANGE_END', payload: { date: event.target.value }})}
-              />
+              <DateRangeSelect />
+              <AddOrganizationDisplay />
+              <AddCategoryDisplay />
               <div>
-                <label htmlFor='addOrgText'>Add Organization:</label>
-                <input
-                  id='addOrgText'
-                  type='text'
-                  value={addOrgName}
-                  onChange={event => setAddOrgName(event.target.value)}
-                />
-                <label htmlFor='addOrgParent'>Set Parent Organization:</label>
-                <select
-                  onChange={event => setAddParentOrgId(event.target.selectedOptions[0].value)} 
-                  id="addOrgParent" 
-                  value={addParentOrgId}      
-                >
-                  <option 
-                    key={uuidv4()} 
-                    value={"None"}
-                  >
-                  {"None"}
-                  </option>
-                  {flattenGenArray(calState.calResources).map(org => 
-                  <option 
-                    key={uuidv4()} 
-                    value={org.id}
-                  >
-                  {org.title}
-                  </option>
-                  )}
-                </select>
-
-                <button 
-                  type="button" 
-                  onClick={() => addOrg(addOrgName, addParentOrgId)} 
-                >
-                Add Organization
-                </button>
-              </div>
-              <div>
-                <label htmlFor='addCatNameText'>Add Category:</label>
-                <input
-                  id='addCatNameText'
-                  type='text'
-                  value={addCatName}
-                  onChange={event => setAddCatName(event.target.value)}
-                />
-                <label htmlFor='addCatColorText'>Color:</label>
-                <input
-                  id='addCatColorText'
-                  type='text'
-                  value={addCatColor}
-                  onChange={event => setAddCatColor(event.target.value)}
-                />
-                <button 
-                  type="button" 
-                  onClick={() => addCat(addCatName, addCatColor)} 
-                >
-                  Add Category
-                </button>
                 <input
                   type="checkbox" 
                   id="editModeCheckbox"
@@ -401,42 +173,8 @@ const CalTools = () => {
                 />
                 <label htmlFor="editModeCheckbox">Edit Mode On</label>
               </div>
-              <div className="top-categories">
-      <h4>Categories
-        <input
-          type="checkbox" 
-          id="displayCategoriesCheckbox"
-          defaultChecked={true}
-          // set the redux state to capture 'displayCategories' for shared state
-          onChange={toggleDisplayCategories}
-        />
-        <label htmlFor="displayCategoriesCheckbox">Show</label>
-      </h4>
-      {displayCategories && calCategories.map((category) => 
-        <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
-          {category.name}
-          <button onClick={() => deleteCat(category.id)}>X</button>
-        </div>
-      )}
-      </div>
-      <div className="top-organizations">
-      <h4>Organizations
-      <input
-        type="checkbox" 
-        id="displayOrganizationsCheckbox"
-        defaultChecked={true}
-        // set the redux state to capture 'displayOrganizations' for shared state
-        onChange={toggleDisplayOrganizations}
-      />
-      <label htmlFor="displayOrganizationsCheckbox">Show</label>
-      </h4>
-      {displayOrganizations && flattenGenArray(calState.calResources).map((resource) => 
-        <div key={uuidv4()} data-org-id={resource.id} onClick={renameOrg}>
-          {resource.title}
-          <button onClick={() => deleteOrg(resource.id)}>X</button>
-        </div>
-      )}
-      </div>
+      <CategoryDisplay />
+      <OrganizationDisplay />
     </React.Fragment>
   );
 };
