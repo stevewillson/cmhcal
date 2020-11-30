@@ -69,3 +69,141 @@ Events may be added by highlighting days with the mouse and entering a title. Ev
 ## Redux
 
 A 'reducer' handles the dispatched actions. Components dispatch actions that are handled by the reducer and a global state is changed. Appropriate parts of the global state are read by each component. The reducer handles changes in state. Each modification action is written as a 'dispatch' with a 'payload'.
+
+## CMHCal Data Structure
+
+CMHCal uses a stored state that can be exported and imported to display categories, organizations, and events. The structure is below
+
+```
+{
+  "calEvents": [
+    {
+      "title": "Event 1",
+      "start": "2020-11-27",
+      "end": "2020-12-02",
+      "id": "1c0fbe65-2578-4101-ba3e-c15f12b75528",
+      "resourceId": "8d629f12-eac9-4289-bf09-7c2646d7694c",
+      "category": "Category 1",
+      "color": "orange",
+      "url": ""
+    },
+    {
+      "title": "Event 2",
+      "start": "2020-11-30",
+      "end": "2020-12-05",
+      "id": "9951a408-a8ee-417c-a37c-9d5c585a4ca1",
+      "resourceId": "63dab0c3-922e-47e4-844e-3e0e268bbc93",
+      "url": "",
+      "category": "Category 2",
+      "color": "blue"
+    },
+    {
+      "title": "Event 3",
+      "start": "2020-11-27",
+      "end": "2020-12-02",
+      "id": "53652c79-89a5-4bbe-8e32-332e308ecbe9",
+      "resourceId": "32d3aa15-804f-434c-8501-667e72a10bbc",
+      "url": "",
+      "category": "Category 1",
+      "color": "orange"
+    }
+  ],
+  "calResources": [
+    {
+      "id": "8d629f12-eac9-4289-bf09-7c2646d7694c",
+      "title": "Org 1",
+      "children": [
+        {
+          "id": "926f15e2-70f9-430e-8e41-f2869b694bf2",
+          "title": "Org Nest 1",
+          "children": []
+        },
+        {
+          "id": "63dab0c3-922e-47e4-844e-3e0e268bbc93",
+          "title": "Org Nest 2",
+          "children": [
+            {
+              "id": "32d3aa15-804f-434c-8501-667e72a10bbc",
+              "title": "Org Nest 3",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7b6fd54d-b033-40e4-974e-ab31f84575ad",
+      "title": "Lateral Org 4",
+      "children": []
+    }
+  ],
+  "calCategories": [
+    {
+      "id": "349b8e84-ef4c-455c-9b87-04c351739325",
+      "name": "Category 1",
+      "color": "orange"
+    },
+    {
+      "id": "3b02e586-d537-40ae-a4ad-61377dcdc239",
+      "name": "Category 2",
+      "color": "blue"
+    }
+  ],
+  "calDateRangeStart": "2020-11-24",
+  "calDateRangeEnd": "2021-01-05"
+}
+```
+
+
+`calEvents` defines an array of objects that are each events.
+
+```
+"calEvents": [
+    {
+        "title": "Event 1",
+        "start": "2020-11-27",
+        "end": "2020-12-02",
+        "id": "1c0fbe65-2578-4101-ba3e-c15f12b75528",
+        "resourceId": "8d629f12-eac9-4289-bf09-7c2646d7694c",
+        "category": "Category 1",
+        "color": "orange",
+        "url": ""
+    },
+]
+```
+
+`calOrganizations` defines an array of objects that are each organizations (also known as Resources by FullCalendar). Organizations may be nested using the `children` array inside each organization.
+
+```
+"calResources": [
+    {
+      "id": "8d629f12-eac9-4289-bf09-7c2646d7694c",
+      "title": "Org 1",
+      "children": [
+        {
+          "id": "63dab0c3-922e-47e4-844e-3e0e268bbc93",
+          "title": "Org Nest 2",
+          "children": [
+            {
+              "id": "32d3aa15-804f-434c-8501-667e72a10bbc",
+              "title": "Org Nest 3",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+]
+```
+
+`calCategories` is an array of objects that defines categories.
+
+```
+"calCategories": [
+    {
+        "id": "349b8e84-ef4c-455c-9b87-04c351739325",
+        "name": "Category 1",
+        "color": "orange"
+    },
+],
+```
