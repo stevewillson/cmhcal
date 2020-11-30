@@ -1,7 +1,5 @@
-// this will be where the 'dispatch' actions are
 // allow the calendar to abstract the backend for future extension
-
-// put the 'dispatch' actions here for now
+// put the 'dispatch' actions here, add backend 'requests' in future
 // import { requestEventsInRange, requestEventCreate, requestEventUpdate, requestEventDelete } from './requests'
 
 import { store } from '../../configureStore';
@@ -15,15 +13,14 @@ export const createEvent = (plainEventObject) => {
       end: plainEventObject.end.toISOString().slice(0,10),
       id: plainEventObject.id,
       resourceId: plainEventObject.getResources()[0]._resource.id,
-      url: ''
+      url: plainEventObject.url,
+      color: plainEventObject.backgroundColor,
+      extendedProps: { category: plainEventObject.extendedProps.category }
     },
   });
 }
 
 export const updateEvent = (plainEventObject) => {
-// check how the event was changed, update only that part of the event
-
-  //debugger;
   store.dispatch({ 
     type: 'UPDATE_EVENT', 
     payload: {
@@ -46,31 +43,4 @@ export const deleteEvent = (eventId) => {
       id: eventId,
     }
   })
-
 }
-
-  /*
-
-  updateEvent(plainEventObject) {
-    return (dispatch) => {
-      return requestEventUpdate(plainEventObject).then(() => {
-        dispatch({
-          type: 'UPDATE_EVENT',
-          plainEventObject
-        })
-      })
-    }
-  },
-
-  deleteEvent(eventId) {
-    return (dispatch) => {
-      return requestEventDelete(eventId).then(() => {
-        dispatch({
-          type: 'DELETE_EVENT',
-          eventId
-        })
-      })
-    }
-  }
-
-  */

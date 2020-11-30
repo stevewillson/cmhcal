@@ -10,6 +10,8 @@ import { createEvent, updateEvent, deleteEvent } from './actions';
 
 import { resourceRender } from './resourceHandler';
 
+import { customSlotLabelContent } from './slotLabelContentDisplay';
+
 const ResourceCalendar = () => {
   // get state values from redux
   var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources, editMode } = useSelector(state => state);
@@ -21,6 +23,14 @@ const ResourceCalendar = () => {
     calendarApi.unselect() // clear date selection
 
     if (title) {
+      // add an event to the first category
+
+      let eventCategory = '';
+      let eventColor = '';
+      if (calCategories.length > 0) {
+        eventCategory = calCategories[0].name
+        eventColor = calCategories[0].color
+      } 
       calendarApi.addEvent({ // will render immediately. will call handleEventAdd
         title,
         start: selectInfo.startStr,
@@ -29,6 +39,8 @@ const ResourceCalendar = () => {
         id: uuidv4(),
         resourceId: selectInfo.resource.id,
         url: '',
+        backgroundColor: eventColor,
+        extendedProps: { category: eventCategory }
       }, true) // temporary=true, will get overwritten when reducer gives new events
     }
   };
@@ -72,7 +84,6 @@ const ResourceCalendar = () => {
     } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Link") {
       clickInfo.jsEvent.preventDefault();
     } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "X") {
-      clickInfo.event.remove();
       clickInfo.jsEvent.preventDefault();
     }
   }
@@ -108,7 +119,7 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
             {' - '}
-            <button>X</button>
+            <button onClick={() => info.event.remove()}>X</button>
           </>
         )
       }
@@ -133,7 +144,7 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
             {' - '}
-            <button>X</button>
+            <button onClick={() => info.event.remove()}>X</button>
           </>
         )
       }
@@ -146,61 +157,6 @@ const ResourceCalendar = () => {
           <b>{info.event.end.toISOString().slice(5,10)}</b>
         </>
       )
-    }
-  }
-
-  const customSlotLabelContent = (arg) => {
-    // for arg.level '1', display the FY Week (starting on week 1)
-    if (arg.level === 1) {
-      let calDate = DateTime.fromJSDate(arg.date);
-      // to calculate the Fiscal Year week, need to find the number of weeks from
-      // the previous Monday to the prior October 1
-
-      // first, get the Monday
-      let prevMonday = calDate;
-      // hacky way of making sure that the calendar ends on a Monday when set to week granularity
-      while (prevMonday.weekday !== 1) {
-        prevMonday = prevMonday.minus({ days: 1 })
-      }  
-      
-      let dateYear = calDate.year;
-      if (calDate.month < 10) {
-        // use October 1 from the previous year if the month is before October
-        dateYear = dateYear - 1;
-      }
-      let fyStart = DateTime.local(dateYear, 10, 1);
-      let weekDiff = prevMonday.diff(fyStart, ['weeks']);
-      let weekNum = Math.ceil(weekDiff.weeks);
-      return 'FY W' + weekNum;
-      // get the date, calculate how many weeks after October 1st this date is
-      // return that for the weeks
-    } else if (arg.level === 2) {
-      // here put in the 'T' week with relative 'T' + / - numbers
-      // get the current date, calculate week differences
-      let calDate = DateTime.fromJSDate(arg.date);
-      // first, get the Monday
-      let calPrevMonday = calDate;
-      // hacky way of making sure that the calendar ends on a Monday when set to week granularity
-      while (calPrevMonday.weekday !== 1) {
-        calPrevMonday = calPrevMonday.minus({ days: 1 })
-      }
-      
-      let nowPrevMonday = DateTime.local();
-      while (nowPrevMonday.weekday !== 1) {
-        nowPrevMonday = nowPrevMonday.minus({ days: 1 })
-      }
-      
-      let weekDiff = calPrevMonday.diff(nowPrevMonday, ['weeks']);
-      let weekNum = Math.ceil(weekDiff.weeks);
-      if (weekNum > 0) {
-        return 'T+' + weekNum;
-      }
-      return 'T' + weekNum;
-    } else if (arg.level === 3 && arg.view.type === 'WeekView') {
-      // put in start / stop dates for the long range calendar week view
-      let calDate = DateTime.fromJSDate(arg.date);
-      let weekEndDate = calDate.plus({ days: 6 })
-      return calDate.toFormat('ddMMM').toUpperCase() + ' - ' + weekEndDate.toFormat('ddMMM').toUpperCase()
     }
   }
 
