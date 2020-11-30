@@ -3,120 +3,85 @@ import FullCalendar from '@fullcalendar/react';
 import resourceTimeline from '@fullcalendar/resource-timeline';
 import interaction from '@fullcalendar/interaction';
 import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
+
+import { createEvent, updateEvent, deleteEvent } from './actions';
+
+import { resourceRender } from './resourceHandler';
 
 const ResourceCalendar = () => {
   // get state values from redux
   var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources, editMode } = useSelector(state => state);
-  
-  const dispatch = useDispatch();
  
-  const addEventSelected = (info) => {
-    //console.log('EVENT SELECT')
-    //console.log(info)
-    const start = new DateTime.fromISO(info.startStr)
-    const end = new DateTime.fromISO(info.endStr)
-    const eventName = prompt("Set the title")
-    if (eventName !== '' && eventName !== null) {
-      dispatch({ 
-        type: 'CREATE_EVENT', 
-        payload: {
-          title: eventName,
-          start: start.toISODate(),
-          end: end.toISODate(),
-          id: uuidv4(),
-          resourceId: info.resource.id,
-          url: ''
-        },
-      });
-    };
-  };
+  const handleDateSelect = (selectInfo) => {
+    let calendarApi = selectInfo.view.calendar
+    let title = prompt('Please enter a new title for your event')
 
-  const renameEvent = (id) => {
-    //console.log('EVENT CLICK')
-    // check to see whether the button 'X' was clicked to delete the event
-    const eventName = prompt("Set the title")
-    if (eventName !== '' && eventName !== null) {
-      dispatch({ 
-        type: 'UPDATE_EVENT', 
-        payload: {
-          title: eventName,
-          id: id,
-        },
-      });
+    calendarApi.unselect() // clear date selection
+
+    if (title) {
+      calendarApi.addEvent({ // will render immediately. will call handleEventAdd
+        title,
+        start: selectInfo.startStr,
+        end: selectInfo.endStr,
+        allDay: selectInfo.allDay,
+        id: uuidv4(),
+        resourceId: selectInfo.resource.id,
+        url: '',
+      }, true) // temporary=true, will get overwritten when reducer gives new events
     }
   };
 
-  const setEventLink = (id) => {
-    //console.log('EVENT CLICK')
+  const handleEventAdd = (addInfo) => {
+    // use this to call the create event function in the 'actions'
+    createEvent(addInfo.event);
+  }
+
+  const handleEventChange = (changeInfo) => {
+    // use this to call the create event function in the 'actions'
+    updateEvent(changeInfo.event);
+  }
+
+  const handleEventRemove = (removeInfo) => {
+    // use this to call the create event function in the 'actions'
+    deleteEvent(removeInfo.event.id)
+  }
+
+  const renameEvent = (event) => {
+    // check to see whether the button 'X' was clicked to delete the event
+    const eventTitle = prompt("Set the title")
+    if (eventTitle !== '' && eventTitle !== null) {
+      event.setProp('title', eventTitle);
+    }
+  };
+  const setEventLink = (event) => {
     // check to see whether the button 'eventLink' was clicked to delete the event
     // allow setting a blank link ''
-    const eventLinkName = prompt("Set the event link")
-    dispatch({ 
-      type: 'UPDATE_EVENT', 
-      payload: {
-        url: eventLinkName || '' ,
-        id: id,
-      },
-    });
+    const eventUrl = prompt("Set the event link")
+    event.setProp('url', eventUrl);
   };
 
-  const eventResize = (info) => {
-    const start = new DateTime.fromISO(info.event.start.toISOString());
-    const end = new DateTime.fromISO(info.event.end.toISOString());
-    // this will explicitly set the event end time
-    dispatch({ 
-      type: 'UPDATE_EVENT', 
-      payload: {
-        start: start.toISODate(),
-        end: end.toISODate(),
-        id: info.event.id,
-      },
-    });
-  };
-
-  const eventDrop = (info) => {
-    const start = new DateTime.fromISO(info.event.start.toISOString());
-    const end = new DateTime.fromISO(info.event.end.toISOString());
-    let eventResource = ''
-    // set the event end time
-    if (info.newResource !== null) {
-      eventResource = info.newResource.id;
-    } else {
-      eventResource = info.event.getResources()[0].id;
-    }
-    dispatch({ 
-      type: 'UPDATE_EVENT', 
-      payload: {
-        start: start.toISODate(),
-        end: end.toISODate(),
-        id: info.event.id,
-        resourceId: eventResource,
-      },
-    });
-  };
-
-  const checkEventClick = (info) => {
+  const handleEventClick = (clickInfo) => {
     // prevent the url link from being followed if one of the event buttons is clicked
 
-    if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Toggle Cat") {
-      info.jsEvent.preventDefault();
-    } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Edit Name") {
-      info.jsEvent.preventDefault();
-    } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "Edit Link") {
-      info.jsEvent.preventDefault();
-    } else if (info.jsEvent?.toElement?.innerText !== undefined && info.jsEvent.toElement.innerText === "X") {
-      info.jsEvent.preventDefault();
+    if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Toggle Cat") {
+      clickInfo.jsEvent.preventDefault();
+    } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Name") {
+      clickInfo.jsEvent.preventDefault();
+    } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Link") {
+      clickInfo.jsEvent.preventDefault();
+    } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "X") {
+      clickInfo.event.remove();
+      clickInfo.jsEvent.preventDefault();
     }
   }
 
-  const toggleEventCategory = (id, curCategory) => {
+  const toggleEventCategory = (event) => {
     // choose the next category
     const catNameList = calCategories.map(category => category.name)
     const catColorList = calCategories.map(category => category.color)
-    let curIndex = catNameList.indexOf(curCategory)
+    let curIndex = catNameList.indexOf(event.extendedProps.category)
     if (curIndex  === catNameList.length - 1 || curIndex === -1) {
       curIndex = 0;
     } else {
@@ -125,31 +90,11 @@ const ResourceCalendar = () => {
     const newIndex = curIndex;
     const newCategory = catNameList[newIndex];
     const newColor = catColorList[newIndex];
-    //Choose the event category
-    // get a dropdown with the available categories
-    dispatch({
-      type: 'UPDATE_EVENT',
-      payload: {
-        category: newCategory,
-        color: newColor,
-        id: id,
-      }
-    })
+    event.setExtendedProp('category', newCategory);
+    event.setProp('backgroundColor', newColor);
   }
 
   const eventRender = (info) => {
-    //console.log('EVENT RENDER');
-    // SIDE EFFECT, how to move this outside of the eventContent location?
-    /*
-    if (info.event.extendedProps.category) {
-      const eventCat = calCategories.filter(category => category.name === info.event.extendedProps.category) 
-      if (eventCat.length > 0) {
-        info.event.setProp('backgroundColor', eventCat[0].color);
-        //info.el.style.backgroundColor = eventCat[0].color;
-      }
-    }
-    */
-
     // edit mode is now captured in the redux state
     if (info.view.type === "DayView") {
       if (editMode) {
@@ -157,13 +102,13 @@ const ResourceCalendar = () => {
           <>
             <b>{info.event.title}</b>
             {' - '}
-            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+            <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => setEventLink(info.event.id)}>Edit Link</button>
+            <button onClick={() => setEventLink(info.event)}>Edit Link</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
             {' - '}
-            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            <button>X</button>
           </>
         )
       }
@@ -182,13 +127,13 @@ const ResourceCalendar = () => {
             {' - '}
             <b>{info.event.end.toISOString().slice(5,10)}</b>
             {' - '}
-            <button onClick={() => renameEvent(info.event.id)}>Edit Name</button>
+            <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => setEventLink(info.event.id)}>Edit Link</button>
+            <button onClick={() => setEventLink(info.event)}>Edit Link</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event.id, info.event.extendedProps.category)}>Toggle Cat</button>  
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
             {' - '}
-            <button onClick={() => deleteEvent(info.event.id)}>X</button>
+            <button>X</button>
           </>
         )
       }
@@ -202,52 +147,6 @@ const ResourceCalendar = () => {
         </>
       )
     }
-  }
-  const deleteEvent = (id) => {
-    //console.log('DELETE EVENT');
-    dispatch({
-      type: 'DELETE_EVENT',
-      payload: {
-        id: id,
-      }
-    })
-  }
-
-  const renameResource = (resource) => {
-    //console.log('RENAME RESOURCE')
-    //console.log(resource)
-    const resourceName = prompt("Set the organization title")
-    if (resourceName !== '' && resourceName !== null) {
-      dispatch({ 
-        type: 'UPDATE_ORG', 
-        payload: {
-          title: resourceName,
-          id: resource.id,
-        },
-      });
-    };
-  }
-
-  const resourceRender = (info) => {
-    let editModeBtn = document.getElementById("editModeCheckbox");
-    let editMode = true;
-    if (editModeBtn !== null) {
-      editMode = editModeBtn.checked;
-    } 
-    if (editMode) {
-      return (
-        <>
-          {info.resource.title}
-          {' - '}
-          <button onClick={() => renameResource(info.resource)}>Change Name</button>  
-        </>
-      )  
-    }
-    return (
-      <>
-        {info.resource.title}
-      </>
-    )
   }
 
   const customSlotLabelContent = (arg) => {
@@ -305,7 +204,7 @@ const ResourceCalendar = () => {
     }
   }
 
-  // make sure that the LongRange view starts on a Monday,
+  // start weekView on a Monday,
   // if not, then fullCalendar will not allow the left most date column
   // to be selected because it is not fully included in the visible range 
   const setLongRangeStartDate = () => {
@@ -330,81 +229,77 @@ const ResourceCalendar = () => {
     return newCalDateEnd.toISODate();
   }
 
-  var calendarRef = React.createRef();
-
   return (
-    <React.Fragment>
-      <FullCalendar
-        ref={calendarRef}
-        //added to suppress license key prompt
-        schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
-        initialView={'DayView'}
-        timeZone={'local'}
-        plugins={[ interaction, resourceTimeline ]} 
-        headerToolbar={{
-          left: '',
-          center: 'title',
-          right: 'DayView WeekView',
-        }}
-        editable={true}
-        height={'auto'}
-        views={{
-          'DayView': {
-            type: 'resourceTimeline',
-            visibleRange: {
-              start: calDateRangeStart,
-              end: calDateRangeEnd, 
-            },
-            buttonText: 'Day View',
-            slotLabelInterval: { days: 1 },
-            slotLabelFormat: [
-              { month: 'short', year: '2-digit' },
-              { week: 'short' },
-              { week: 'short' },
-              { day: 'numeric', weekday: 'narrow' },
-            ],
+    <FullCalendar
+      //added to suppress license key prompt
+      schedulerLicenseKey={'GPL-My-Project-Is-Open-Source'}
+      initialView={'DayView'}
+      timeZone={'local'}
+      plugins={[ interaction, resourceTimeline ]} 
+      headerToolbar={{
+        left: '',
+        center: 'title',
+        right: 'DayView WeekView',
+      }}
+      editable={true}
+      height={'auto'}
+      views={{
+        'DayView': {
+          type: 'resourceTimeline',
+          visibleRange: {
+            start: calDateRangeStart,
+            end: calDateRangeEnd, 
           },
-          'WeekView': {
-            type: 'resourceTimeline',
-            visibleRange: {
-              // find the previous Monday to set the start date to before the selected date
-              start: setLongRangeStartDate(),
-              // find the next Monday to set the end date to after the selected date
-              end: setLongRangeEndDate(), 
-            },
-            buttonText: "Week View",
-            slotDuration: { weeks: 1 },
-            slotLabelInterval: { weeks: 1 },
-            slotLabelFormat: [
-              { month: 'short', year: '2-digit' },
-              { week: 'short' },
-              { week: 'short' },
-              { week: 'short' },
-            ]
-          }
-        }}
-        // set the top rows with custom data to display Month Year, Fiscal Year Week
-        // Relative 'T' Week
-        // Then various settings (Day and Narrow Day of the Week or Start / Stop day for weekly view)
-        slotLabelContent={customSlotLabelContent}
-        events={calEvents}
-        resources={calResources}
-        selectable={true}
-        eventResize={eventResize}
-        eventDrop={eventDrop}
-        eventClick={checkEventClick}
-        select={addEventSelected}
-        eventContent={eventRender}
-        resourceAreaWidth={'10%'}
-        resourceAreaHeaderContent={'Organization'}
-        // add a 'Change Name' button when displaying resources (Organizations) on the left column
-        resourceLabelContent={resourceRender}
-        // order the resources (Organizations) by Title
-        resourceOrder={'title'}
-        // set week to begin on Monday
-        firstDay={'1'}
-      />
-    </React.Fragment>
+          buttonText: 'Day View',
+          slotLabelInterval: { days: 1 },
+          slotLabelFormat: [
+            { month: 'short', year: '2-digit' },
+            { week: 'short' },
+            { week: 'short' },
+            { day: 'numeric', weekday: 'narrow' },
+          ],
+        },
+        'WeekView': {
+          type: 'resourceTimeline',
+          visibleRange: {
+            // find the previous Monday to set the start date to before the selected date
+            start: setLongRangeStartDate(),
+            // find the next Monday to set the end date to after the selected date
+            end: setLongRangeEndDate(), 
+          },
+          buttonText: "Week View",
+          slotDuration: { weeks: 1 },
+          slotLabelInterval: { weeks: 1 },
+          slotLabelFormat: [
+            { month: 'short', year: '2-digit' },
+            { week: 'short' },
+            { week: 'short' },
+            { week: 'short' },
+          ]
+        }
+      }}
+      // set the top rows with custom data to display Month Year, Fiscal Year Week
+      // Relative 'T' Week
+      // Then various settings (Day and Narrow Day of the Week or Start / Stop day for weekly view)
+      slotLabelContent={customSlotLabelContent}
+      events={calEvents}
+      resources={calResources}
+      selectable={true}
+      eventClick={handleEventClick}
+      select={handleDateSelect}
+      eventContent={eventRender}
+      resourceAreaWidth={'10%'}
+      resourceAreaHeaderContent={'Organization'}
+      // add a 'Change Name' button when displaying resources (Organizations) on the left column
+      resourceLabelContent={resourceRender}
+      // order the resources (Organizations) by Title
+      resourceOrder={'title'}
+      // set week to begin on Monday
+      firstDay={'1'}
+      eventAdd={handleEventAdd}
+      eventChange={handleEventChange}
+      eventRemove={handleEventRemove}
+    />
   );
 };
 
