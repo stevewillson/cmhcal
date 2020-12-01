@@ -9,8 +9,8 @@ export const createEvent = (plainEventObject) => {
     type: 'CREATE_EVENT', 
     payload: {
       title: plainEventObject.title,
-      start: plainEventObject.start.toISOString().slice(0.10),
-      end: plainEventObject.end.toISOString().slice(0,10),
+      start: plainEventObject.start.toISOString().replace(/T.*$/, ''),
+      end: plainEventObject.end.toISOString().replace(/T.*$/, ''),
       id: plainEventObject.id,
       resourceId: plainEventObject.getResources()[0]._resource.id,
       url: plainEventObject.url,
@@ -25,8 +25,8 @@ export const updateEvent = (plainEventObject) => {
     type: 'UPDATE_EVENT', 
     payload: {
       title: plainEventObject.title,
-      start: plainEventObject.start.toISOString().slice(0.10),
-      end: plainEventObject.end.toISOString().slice(0,10),
+      start: plainEventObject.start.toISOString().replace(/T.*$/, ''),
+      end: plainEventObject.end.toISOString().replace(/T.*$/, ''),
       id: plainEventObject.id,
       resourceId: plainEventObject.getResources()[0]._resource.id,
       url: plainEventObject.url,
