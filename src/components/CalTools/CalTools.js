@@ -146,33 +146,33 @@ const CalTools = () => {
 
   return (
     <React.Fragment>
-              <div className="top-tools">
-                <label htmlFor='importDataFile'>Import File:</label>
-                <input 
-                  type="file" 
-                  id="importDataFile" 
-                  onChange={importData}
-                />
-                <button onClick={() => exportData(calState)}>Export</button>
-                <button  
-                  onClick={() => purgeCalendar()} 
-                >
-                  Clear Calendar and Local Storage
-                </button>
-              </div>
-              <DateRangeSelect />
-              <AddOrganizationDisplay />
-              <AddCategoryDisplay />
-              <div>
-                <input
-                  type="checkbox" 
-                  id="editModeCheckbox"
-                  defaultChecked={true}
-                  // set the redux state to capture 'editMode' for shared state
-                  onChange={toggleEditMode}
-                />
-                <label htmlFor="editModeCheckbox">Edit Mode On</label>
-              </div>
+      <div className="top-tools">
+        <label htmlFor='importDataFile'>Import File:</label>
+        <input 
+          type="file" 
+          id="importDataFile" 
+          onChange={importData}
+        />
+        <button onClick={() => exportData(calState)}>Export</button>
+        <button  
+          onClick={() => purgeCalendar()} 
+        >
+          Clear Calendar and Local Storage
+        </button>
+      </div>
+      <DateRangeSelect />
+      <AddOrganizationDisplay />
+      <AddCategoryDisplay />
+      <div>
+        <input
+          type="checkbox" 
+          id="editModeCheckbox"
+          defaultChecked={true}
+          // set the redux state to capture 'editMode' for shared state
+          onChange={toggleEditMode}
+        />
+        <label htmlFor="editModeCheckbox">Edit Mode On</label>
+      </div>
       <CategoryDisplay />
       <OrganizationDisplay />
     </React.Fragment>

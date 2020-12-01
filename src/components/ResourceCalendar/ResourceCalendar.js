@@ -7,9 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 import { createEvent, updateEvent, deleteEvent } from './actions';
-
 import { resourceRender } from './resourceHandler';
-
 import { customSlotLabelContent } from './slotLabelContentDisplay';
 
 const ResourceCalendar = () => {
@@ -23,8 +21,7 @@ const ResourceCalendar = () => {
     calendarApi.unselect() // clear date selection
 
     if (title) {
-      // add an event to the first category
-
+      // set the first category as the category for added events
       let eventCategory = '';
       let eventColor = '';
       if (calCategories.length > 0) {
@@ -250,7 +247,7 @@ const ResourceCalendar = () => {
       resourceLabelContent={resourceRender}
       // order the resources (Organizations) by Title
       resourceOrder={'title'}
-      // set week to begin on Monday
+      // set Monday as the first day of the week
       firstDay={'1'}
       eventAdd={handleEventAdd}
       eventChange={handleEventChange}
