@@ -1,18 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
+//import { useDispatch } from 'react-redux';
 
-import DateRangeSelect from './DateRangeSelect';
 
-import AddOrganizationDisplay from './AddOrganizationDisplay';
-import AddCategoryDisplay from './AddCategoryDisplay';
-import CategoryDisplay from './CategoryDisplay';
-import OrganizationDisplay from './OrganizationDisplay';
-import SaveAndLoadCal from './SaveAndLoadCal';
 
-const CalTools = () => {
-  const dispatch = useDispatch();
+const SaveAndLoadCal = () => {
+  //const dispatch = useDispatch();
 
+
+  const [loadFileUrl, setLoadFileUrl] = useState('');
+  const [saveFileUrl, setSaveFileUrl] = useState('');
+  
   // get state values from redux
   const calState = useSelector(state => { 
     return { 
@@ -23,14 +21,34 @@ const CalTools = () => {
       calDateRangeEnd: state.calDateRangeEnd, 
     }})
 
-  const importData = async (event) => {
-    const importFile = event.target.files[0];
+  const loadFile = async (loadFileUrl) => {
     try {
-      const fileContents = await readFile(importFile);
-      const jsonData = JSON.parse(fileContents)
+
+      fetch(loadFileUrl, {
+        method: 'get',
+        headers: {
+          "Accept": "application/json;odata=verbose"
+        },
+        credentials: 'same-origin'
+      })
+        .then(response => {
+          console.log(response)
+          //return response.body.json()
+        }).then(data => {
+          // this is the data in the response, I want to get the file content
+          console.log(data)
+          // now we have a file, get a readable stream of the file and read the contents
+      
+        }).catch(error => {
+        // Handle error
+          console.log(error.message);
+        });
 
       // iterate through the events in the import file and import them in one by one
       // set the state here from redux
+
+
+      /*
 
       // if there are no events on the calendar, use the 'import data' function
       if (calState.calEvents.length === 0) {
@@ -90,12 +108,15 @@ const CalTools = () => {
           }
         })
       }
+
+      */
       // if there are events, then append the events and add categories
     } catch (e) {
       console.log(e.message);
     }
   };
 
+  /*
   // read the binary contents of the file
   const readFile = file => {
     const temporaryFileReader = new FileReader();
@@ -124,61 +145,64 @@ const CalTools = () => {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-  }
 
-  const purgeCalendar = () => {
-    let purgePrompt = prompt("Type 'yes' to confirm clearing the calendar,\ntype 'initial' to load a new default state");
-    dispatch({
-      type: 'PURGE_CALENDAR',
-      payload: {
-        purgeType: purgePrompt,
-      }
-    })  
+ 
   }
+*/
+  const saveFile = (saveFileUrl, state) => {
+    const outData = JSON.stringify(state);
+    //Download the file as a JSON formatted text file
+    var downloadLink = document.createElement("a");
+    var blob = new Blob(["\ufeff", outData]);
+    var url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    const outFileName = 'cmhcal_output.txt'
+    downloadLink.download = outFileName;  //Name the file here
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
 
-  const toggleEditMode = (event) => {
-    dispatch({
-      type: 'SET_EDIT_MODE',
-      payload: {
-        editModeOn: event.target.checked,
-      }
-    })
+ 
   }
 
   return (
     <React.Fragment>
       <div className="top-tools">
-        <label htmlFor='importDataFile'>Import File:</label>
-        <input 
-          type="file" 
-          id="importDataFile" 
-          onChange={importData}
-        />
-        <button onClick={() => exportData(calState)}>Export</button>
-        <button  
-          onClick={() => purgeCalendar()} 
-        >
-          Clear Calendar and Local Storage
-        </button>
-      </div>
-      <DateRangeSelect />
-      <AddOrganizationDisplay />
-      <AddCategoryDisplay />
-      <div>
+        <label htmlFor='loadFileUrl'>:</label>
         <input
-          type="checkbox" 
-          id="editModeCheckbox"
-          defaultChecked={true}
-          // set the redux state to capture 'editMode' for shared state
-          onChange={toggleEditMode}
+          id='loadFileUrl'
+          type='text'
+          value={loadFileUrl}
+          onChange={event => setLoadFileUrl(event.target.value)}
         />
-        <label htmlFor="editModeCheckbox">Edit Mode On</label>
+        <label htmlFor='loadFile'>Load File:</label>
+        <button 
+          type="button" 
+          id="loadFile" 
+          onClick={() => loadFile(loadFileUrl)}
+        >Load
+        </button>
+
+
+        <label htmlFor='saveFileUrl'>:</label>
+        <input
+          id='saveFileUrl'
+          type='text'
+          value={saveFileUrl}
+          onChange={event => setSaveFileUrl(event.target.value)}
+        />
+        <label htmlFor='saveFile'>Save File:</label>
+        <button 
+          type="button" 
+          id="saveFile" 
+          onClick={() => saveFile(saveFileUrl, calState)}
+        >Save 
+        </button>
+
       </div>
-      <CategoryDisplay />
-      <OrganizationDisplay />
-      <SaveAndLoadCal />
+
     </React.Fragment>
   );
 };
 
-export default CalTools;
+export default SaveAndLoadCal;
