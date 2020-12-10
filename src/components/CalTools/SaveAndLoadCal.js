@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-//import { useDispatch } from 'react-redux';
-
-
+import { useDispatch } from 'react-redux';
 
 const SaveAndLoadCal = () => {
-  //const dispatch = useDispatch();
-
-
+  const dispatch = useDispatch();
   const [loadFileUrl, setLoadFileUrl] = useState('');
   const [saveFileUrl, setSaveFileUrl] = useState('');
   
@@ -23,7 +19,6 @@ const SaveAndLoadCal = () => {
 
   const loadFile = async (loadFileUrl) => {
     try {
-
       fetch(loadFileUrl, {
         method: 'get',
         headers: {
@@ -31,26 +26,28 @@ const SaveAndLoadCal = () => {
         },
         credentials: 'same-origin'
       })
-        .then(response => {
-          console.log(response)
-          //return response.body.json()
-        }).then(data => {
-          // this is the data in the response, I want to get the file content
-          console.log(data)
-          // now we have a file, get a readable stream of the file and read the contents
-      
+        .then(response => response.text())
+        .then(data => {
+          let jsonVals = JSON.parse(data)
+          console.log(jsonVals)
+          loadDataFromContent(jsonVals)
+          
+          
+          // now import the data
         }).catch(error => {
         // Handle error
           console.log(error.message);
         });
+      } catch (e) {
+        console.log(e.message);
+      }
+    };
 
+  const loadDataFromContent = (jsonData) => {
       // iterate through the events in the import file and import them in one by one
-      // set the state here from redux
+      // set the redux state
 
-
-      /*
-
-      // if there are no events on the calendar, use the 'import data' function
+      // if there are no events on the calendar, use the 'import data' action
       if (calState.calEvents.length === 0) {
         // the calendar is empty, just add the resources
         dispatch({
@@ -64,6 +61,7 @@ const SaveAndLoadCal = () => {
           },
         });  
       } else {
+        // if there are events, then append the events and add categories
         const curCalResourceIds = calState.calResources.map(resource => resource.id);
         const curCalCategoryIds = calState.calCategories.map(category => category.id);
         const curCalEventIds = calState.calEvents.map(event => event.id);
@@ -108,99 +106,63 @@ const SaveAndLoadCal = () => {
           }
         })
       }
-
-      */
-      // if there are events, then append the events and add categories
-    } catch (e) {
-      console.log(e.message);
     }
-  };
 
-  /*
-  // read the binary contents of the file
-  const readFile = file => {
-    const temporaryFileReader = new FileReader();
-    return new Promise((resolve, reject) => {
-      temporaryFileReader.onerror = () => {
-        temporaryFileReader.abort();
-        reject(new DOMException('Problem parsing input file.'));
-      };
-      temporaryFileReader.onload = () => {
-        let text = temporaryFileReader.result;
-        resolve(text);
-      }
-      temporaryFileReader.readAsText(file);
-    });
-  };
-
-  const exportData = (state) => {
-    const outData = JSON.stringify(state);
-    //Download the file as a JSON formatted text file
-    var downloadLink = document.createElement("a");
-    var blob = new Blob(["\ufeff", outData]);
-    var url = URL.createObjectURL(blob);
-    downloadLink.href = url;
-    const outFileName = 'cmhcal_output.txt'
-    downloadLink.download = outFileName;  //Name the file here
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
- 
-  }
-*/
   const saveFile = (saveFileUrl, state) => {
     const outData = JSON.stringify(state);
     //Download the file as a JSON formatted text file
-    var downloadLink = document.createElement("a");
-    var blob = new Blob(["\ufeff", outData]);
-    var url = URL.createObjectURL(blob);
-    downloadLink.href = url;
-    const outFileName = 'cmhcal_output.txt'
-    downloadLink.download = outFileName;  //Name the file here
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    //const outFileName = 'cmhcal_output.txt'
 
- 
+    // TODO - https://sharepoint.stackexchange.com/questions/238383/the-security-validation-for-this-page-is-invalid-and-might-be-corrupted-when-t
+    fetch(saveFileUrl, {
+      method: 'post',
+      headers: {
+        "Accept": "application/json;odata=verbose"
+        // "X-RequestDigest": ADD DATA
+      },
+      credentials: 'same-origin',
+      body: outData
+    }).then(results => results.text())
+      .then((data) => {
+        console.log(data);
+        console.log('Sucessfully saved file to ' + saveFileUrl);
+    }).catch(error => {
+      // Handle error
+        console.log(error.message);
+    });
+    //return response.json(); 
   }
 
   return (
     <React.Fragment>
-      <div className="top-tools">
-        <label htmlFor='loadFileUrl'>:</label>
+      <div>
+        <label htmlFor='loadFileUrl'>Load File URL:</label>
         <input
           id='loadFileUrl'
           type='text'
           value={loadFileUrl}
           onChange={event => setLoadFileUrl(event.target.value)}
         />
-        <label htmlFor='loadFile'>Load File:</label>
         <button 
           type="button" 
           id="loadFile" 
           onClick={() => loadFile(loadFileUrl)}
         >Load
         </button>
-
-
-        <label htmlFor='saveFileUrl'>:</label>
+        <label htmlFor='saveFileUrl'>Save File URL:</label>
         <input
           id='saveFileUrl'
           type='text'
           value={saveFileUrl}
           onChange={event => setSaveFileUrl(event.target.value)}
         />
-        <label htmlFor='saveFile'>Save File:</label>
         <button 
           type="button" 
           id="saveFile" 
           onClick={() => saveFile(saveFileUrl, calState)}
         >Save 
         </button>
-
       </div>
-
     </React.Fragment>
   );
 };
