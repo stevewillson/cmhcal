@@ -18,6 +18,7 @@ const SaveAndLoadCal = () => {
     }})
 
   const loadFile = async (loadFileUrl) => {
+    // loadFileUrl should be of the form https://<SHAREPOINT_SITE>/_api/web/GetFolderByServerRelativeUrl('Shared Documents/horseblanket_calendar')/Files('cmhcal_output1.txt')/$value
     try {
       fetch(loadFileUrl, {
         method: 'get',
@@ -29,11 +30,9 @@ const SaveAndLoadCal = () => {
         .then(response => response.text())
         .then(data => {
           let jsonVals = JSON.parse(data)
-          console.log(jsonVals)
-          loadDataFromContent(jsonVals)
-          
-          
+          //console.log(jsonVals)
           // now import the data
+          loadDataFromContent(jsonVals)
         }).catch(error => {
         // Handle error
           console.log(error.message);
@@ -112,25 +111,39 @@ const SaveAndLoadCal = () => {
     const outData = JSON.stringify(state);
     //Download the file as a JSON formatted text file
     //const outFileName = 'cmhcal_output.txt'
+    let baseUrl = saveFileUrl.split('/_api/')[0]
+    let contextUrl = baseUrl + "/_api/contextinfo"
 
-    // TODO - https://sharepoint.stackexchange.com/questions/238383/the-security-validation-for-this-page-is-invalid-and-might-be-corrupted-when-t
-    fetch(saveFileUrl, {
+    // get the RequestDigest by doing a post request to the contextinfo endpoint
+    // use this information in the fetch request to save the file
+    // url should be of the form https://<SHAREPOINT_SITE>/_api/web/GetFolderByServerRelativeUrl('Shared Documents/horseblanket_calendar')/files/add(overwrite=true,url='cmhcal_output1.txt')
+    fetch(contextUrl, {
       method: 'post',
       headers: {
         "Accept": "application/json;odata=verbose"
-        // "X-RequestDigest": ADD DATA
-      },
-      credentials: 'same-origin',
-      body: outData
-    }).then(results => results.text())
-      .then((data) => {
-        console.log(data);
-        console.log('Sucessfully saved file to ' + saveFileUrl);
-    }).catch(error => {
-      // Handle error
-        console.log(error.message);
-    });
-    //return response.json(); 
+      }
+    }).then(d => d.text())
+      .then((dData) => {
+        // console.log(dData)
+        let jsonDData = JSON.parse(dData);
+        // console.log(jsonDData);
+        fetch(saveFileUrl, {
+          method: 'post',
+          headers: {
+            "Accept": "application/json;odata=verbose",
+            "X-RequestDigest": jsonDData.d.GetContextWebInformation.FormDigestValue 
+          },
+          credentials: 'same-origin',
+          body: outData
+        }).then(results => results.text())
+          .then((data) => {
+            // console.log(data);
+            console.log('Sucessfully saved file to ' + saveFileUrl);
+        }).catch(error => {
+          // Handle error
+            console.log(error.message);
+        });
+    })   
   }
 
   return (
