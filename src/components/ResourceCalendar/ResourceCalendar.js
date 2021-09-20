@@ -199,6 +199,7 @@ const ResourceCalendar = () => {
       }}
       editable={true}
       height={'auto'}
+      scrollTime={null}
       views={{
         'DayView': {
           type: 'resourceTimeline',
