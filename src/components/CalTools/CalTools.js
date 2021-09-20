@@ -12,6 +12,12 @@ import OrganizationDisplay from './OrganizationDisplay';
 const CalTools = () => {
   const dispatch = useDispatch();
 
+  // make a hidden file chooser button
+
+  const hiddenFileChooserButton = {
+    display: 'none'
+  }
+
   // get state values from redux
   const calState = useSelector(state => { 
     return { 
@@ -22,79 +28,85 @@ const CalTools = () => {
       calDateRangeEnd: state.calDateRangeEnd, 
     }})
 
-  const importData = async (event) => {
-    const importFile = event.target.files[0];
+  const handleImportDataButton = async () => {
     try {
-      const fileContents = await readFile(importFile);
-      const jsonData = JSON.parse(fileContents)
+      var input = document.getElementById("importDataFile");
+      input.onchange = async function() {
+        const importFile = input.files[0];
+        const fileContents = await readFile(importFile);
+        const jsonData = JSON.parse(fileContents)
 
-      // iterate through the events in the import file and import them in one by one
-      // set the state here from redux
-
-      // if there are no events on the calendar, use the 'import data' function
-      if (calState.calEvents.length === 0) {
-        // the calendar is empty, just add the resources
-        dispatch({
-          type: 'IMPORT_DATA',
-          payload: {
-            calEvents: jsonData.calEvents,
-            calResources: jsonData.calResources,
-            calCategories: jsonData.calCategories,
-            calDateRangeStart: jsonData.calDateRangeStart,
-            calDateRangeEnd: jsonData.calDateRangeEnd,
-          },
-        });  
-      } else {
-        const curCalResourceIds = calState.calResources.map(resource => resource.id);
-        const curCalCategoryIds = calState.calCategories.map(category => category.id);
-        const curCalEventIds = calState.calEvents.map(event => event.id);
-        // first create resources and categories
-        jsonData.calResources.forEach(resource => {
-          if (curCalResourceIds.indexOf(resource.id) === -1) {
-            dispatch({ 
-              type: 'CREATE_ORG', 
-              payload: {
-                title: resource.title,
-                id: resource.id,        
-              },
-            });
-          }
-        })
-        jsonData.calCategories.forEach(category =>{
-          if (curCalCategoryIds.indexOf(category.id) === -1) {
-            dispatch({ 
-              type: 'CREATE_CATEGORY', 
-              payload: {
-                id: category.id,
-                name: category.name,
-                color: category.color,       
-              },
-            });
-          }
-        })
-        jsonData.calEvents.forEach(event => {
-          if (curCalEventIds.indexOf(event.id) === -1) {
-            dispatch({ 
-              type: 'CREATE_EVENT', 
-              payload: {
-                title: event.title,
-                start: event.start,
-                end: event.end,
-                id: event.id,
-                resourceId: event.resourceId,
-                color: event.color || '',
-                url: event.url || '',
-              },
-            });
-          }
-        })
+        // iterate through the events in the import file and import them in one by one
+        // set the state here from redux
+  
+        // if there are no events on the calendar, use the 'import data' function
+        if (calState.calEvents.length === 0) {
+          // the calendar is empty, just add the resources
+          dispatch({
+            type: 'IMPORT_DATA',
+            payload: {
+              calEvents: jsonData.calEvents,
+              calResources: jsonData.calResources,
+              calCategories: jsonData.calCategories,
+              calDateRangeStart: jsonData.calDateRangeStart,
+              calDateRangeEnd: jsonData.calDateRangeEnd,
+            },
+          });  
+        } else {
+          // calendar is not empty, iterate through to add each event
+          const curCalResourceIds = calState.calResources.map(resource => resource.id);
+          const curCalCategoryIds = calState.calCategories.map(category => category.id);
+          const curCalEventIds = calState.calEvents.map(event => event.id);
+          // first create resources and categories
+          jsonData.calResources.forEach(resource => {
+            if (curCalResourceIds.indexOf(resource.id) === -1) {
+              dispatch({ 
+                type: 'CREATE_ORG', 
+                payload: {
+                  title: resource.title,
+                  id: resource.id,        
+                },
+              });
+            }
+          })
+          jsonData.calCategories.forEach(category =>{
+            if (curCalCategoryIds.indexOf(category.id) === -1) {
+              dispatch({ 
+                type: 'CREATE_CATEGORY', 
+                payload: {
+                  id: category.id,
+                  name: category.name,
+                  color: category.color,       
+                },
+              });
+            }
+          })
+          jsonData.calEvents.forEach(event => {
+            if (curCalEventIds.indexOf(event.id) === -1) {
+              dispatch({ 
+                type: 'CREATE_EVENT', 
+                payload: {
+                  title: event.title,
+                  start: event.start,
+                  end: event.end,
+                  id: event.id,
+                  resourceId: event.resourceId,
+                  color: event.color || '',
+                  url: event.url || '',
+                },
+              });
+            }
+          })
+        }
+        // reset the input value to allow for additional files to be imported
+        input.value = null;
       }
-      // if there are events, then append the events and add categories
+      input.click();
     } catch (e) {
       console.log(e.message);
     }
   };
-
+  
   // read the binary contents of the file
   const readFile = file => {
     const temporaryFileReader = new FileReader();
@@ -147,18 +159,14 @@ const CalTools = () => {
   return (
     <React.Fragment>
               <div className="top-tools">
-                <label htmlFor='importDataFile'>Import File:</label>
                 <input 
                   type="file" 
-                  id="importDataFile" 
-                  onChange={importData}
+                  id="importDataFile"
+                  style={hiddenFileChooserButton} 
                 />
+                <button onClick={() => handleImportDataButton()}>Import</button>
                 <button onClick={() => exportData(calState)}>Export</button>
-                <button  
-                  onClick={() => purgeCalendar()} 
-                >
-                  Clear Calendar and Local Storage
-                </button>
+                <button onClick={() => purgeCalendar()}>Clear Calendar and Local Storage</button>
               </div>
               <DateRangeSelect />
               <AddOrganizationDisplay />
