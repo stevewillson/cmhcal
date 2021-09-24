@@ -147,6 +147,25 @@ const ResourceCalendar = () => {
             <button onClick={() => info.event.remove()}>X</button>
           </>
         )
+      }    } else if (info.view.type === "WeekView" || info.view.type === "MonthView") {
+      if (editMode) {
+        return (
+          <>
+            <b>{info.event.title}</b>
+            {' - '}
+            <b>{info.event.start.toISOString().slice(5,10)}</b>
+            {' - '}
+            <b>{info.event.end.toISOString().slice(5,10)}</b>
+            {' - '}
+            <button onClick={() => renameEvent(info.event)}>Edit Name</button>
+            {' - '}
+            <button onClick={() => setEventLink(info.event)}>Edit Link</button>
+            {' - '}
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
+            {' - '}
+            <button onClick={() => info.event.remove()}>X</button>
+          </>
+        )
       }
       return (
         <>
@@ -195,7 +214,7 @@ const ResourceCalendar = () => {
       headerToolbar={{
         left: '',
         center: 'title',
-        right: 'DayView WeekView',
+        right: 'DayView WeekView MonthView',
       }}
       editable={true}
       height={'auto'}
@@ -227,6 +246,24 @@ const ResourceCalendar = () => {
           buttonText: "Week View",
           slotDuration: { weeks: 1 },
           slotLabelInterval: { weeks: 1 },
+          slotLabelFormat: [
+            { month: 'short', year: '2-digit' },
+            { week: 'short' },
+            { week: 'short' },
+            { week: 'short' },
+          ]
+        },
+        'MonthView': {
+          type: 'resourceTimeline',
+          visibleRange: {
+            // find the previous Monday to set the start date to before the selected date
+            start: setLongRangeStartDate(),
+            // find the next Monday to set the end date to after the selected date
+            end: setLongRangeEndDate(), 
+          },
+          buttonText: "Month View",
+          slotDuration: { months: 1 },
+          slotLabelInterval: { months: 1 },
           slotLabelFormat: [
             { month: 'short', year: '2-digit' },
             { week: 'short' },
