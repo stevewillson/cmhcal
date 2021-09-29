@@ -239,15 +239,19 @@ const reducer = (state = initialState, action) => {
     }
   } else if (action.type === 'CAL_DATE_RANGE_START') {
   // import the data that was read from the file
-    return {
-      ...state,
-      calDateRangeStart: action.payload.date,
+    if (action.payload.date !== '') {
+      return {
+        ...state,
+        calDateRangeStart: action.payload.date,
+      }  
     }
   } else if (action.type === 'CAL_DATE_RANGE_END') {
   // import the data that was read from the file
-    return {
-      ...state,
-      calDateRangeEnd: action.payload.date,
+    if (action.payload.date !== '') {
+      return {
+        ...state,
+        calDateRangeEnd: action.payload.date,
+      }  
     }
   } else if(action.type === 'PURGE_CALENDAR') {
     //console.log('Purging calendar')
