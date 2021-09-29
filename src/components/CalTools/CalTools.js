@@ -36,15 +36,12 @@ const CalTools = () => {
         const fileContents = await readFile(importFile);
         const jsonData = JSON.parse(fileContents)
 
-        // iterate through the events in the import file and import them in one by one
-
-        // iterate through to add each event
+        // iterate through to add each resource, category, and event
         const curCalResourceIds = calState.calResources.map(resource => resource.id);
         const curCalCategoryNames = calState.calCategories.map(category => category.name);
         const curCalEventIds = calState.calEvents.map(event => event.id);
+
         // first create resources and categories
-        // we don't save the parent of a child resource
-        // need to make a 'getParent' function to return the id of the child's parent
         jsonData.calResources.forEach(resource => {
           // check to see if the imported resource id is not already in the calendar
           if (curCalResourceIds.indexOf(resource.id) === -1) {
@@ -59,6 +56,7 @@ const CalTools = () => {
             });
           }
         })
+
         jsonData.calCategories.forEach(category =>{
           if (curCalCategoryNames.indexOf(category.name) === -1) {
             dispatch({ 
@@ -87,6 +85,26 @@ const CalTools = () => {
             });
           }
         })
+
+        // set the value of the start and end dates
+        if (jsonData.calDateRangeStart !== null && jsonData.calDateRangeStart !== '') {
+          dispatch({
+            type: 'CAL_DATE_RANGE_START',
+            payload: { 
+              date: jsonData.calDateRangeStart,
+            }
+          });
+        }
+
+        if (jsonData.calDateRangeEnd !== null && jsonData.calDateRangeEnd !== '') {
+          dispatch({
+            type: 'CAL_DATE_RANGE_END',
+            payload: { 
+              date: jsonData.calDateRangeEnd,
+            }
+          });  
+        }
+
         // reset the input value to allow for additional files to be imported
         input.value = null;
       }
