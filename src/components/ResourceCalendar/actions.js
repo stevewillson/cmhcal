@@ -9,8 +9,8 @@ export const createEvent = (plainEventObject) => {
     type: 'CREATE_EVENT', 
     payload: {
       title: plainEventObject.title,
-      start: plainEventObject.start.toISOString().slice(0.10),
-      end: plainEventObject.end.toISOString().slice(0,10),
+      start: plainEventObject.startStr,
+      end: plainEventObject.endStr,
       id: plainEventObject.id,
       resourceId: plainEventObject.getResources()[0]._resource.id,
       url: plainEventObject.url,
