@@ -10,16 +10,12 @@ export const customSlotLabelContent = (arg) => {
 
   // for arg.level '1', display the FY Week (starting on week 1)
   if (arg.level === 1) {
-    let calDate = DateTime.fromJSDate(arg.date);
+    const calDate = DateTime.fromJSDate(arg.date);
     // to calculate the Fiscal Year week, need to find the number of weeks from
     // the previous Monday to the prior October 1
 
-    // first, get the Monday
-    let prevMonday = calDate;
-    // hacky way of making sure that the calendar ends on a Monday when set to week granularity
-    while (prevMonday.weekday !== 1) {
-      prevMonday = prevMonday.minus({ days: 1 })
-    }  
+    // first, get the previous Monday
+    let prevMonday = calDate.minus({ days: (calDate.weekday - 1) })
     
     let dateYear = calDate.year;
     if (calDate.month < 10) {
@@ -34,30 +30,26 @@ export const customSlotLabelContent = (arg) => {
     // return that for the weeks
   } else if (arg.level === 2) {
     // here put in the 'T' week with relative 'T' + / - numbers
-    // get the current date, calculate week differences
-    let calDate = DateTime.fromJSDate(arg.date);
-    // first, get the Monday
-    let calPrevMonday = calDate;
-    // hacky way of making sure that the calendar ends on a Monday when set to week granularity
-    while (calPrevMonday.weekday !== 1) {
-      calPrevMonday = calPrevMonday.minus({ days: 1 })
-    }
+    // get the current date, calculate T week differences
+    const calDate = DateTime.fromJSDate(arg.date);
+
+    // subtract days to set calPrevMonday to the prior Monday
+    let calPrevMonday = calDate.minus({ days: (calDate.weekday - 1) });
     
-    let nowPrevMonday = DateTime.local();
-    while (nowPrevMonday.weekday !== 1) {
-      nowPrevMonday = nowPrevMonday.minus({ days: 1 })
-    }
-    
+    const nowDate = DateTime.local();
+
+    const nowPrevMonday = nowDate.minus({ days: (nowDate.weekday - 1) });
+        
     let weekDiff = calPrevMonday.diff(nowPrevMonday, ['weeks']);
     let weekNum = Math.ceil(weekDiff.weeks);
     if (weekNum > 0) {
       return 'T+' + weekNum;
     }
     return 'T' + weekNum;
-  } else if (arg.level === 3 && arg.view.type === 'WeekView') {
+  } else if (arg.level === 3 && (arg.view.type === 'WeekView' || arg.view.typ === 'MonthView')) {
     // put in start / stop dates for the long range calendar week view
-    let calDate = DateTime.fromJSDate(arg.date);
-    let weekEndDate = calDate.plus({ days: 6 })
+    const calDate = DateTime.fromJSDate(arg.date);
+    const weekEndDate = calDate.plus({ days: 6 })
     return calDate.toFormat('ddMMM').toUpperCase() + ' - ' + weekEndDate.toFormat('ddMMM').toUpperCase()
   }
 }

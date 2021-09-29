@@ -182,25 +182,46 @@ const ResourceCalendar = () => {
   // start weekView on a Monday,
   // if not, then fullCalendar will not allow the left most date column
   // to be selected because it is not fully included in the visible range 
-  const setLongRangeStartDate = () => {
-    // take the input date and find the previous monday to set the start date in long range mode
-    let calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
-    let newCalDateStart = calDateStart;
-    // hacky way of making sure that the calendar starts on a Monday when set to week granularity
-    while (newCalDateStart.weekday !== 1) {
-      newCalDateStart = newCalDateStart.minus({ days: 1 })
-    }
+  const setWeekViewStartDate = () => {
+    // take the input date and find the previous monday to set the start date in the week view mode
+    const calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
+    
+    // subtract days to set newCalDateStart to the prior Monday
+    const newCalDateStart = calDateStart.minus({ days: (calDateStart.weekday - 1) });
+    
     return newCalDateStart.toISODate();
   }
 
-  const setLongRangeEndDate = () => {
-    // take the input date and find the next Monday to set the end date in long range mode
-    let calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
-    let newCalDateEnd = calDateEnd;
-    // hacky way of making sure that the calendar ends on a Monday when set to week granularity
-    while (newCalDateEnd.weekday !== 1) {
-      newCalDateEnd = newCalDateEnd.plus({ days: 1 })
-    }
+  const setWeekViewEndDate = () => {
+    // take the input date and find the next Monday to set the end date in the week view mode
+    const calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
+      
+    // add days to set newCalDateEnd to the next Monday
+    const newCalDateEnd = calDateEnd.plus({ days: (8 - calDateEnd.weekday) });
+    
+    return newCalDateEnd.toISODate();
+  }
+
+  // start monthView on a the first day of the month,
+  // if not, then fullCalendar will not allow the left most date column
+  // to be selected because it is not fully included in the visible range 
+  const setMonthViewStartDate = () => {
+    // take the input date and find the first day of the month to set the start date in month view mode
+    const calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
+    
+    // subtract days to set newCalDateStart to the first day of the month
+    const newCalDateStart = calDateStart.minus({ days: (calDateStart.day - 1) });
+    
+    return newCalDateStart.toISODate();
+  }
+
+  const setMonthViewEndDate = () => {
+    // take the input date and find the first day of the next month to set the end date in month view mode
+    const calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
+    
+    // add days to set newCalDateEnd to the first day of the next month
+    const newCalDateEnd = calDateEnd.plus({ days: (calDateEnd.daysInMonth - calDateEnd.day + 1) });
+    
     return newCalDateEnd.toISODate();
   }
 
@@ -239,9 +260,9 @@ const ResourceCalendar = () => {
           type: 'resourceTimeline',
           visibleRange: {
             // find the previous Monday to set the start date to before the selected date
-            start: setLongRangeStartDate(),
+            start: setWeekViewStartDate(),
             // find the next Monday to set the end date to after the selected date
-            end: setLongRangeEndDate(), 
+            end: setWeekViewEndDate(), 
           },
           buttonText: "Week View",
           slotDuration: { weeks: 1 },
@@ -257,9 +278,9 @@ const ResourceCalendar = () => {
           type: 'resourceTimeline',
           visibleRange: {
             // find the previous Monday to set the start date to before the selected date
-            start: setLongRangeStartDate(),
+            start: setMonthViewStartDate(),
             // find the next Monday to set the end date to after the selected date
-            end: setLongRangeEndDate(), 
+            end: setMonthViewEndDate(), 
           },
           buttonText: "Month View",
           slotDuration: { months: 1 },
