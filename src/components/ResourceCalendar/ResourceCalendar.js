@@ -128,26 +128,7 @@ const ResourceCalendar = () => {
           <b>{info.event.title}</b> 
         </>
       )
-    } else if (info.view.type === "WeekView") {
-      if (editMode) {
-        return (
-          <>
-            <b>{info.event.title}</b>
-            {' - '}
-            <b>{info.event.start.toISOString().slice(5,10)}</b>
-            {' - '}
-            <b>{info.event.end.toISOString().slice(5,10)}</b>
-            {' - '}
-            <button onClick={() => renameEvent(info.event)}>Edit Name</button>
-            {' - '}
-            <button onClick={() => setEventLink(info.event)}>Edit Link</button>
-            {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
-            {' - '}
-            <button onClick={() => info.event.remove()}>X</button>
-          </>
-        )
-      }    } else if (info.view.type === "WeekView" || info.view.type === "MonthView") {
+      } else if (info.view.type === "WeekView" || info.view.type === "MonthView") {
       if (editMode) {
         return (
           <>
