@@ -37,67 +37,56 @@ const CalTools = () => {
         const jsonData = JSON.parse(fileContents)
 
         // iterate through the events in the import file and import them in one by one
-        // set the state here from redux
-  
-        // if there are no events on the calendar, use the 'import data' function
-        if (calState.calEvents.length === 0) {
-          // the calendar is empty, just add the resources
-          dispatch({
-            type: 'IMPORT_DATA',
-            payload: {
-              calEvents: jsonData.calEvents,
-              calResources: jsonData.calResources,
-              calCategories: jsonData.calCategories,
-              calDateRangeStart: jsonData.calDateRangeStart,
-              calDateRangeEnd: jsonData.calDateRangeEnd,
-            },
-          });  
-        } else {
-          // calendar is not empty, iterate through to add each event
-          const curCalResourceIds = calState.calResources.map(resource => resource.id);
-          const curCalCategoryIds = calState.calCategories.map(category => category.id);
-          const curCalEventIds = calState.calEvents.map(event => event.id);
-          // first create resources and categories
-          jsonData.calResources.forEach(resource => {
-            if (curCalResourceIds.indexOf(resource.id) === -1) {
-              dispatch({ 
-                type: 'CREATE_ORG', 
-                payload: {
-                  title: resource.title,
-                  id: resource.id,        
-                },
-              });
-            }
-          })
-          jsonData.calCategories.forEach(category =>{
-            if (curCalCategoryIds.indexOf(category.id) === -1) {
-              dispatch({ 
-                type: 'CREATE_CATEGORY', 
-                payload: {
-                  id: category.id,
-                  name: category.name,
-                  color: category.color,       
-                },
-              });
-            }
-          })
-          jsonData.calEvents.forEach(event => {
-            if (curCalEventIds.indexOf(event.id) === -1) {
-              dispatch({ 
-                type: 'CREATE_EVENT', 
-                payload: {
-                  title: event.title,
-                  start: event.start,
-                  end: event.end,
-                  id: event.id,
-                  resourceId: event.resourceId,
-                  color: event.color || '',
-                  url: event.url || '',
-                },
-              });
-            }
-          })
-        }
+
+        // iterate through to add each event
+        const curCalResourceIds = calState.calResources.map(resource => resource.id);
+        const curCalCategoryNames = calState.calCategories.map(category => category.name);
+        const curCalEventIds = calState.calEvents.map(event => event.id);
+        // first create resources and categories
+        // we don't save the parent of a child resource
+        // need to make a 'getParent' function to return the id of the child's parent
+        jsonData.calResources.forEach(resource => {
+          // check to see if the imported resource id is not already in the calendar
+          if (curCalResourceIds.indexOf(resource.id) === -1) {
+            let parentId = resource.parentId === "" ? "None" : resource.parentId;
+            dispatch({ 
+              type: 'CREATE_ORG', 
+              payload: {
+                title: resource.title,
+                id: resource.id,
+                parent: parentId,  
+              },
+            });
+          }
+        })
+        jsonData.calCategories.forEach(category =>{
+          if (curCalCategoryNames.indexOf(category.name) === -1) {
+            dispatch({ 
+              type: 'CREATE_CATEGORY', 
+              payload: {
+                id: category.id,
+                name: category.name,
+                color: category.color,       
+              },
+            });
+          }
+        })
+        jsonData.calEvents.forEach(event => {
+          if (curCalEventIds.indexOf(event.id) === -1) {
+            dispatch({ 
+              type: 'CREATE_EVENT', 
+              payload: {
+                title: event.title,
+                start: event.start,
+                end: event.end,
+                id: event.id,
+                resourceId: event.resourceId,
+                color: event.color || '',
+                url: event.url || '',
+              },
+            });
+          }
+        })
         // reset the input value to allow for additional files to be imported
         input.value = null;
       }

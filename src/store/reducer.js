@@ -1,8 +1,6 @@
 import { DateTime } from 'luxon';
 import { v4 as uuidv4 } from 'uuid';
 
-import '../components/helperFunctions';
-
 const calDateRangeStart = DateTime.local().toFormat('yyyy-MM-dd');
 const calDateRangeEnd = DateTime.local().plus({ weeks: 6 }).toFormat('yyyy-MM-dd');
 
@@ -14,7 +12,7 @@ const defaultCalResources = [
   {
     "id": calResourceUuid,
     "title":"Org 1",
-    "children":[]
+    "parentId":"",
   }];
 
 const defaultCalEvents = [
@@ -26,14 +24,14 @@ const defaultCalEvents = [
     "resourceId": calResourceUuid,
     "category":"Category 1",
     "color":"orange",
-    "url": '',
+    "url":"",
   }];
 
 const defaultCalCategories = [
   {
     "id": calCategoryUuid,
     "name":"Category 1",
-    "color":"orange"
+    "color":"orange",
   }];
 
 const initialState = {
@@ -62,28 +60,6 @@ const emptyState = {
 
 const reducer = (state = initialState, action) => {
 
-  // take an initial object, a label, search value (id) and newValue
-  // go through the object until the particular ID is found, then update that object
-  // object = calResource
-  // key 'id'
-  // val 'parentId'
-  // if found, then set 'children' to newVal
-  var updateObjectById = function(obj, key, val, newVal) {
-    var newValue = newVal;
-    var objects = [];
-    for (var i in obj) {
-      if (!obj.hasOwnProperty(i)) { continue };
-      if (typeof obj[i] == 'object') {
-        objects = objects.concat(updateObjectById(obj[i], key, val, newValue));
-      } else if (i === key && obj[key] === val) {
-        if (!obj.hasOwnProperty('children')) {
-          obj.children = [];  
-        }
-        obj.children.push(newVal)
-      }
-    }
-    return obj
-  }
   // EVENT MANIPULATION
   // ADD EVENTS
   if (action.type === 'CREATE_EVENT') {
@@ -131,15 +107,16 @@ const reducer = (state = initialState, action) => {
     newCalEvents = newCalEvents.filter(event => event.id !== action.payload.id);
     return {
       ...state,
-      calEvents: newCalEvents
+      calEvents: newCalEvents,
     }
   // ORG (RESOURCE) MANIPULATION
   // ADD ORG
-  // Organizations will have a 'children' key that is an array of their children
-  // id: uuidv4, title: string, children: [] 
+  // Organizations will have a 'parentId' key that connects them with their parent organization
+  // id: uuidv4, title: string, parentId: uuidv4
   } else if (action.type === 'CREATE_ORG') {
     let orgCopy;
     let newOrgs;
+    let parentId;
     // create a 'deep copy' of the array
     if (state.calResources !== undefined) {
       orgCopy = JSON.parse(JSON.stringify(state.calResources));
@@ -147,23 +124,17 @@ const reducer = (state = initialState, action) => {
       orgCopy = [];
     }
 
+    newOrgs = orgCopy;
     // append the organization as a child of the org with id: ID
-    if (action.payload.parent === "None") {
-      newOrgs = orgCopy;
-      newOrgs.push({
-        "id": action.payload.id,
-        "title": action.payload.title,
-        "children": [],
-      })
-    } else {
-      newOrgs = updateObjectById(orgCopy, 'id', action.payload.parent, 
-        {
-          "id": action.payload.id,
-          "title": action.payload.title,
-          "children": [],
-        }
-        )
-    }
+    
+    // set the parent id to either "" or the uuid of the parent
+    parentId = action.payload.parent === "None" ? "" : action.payload.parent;
+
+    newOrgs.push({
+      "id": action.payload.id,
+      "title": action.payload.title,
+      "parentId": parentId,
+    })
     // TODO: check if the org already exists in the array, if yes do not add it
     return {
       ...state,
@@ -171,74 +142,64 @@ const reducer = (state = initialState, action) => {
     }
   // EDIT ORG NAME
   } else if (action.type === 'UPDATE_ORG') {
-    // need to update console to update the name supplied
-    // find the event that matches the id
-    let flatObj = JSON.flatten(state.calResources);
-    let flatObjKeys = Object.keys(flatObj);
-    let path = '';
-    for (var i = 0; i < flatObjKeys.length; i = i + 1) {
-      if (flatObj[flatObjKeys[i]] === action.payload.id) {
-        // found the object! now get the path
-        path = flatObjKeys[i];
+    // find the organization that matches the id
+    const updatedResources = state.calResources.map(resource => {
+      if (resource.id === action.payload.id) {
+        return {
+          ...resource,
+          // set that organization's title
+          title: action.payload.title,
+        }
       }
-      if (path !== '') {
-        break;
-      }
-    }
-    // remove the trailing '.id' from the path
-    let modPath = path.slice(0,-3);
-    
-    // modify the object at modPath + .'title'
-    flatObj[modPath + '.title'] = action.payload.title;
-
-    // rebuild the nested object using unflatten
-    let newCalResources = JSON.unflatten(flatObj);
-    
+      return {
+        ...resource
+      };
+    })
     return {
       ...state,
-      calResources: newCalResources
+      calResources: updatedResources,
     }
-
   } else if (action.type === 'DELETE_ORG') {
-    let flatObj = JSON.flatten(state.calResources);
+    // remove the resource that contains the uuid
+    // also remove resources that have it as the 'parentId'
+    let parentId = action.payload.id;
 
-    // make a full copy of the calResources object
-    var newCalResources = JSON.unflatten(flatObj);
+    let resourcesToDelete = [];
+    resourcesToDelete.push(parentId);
 
-    let flatObjKeys = Object.keys(flatObj);
-    var path = '';
-    for (let i = 0; i < flatObjKeys.length; i = i + 1) {
-      if (flatObj[flatObjKeys[i]] === action.payload.id) {
-        // found the object! now get the path
-        path = flatObjKeys[i];
-      }
-      if (path !== '') {
+    // create a structure that has a child/parent connection
+    let parentAndChildObj = state.calResources.map(resource => {
+      return {
+        child: resource.id,
+        parent: resource.parentId,
+      }});
+
+    // iterate through the parentAndChildObj to check to see if there are occurrences of 
+    // parent, if there are, add them to the resourcesToDelete, if there are none, then break
+
+    while (true) {
+      let checkAgain = false;
+      parentAndChildObj.forEach(parChild => {
+        if (resourcesToDelete.indexOf(parChild.parent) !== -1) {
+          resourcesToDelete.push(parChild.child)
+          checkAgain = true;
+        }
+      })
+      // only keep the resources that are not in the resources to delete array
+      parentAndChildObj = parentAndChildObj.filter(parChild => resourcesToDelete.indexOf(parChild.parent) === -1)
+      if (checkAgain === false) {
         break;
       }
     }
-    // have the path now remove the last bit of the path
-    // remove the last three characters, it's the '.id'
-    let modPath = path.slice(0,-3);
-
-    let pathParts = modPath.split('.');
-
-    // remove the object specified by the path in the object
-    pathParts.reduce ((acc, key, index) => {
-      if (index === pathParts.length - 1) {
-        let keyNum = parseInt(key);
-        // at the lowest child node, now remove the particular object
-        acc.splice(keyNum, 1)
-        return acc;
-      }
-      return acc[key];
-    }, newCalResources)
-
-    // newCalResources is modified with the target value removed
-
+    
+    let newCalResources = state.calResources.slice();
+    // filter out resource ids that are not present in the calResources array
+    newCalResources = newCalResources.filter(resource => resourcesToDelete.indexOf(resource.id) === -1);
     return {
       ...state,
-      calResources: newCalResources
+      calResources: newCalResources,
     }
+
   // CATEGORY MANIPULATION
   } else if (action.type === 'CREATE_CATEGORY') {
     const newCategories = [...state.calCategories, { 
@@ -248,7 +209,7 @@ const reducer = (state = initialState, action) => {
     }]
     return {
       ...state,
-      calCategories: newCategories
+      calCategories: newCategories,
     }
 
   } else if (action.type === 'UPDATE_CATEGORY') {
@@ -259,7 +220,7 @@ const reducer = (state = initialState, action) => {
         return {
           ...category,
           name: action.payload.title,
-        }
+        };
       }
       return {
         ...category
@@ -269,24 +230,12 @@ const reducer = (state = initialState, action) => {
       ...state,
       calCategories: updatedCategories,
     }
-    // TODO, update the event category names to match the new category
-
   } else if (action.type === 'DELETE_CATEGORY') {
     let newCalCategories = state.calCategories.slice()
     newCalCategories = newCalCategories.filter(resource => resource.id !== action.payload.id);
     return {
       ...state,
-      calCategories: newCalCategories
-    }
-  } else if (action.type === 'IMPORT_DATA') {
-    // import the data that was read from the file
-    return {
-      ...state,
-      calEvents: action.payload.calEvents,
-      calResources: action.payload.calResources,
-      calCategories: action.payload.calCategories,
-      calDateRangeStart: action.payload.calDateRangeStart,
-      calDateRangeEnd: action.payload.calDateRangeEnd,
+      calCategories: newCalCategories,
     }
   } else if (action.type === 'CAL_DATE_RANGE_START') {
   // import the data that was read from the file
