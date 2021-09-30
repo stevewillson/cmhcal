@@ -212,14 +212,33 @@ const reducer = (state = initialState, action) => {
       calCategories: newCategories,
     }
 
-  } else if (action.type === 'UPDATE_CATEGORY') {
+  } else if (action.type === 'UPDATE_CATEGORY_NAME') {
     // need to update console to update the name supplied
     // find the event that matches the id
     const updatedCategories = state.calCategories.map(category => {
       if (category.id === action.payload.id) {
         return {
           ...category,
-          name: action.payload.title,
+          name: action.payload.name,
+        };
+      }
+      return {
+        ...category
+      };
+    })
+    return {
+      ...state,
+      calCategories: updatedCategories,
+    }
+
+  } else if (action.type === 'UPDATE_CATEGORY_COLOR') {
+    // need to update console to update the name supplied
+    // find the event that matches the id
+    const updatedCategories = state.calCategories.map(category => {
+      if (category.id === action.payload.id) {
+        return {
+          ...category,
+          color: action.payload.color,
         };
       }
       return {

@@ -229,3 +229,84 @@ describe('test organization manipulation', () => {
     })
   })
 })
+
+describe('test category manipulation', () => {
+  test('create cat', () => {
+    expect(
+      reducer({
+        calCategories: []
+      },{
+        type: "CREATE_CATEGORY",
+        payload: {
+          id: 'id_1234',
+          name: 'this is a new category',
+          color: 'orange',
+        }
+      })
+    ).toEqual({
+      calCategories: [
+        {
+          id: 'id_1234',
+          name: 'this is a new category',
+          color: 'orange',
+        },
+      ]
+    })
+  })
+
+  test('change cat name', () => {
+    expect(
+      reducer({
+        calCategories: [
+          {
+            id: 'id_1234',
+            name: 'old name',
+            color: 'orange',
+          },
+        ]
+      },{
+        type: "UPDATE_CATEGORY_NAME",
+        payload: {
+          id: 'id_1234',
+          name: 'new name',
+        }
+      })
+    ).toEqual({
+      calCategories: [
+        {
+          id: 'id_1234',
+          name: 'new name',
+          color: 'orange',
+        },
+      ]
+    })
+  })
+
+  test('change cat color', () => {
+    expect(
+      reducer({
+        calCategories: [
+          {
+            id: 'id_1234',
+            name: 'old name',
+            color: 'orange',
+          },
+        ]
+      },{
+        type: "UPDATE_CATEGORY_COLOR",
+        payload: {
+          id: 'id_1234',
+          color: 'red',
+        }
+      })
+    ).toEqual({
+      calCategories: [
+        {
+          id: 'id_1234',
+          name: 'old name',
+          color: 'red',
+        },
+      ]
+    })
+  })
+})
