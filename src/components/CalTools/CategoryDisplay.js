@@ -63,8 +63,6 @@ const CategoryDisplay = () => {
     })
   }
   return (
-
-
     <React.Fragment>
       <div className="top-categories">
       <h4>Categories
@@ -80,8 +78,8 @@ const CategoryDisplay = () => {
       {displayCategories && calCategories.map((category) => 
         <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
           {category.name}
-          {editMode && <button onClick={() => changeCatColor(category.id)}>Change Color</button>}
-          {editMode && <button onClick={() => deleteCat(category.id)}>X</button>}
+          {editMode && <> - <button onClick={() => changeCatColor(category.id)}>Change Color</button></>}
+          {editMode && <> - <button onClick={() => deleteCat(category.id)}>X</button></>}
         </div>
       )}
       </div>

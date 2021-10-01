@@ -62,17 +62,27 @@ const ResourceCalendar = () => {
 
   const renameEvent = (event) => {
     // check to see whether the button 'X' was clicked to delete the event
-    const eventTitle = prompt("Set the title")
+    const eventTitle = prompt("Set the title", event.title)
     if (eventTitle !== '' && eventTitle !== null) {
       event.setProp('title', eventTitle);
     }
   };
+
+  /* 
   const setEventLink = (event) => {
     // check to see whether the button 'eventLink' was clicked to delete the event
     // allow setting a blank link ''
-    const eventUrl = prompt("Set the event link")
-    event.setProp('url', eventUrl);
+    const eventUrl = prompt("Set the event link", event.url)
+    if (eventUrl !== null) {
+      event.setProp('url', eventUrl);
+    }
   };
+  */
+
+  // 2021-10-01 - Removed this from the event render area
+  // <button onClick={() => setEventLink(info.event)}>Edit Link</button>
+  //{' - '}
+            
 
   const handleEventClick = (clickInfo) => {
     // prevent the url link from being followed if one of the event buttons is clicked
@@ -81,8 +91,8 @@ const ResourceCalendar = () => {
       clickInfo.jsEvent.preventDefault();
     } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Name") {
       clickInfo.jsEvent.preventDefault();
-    } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Link") {
-      clickInfo.jsEvent.preventDefault();
+    //} else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Link") {
+    //  clickInfo.jsEvent.preventDefault();
     } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "X") {
       clickInfo.jsEvent.preventDefault();
     }
@@ -115,8 +125,6 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => setEventLink(info.event)}>Edit Link</button>
-            {' - '}
             <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
@@ -139,8 +147,6 @@ const ResourceCalendar = () => {
             <b>{info.event.end.toISOString().slice(5,10)}</b>
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
-            {' - '}
-            <button onClick={() => setEventLink(info.event)}>Edit Link</button>
             {' - '}
             <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
             {' - '}
