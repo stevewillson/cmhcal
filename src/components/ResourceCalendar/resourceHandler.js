@@ -6,7 +6,7 @@ export const renameResource = (resource) => {
     const resourceName = prompt("Set the organization title", resource.title)
     if (resourceName !== '' && resourceName !== null && resourceName !== resource.title) {
       store.dispatch({ 
-        type: 'UPDATE_ORG', 
+        type: 'UPDATE_ORG',
         payload: {
           title: resourceName,
           id: resource.id,
@@ -16,23 +16,14 @@ export const renameResource = (resource) => {
   }
 
 export const resourceRender = (info) => {
-  let editModeBtn = document.getElementById("editModeCheckbox");
-  let editMode = true;
-  if (editModeBtn !== null) {
-    editMode = editModeBtn.checked;
-  } 
-  if (editMode) {
-    return (
-      <>
-        {info.resource.title}
-        {' - '}
-        <button onClick={() => renameResource(info.resource)}>Change Name</button>  
-      </>
-    )  
-  }
+  
+  const editModeBtn = document.getElementById("editModeCheckbox");
+  const editMode = editModeBtn !== null ? editModeBtn.checked : true;
+  
   return (
     <>
       {info.resource.title}
+      {editMode && <> - <button onClick={() => renameResource(info.resource)}>Change Name</button></>}  
     </>
   )
 }
