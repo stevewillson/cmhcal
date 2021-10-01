@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const OrganizationDisplay = () => {
   // get state values from redux
-  var { displayOrganizations } = useSelector(state => state);
+  var { displayOrganizations, editMode } = useSelector(state => state);
   
   const dispatch = useDispatch();
 
@@ -24,21 +24,17 @@ const OrganizationDisplay = () => {
     })
   }
 
-  const renameOrg = (event) => {
-    //console.log('RENAME ORG')
-    //console.log(event)
-    if (event.target.innerText !== 'X') {
-      const resourceName = prompt("Set the organization title")
-      if (resourceName !== '' && resourceName !== null) {
-        dispatch({ 
-          type: 'UPDATE_ORG', 
-          payload: {
-            title: resourceName,
-            id: event.target.dataset.orgId,
-          },
-        });
-      };
-    }
+  const renameOrg = (id, curTitle) => {
+    const resourceName = prompt("Set the organization title", curTitle)
+    if (resourceName !== '' && resourceName !== null && resourceName !== curTitle) {
+      dispatch({ 
+        type: 'UPDATE_ORG', 
+        payload: {
+          title: resourceName,
+          id: id,
+        },
+      });
+    };
   }
 
   const toggleDisplayOrganizations = (event) => {
@@ -64,9 +60,10 @@ const OrganizationDisplay = () => {
       <label htmlFor="displayOrganizationsCheckbox">Show</label>
       </h4>
       {displayOrganizations && calState.calResources.map((resource) => 
-        <div key={uuidv4()} data-org-id={resource.id} onClick={renameOrg}>
+        <div key={uuidv4()} data-org-id={resource.id} >
           {resource.title}
-          <button onClick={() => deleteOrg(resource.id)}>X</button>
+          {editMode && <> - <button onClick={() => renameOrg(resource.id, resource.title)}>Change Name</button></>}
+          {editMode && <> - <button onClick={() => deleteOrg(resource.id)}>X</button></>}
         </div>
       )}
       </div>

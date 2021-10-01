@@ -3,8 +3,8 @@ import { store } from '../../configureStore';
 export const renameResource = (resource) => {
     //console.log('RENAME RESOURCE')
     //console.log(resource)
-    const resourceName = prompt("Set the organization title")
-    if (resourceName !== '' && resourceName !== null) {
+    const resourceName = prompt("Set the organization title", resource.title)
+    if (resourceName !== '' && resourceName !== null && resourceName !== resource.title) {
       store.dispatch({ 
         type: 'UPDATE_ORG', 
         payload: {

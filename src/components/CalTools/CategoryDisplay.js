@@ -19,30 +19,23 @@ const CategoryDisplay = () => {
     })
   }
 
-  const renameCat = (event) => {
-    //console.log('RENAME CAT')
-    //console.log(event)
-    if (event.target.innerText !== 'X' && event.target.innerText !== 'Change Color') {
-      const categoryName = prompt("Set the category title")
-      if (categoryName !== '' && categoryName !== null) {
-        dispatch({ 
-          type: 'UPDATE_CATEGORY_NAME', 
-          payload: {
-            name: categoryName,
-            id: event.target.dataset.catId,
-          },
-        });
-      };
-    }
+  const changeCatName = (id, curName) => {
+    const categoryName = prompt("Set the category title", curName);
+    if (categoryName !== '' && categoryName !== null && categoryName !== curName) {
+      dispatch({ 
+        type: 'UPDATE_CATEGORY_NAME', 
+        payload: {
+          name: categoryName,
+          id: id,
+        },
+      });
+    };
   }
 
-  const changeCatColor = (id) => {
-    //console.log('CHANGE CAT COLOR')
-    //console.log(event)
-
+  const changeCatColor = (id, curColor) => {
     // TODO get the previous color and if the color is updated
     // change all events with that color to the new color
-    const categoryColor = prompt("Set the category color")
+    const categoryColor = prompt("Set the category color", curColor)
     if (categoryColor !== '' && categoryColor !== null) {
       dispatch({ 
         type: 'UPDATE_CATEGORY_COLOR', 
@@ -76,10 +69,11 @@ const CategoryDisplay = () => {
         <label htmlFor="displayCategoriesCheckbox">Show</label>
       </h4>
       {displayCategories && calCategories.map((category) => 
-        <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
+        <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }}>
           {category.name}
-          {editMode && <> - <button onClick={() => changeCatColor(category.id)}>Change Color</button></>}
-          {editMode && <> - <button onClick={() => deleteCat(category.id)}>X</button></>}
+          {editMode && <> - <button onClick={() => changeCatName(category.id, category.name)}>Change Name</button></>}
+          {editMode && <> - <button onClick={() => changeCatColor(category.id, category.color)}>Change Color</button></>}
+          {editMode && <> - <button onClick={() => deleteCat(category.id, category.name)}>X</button></>}
         </div>
       )}
       </div>

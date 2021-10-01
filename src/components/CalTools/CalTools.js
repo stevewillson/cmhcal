@@ -172,8 +172,8 @@ const CalTools = () => {
                   style={hiddenFileChooserButton} 
                 />
                 <button onClick={() => handleImportDataButton()}>Import</button>
-                <button onClick={() => exportData(calState)}>Export</button>
-                <button onClick={() => purgeCalendar()}>Clear Calendar and Local Storage</button>
+                <> - </><button onClick={() => exportData(calState)}>Export</button>
+                <> - </><button onClick={() => purgeCalendar()}>Clear Calendar and Local Storage</button>
               </div>
               <DateRangeSelect />
               <AddOrganizationDisplay />
