@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const CategoryDisplay = () => {
   var calCategories = useSelector(state => state.calCategories);
-  var { displayCategories } = useSelector(state => state);
+  var { displayCategories, editMode } = useSelector(state => state);
   
   const dispatch = useDispatch();
 
@@ -62,8 +62,9 @@ const CategoryDisplay = () => {
       }
     })
   }
-
   return (
+
+
     <React.Fragment>
       <div className="top-categories">
       <h4>Categories
@@ -79,8 +80,8 @@ const CategoryDisplay = () => {
       {displayCategories && calCategories.map((category) => 
         <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }} onClick={renameCat}>
           {category.name}
-          <button onClick={() => changeCatColor(category.id)}>Change Color</button>
-          <button onClick={() => deleteCat(category.id)}>X</button>
+          {editMode && <button onClick={() => changeCatColor(category.id)}>Change Color</button>}
+          {editMode && <button onClick={() => deleteCat(category.id)}>X</button>}
         </div>
       )}
       </div>
