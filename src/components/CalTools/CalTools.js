@@ -8,6 +8,7 @@ import AddOrganizationDisplay from './AddOrganizationDisplay';
 import AddCategoryDisplay from './AddCategoryDisplay';
 import CategoryDisplay from './CategoryDisplay';
 import OrganizationDisplay from './OrganizationDisplay';
+import RemoteCalendarSyncDisplay from './RemoteCalendarSyncDisplay';
 
 const CalTools = () => {
   const dispatch = useDispatch();
@@ -175,6 +176,7 @@ const CalTools = () => {
                 <> - </><button onClick={() => exportData(calState)}>Export</button>
                 <> - </><button onClick={() => purgeCalendar()}>Clear Calendar and Local Storage</button>
               </div>
+              <RemoteCalendarSyncDisplay />
               <DateRangeSelect />
               <AddOrganizationDisplay />
               <AddCategoryDisplay />
