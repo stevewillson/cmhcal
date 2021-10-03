@@ -19,7 +19,7 @@ const RemoteCalendarSyncDisplay = () => {
     }})
  
   const postData = (state, uuid) => {
-    const url = "https://cmhcal.com/calendar/";
+    const url = "https://cmhcal.com/calendar.php";
     const response = fetch(url, {
       method: 'POST',
       mode: 'cors',
