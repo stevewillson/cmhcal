@@ -26,7 +26,8 @@ const CalTools = () => {
       calResources: state.calResources, 
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
-      calDateRangeEnd: state.calDateRangeEnd, 
+      calDateRangeEnd: state.calDateRangeEnd,
+      calUUID: state.calUUID,
     }})
 
   const handleImportDataButton = async () => {
@@ -104,6 +105,15 @@ const CalTools = () => {
               date: jsonData.calDateRangeEnd,
             }
           });  
+        }
+
+        if (jsonData.calUUID !== null && jsonData.calUUID !== '') {
+          dispatch({
+            type: 'CAL_UUID',
+            payload: {
+              uuid: jsonData.calUUID,
+            }
+          })
         }
 
         // reset the input value to allow for additional files to be imported

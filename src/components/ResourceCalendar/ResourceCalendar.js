@@ -14,7 +14,7 @@ import { customSlotLabelContent } from './slotLabelContentDisplay';
 
 const ResourceCalendar = () => {
   // get state values from redux
-  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources, editMode } = useSelector(state => state);
+  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources, calUUID, editMode } = useSelector(state => state);
  
   const handleDateSelect = (selectInfo) => {
     let calendarApi = selectInfo.view.calendar

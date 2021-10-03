@@ -272,6 +272,14 @@ const reducer = (state = initialState, action) => {
         calDateRangeEnd: action.payload.date,
       }  
     }
+  } else if (action.type === 'CAL_UUID') {
+    // import the data that was read from the file
+      if (action.payload.uuid !== '') {
+        return {
+          ...state,
+          calUUID: action.payload.uuid,
+        }  
+      }
   } else if (action.type === 'IMPORT_DATA') {
     // import the data that was read from the file
     return {
@@ -281,6 +289,7 @@ const reducer = (state = initialState, action) => {
       calCategories: action.payload.calCategories,
       calDateRangeStart: action.payload.calDateRangeStart,
       calDateRangeEnd: action.payload.calDateRangeEnd,
+      calUUID: action.payload.calUUID,
     }
   } else if(action.type === 'PURGE_CALENDAR') {
     //console.log('Purging calendar')

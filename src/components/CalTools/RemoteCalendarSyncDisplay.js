@@ -15,10 +15,12 @@ const RemoteCalendarSyncDisplay = () => {
       calResources: state.calResources, 
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
-      calDateRangeEnd: state.calDateRangeEnd, 
+      calDateRangeEnd: state.calDateRangeEnd,
+      calUUID: state.calUUID,
     }})
  
   const postData = (state, uuid) => {
+    const trimUUID = uuid.trim();
     const url = "https://cmhcal.com/calendar.php";
     const response = fetch(url, {
       method: 'POST',
@@ -26,25 +28,25 @@ const RemoteCalendarSyncDisplay = () => {
       cache: 'no-cache',
       headers: {
         'Content-Type': 'application/json',
-        'X-FILE-NAME': uuid,
+        'X-FILE-NAME': trimUUID,
       },
       body: JSON.stringify(state),
     }).then(data => {
-      console.log(data);
+      //console.log(data);
     }).catch(err => console.log(err));
     console.log(response);
   };
 
   const fetchData = (uuid) => {
+    const trimUUID = uuid.trim();
     // request the value
-    const url = "https://cmhcal.com/calendar/" + uuid;
+    const url = "https://cmhcal.com/calendar/" + trimUUID;
     const response = fetch(url, {
       method: 'GET',
       mode: 'cors',
       cache: 'no-cache',
     }).then(response => response.json())
     .then(data => {
-      console.log(data);
       const jsonData = data;
       dispatch({
         type: 'IMPORT_DATA',
@@ -54,6 +56,7 @@ const RemoteCalendarSyncDisplay = () => {
           calCategories: jsonData.calCategories,
           calDateRangeStart: jsonData.calDateRangeStart,
           calDateRangeEnd: jsonData.calDateRangeEnd,
+          calUUID: jsonData.calUUID,
         },
       }); 
     }).catch(err => console.log(err));
@@ -67,7 +70,7 @@ const RemoteCalendarSyncDisplay = () => {
       <input
         id='calUUID'
         type='text'
-        size='30'
+        size='36'
         value={calUUID}
         onChange={event => setCalUUID(event.target.value)}
       />
