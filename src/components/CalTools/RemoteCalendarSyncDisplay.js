@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-// import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
 const RemoteCalendarSyncDisplay = () => {
   // get state values from redux
-//  const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const [calUUID, setCalUUID] = useState(uuidv4());
 
@@ -35,9 +35,31 @@ const RemoteCalendarSyncDisplay = () => {
     console.log(response);
   };
 
-  const fetchData = () => {
-
-  }
+  const fetchData = (uuid) => {
+    // request the value
+    const url = "https://cmhcal.com/calendar/" + uuid;
+    const response = fetch(url, {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-cache',
+    }).then(response => response.json())
+    .then(data => {
+      console.log(data);
+      const jsonData = data;
+      dispatch({
+        type: 'IMPORT_DATA',
+        payload: {
+          calEvents: jsonData.calEvents,
+          calResources: jsonData.calResources,
+          calCategories: jsonData.calCategories,
+          calDateRangeStart: jsonData.calDateRangeStart,
+          calDateRangeEnd: jsonData.calDateRangeEnd,
+        },
+      }); 
+    }).catch(err => console.log(err));
+    console.log(response);
+  };
+  
 
   return (
     <div>
@@ -59,7 +81,7 @@ const RemoteCalendarSyncDisplay = () => {
       <> - </>
       <button 
         type="button" 
-        onClick={() => fetchData()}
+        onClick={() => fetchData(calUUID)}
       >
       Load Calendar
       </button>

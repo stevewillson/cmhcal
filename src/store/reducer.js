@@ -272,6 +272,16 @@ const reducer = (state = initialState, action) => {
         calDateRangeEnd: action.payload.date,
       }  
     }
+  } else if (action.type === 'IMPORT_DATA') {
+    // import the data that was read from the file
+    return {
+      ...state,
+      calEvents: action.payload.calEvents,
+      calResources: action.payload.calResources,
+      calCategories: action.payload.calCategories,
+      calDateRangeStart: action.payload.calDateRangeStart,
+      calDateRangeEnd: action.payload.calDateRangeEnd,
+    }
   } else if(action.type === 'PURGE_CALENDAR') {
     //console.log('Purging calendar')
     //return initialState;
