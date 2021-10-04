@@ -111,7 +111,7 @@ const CalTools = () => {
           dispatch({
             type: 'CAL_UUID',
             payload: {
-              uuid: jsonData.calUUID,
+              calUUID: jsonData.calUUID,
             }
           })
         }

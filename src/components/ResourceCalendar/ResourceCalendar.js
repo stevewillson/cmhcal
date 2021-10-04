@@ -98,7 +98,7 @@ const ResourceCalendar = () => {
   const handleEventClick = (clickInfo) => {
     // prevent the url link from being followed if one of the event buttons is clicked
 
-    if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Toggle Cat") {
+    if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Toggle Category") {
       clickInfo.jsEvent.preventDefault();
     } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Name") {
       clickInfo.jsEvent.preventDefault();
@@ -136,7 +136,7 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Category</button>  
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
@@ -159,7 +159,7 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Category</button>  
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>

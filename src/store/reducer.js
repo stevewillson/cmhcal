@@ -41,6 +41,7 @@ const initialState = {
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
+  calUUID: uuidv4(),
   editMode: true,
   displayCategories: true,
   displayOrganizations: true,
@@ -53,6 +54,7 @@ const emptyState = {
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
+  calUUID: uuidv4(),
   editMode: true,
   displayCategories: true,
   displayOrganizations: true,
@@ -277,7 +279,7 @@ const reducer = (state = initialState, action) => {
       if (action.payload.uuid !== '') {
         return {
           ...state,
-          calUUID: action.payload.uuid,
+          calUUID: action.payload.calUUID,
         }  
       }
   } else if (action.type === 'IMPORT_DATA') {
