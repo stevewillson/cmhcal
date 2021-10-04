@@ -32,6 +32,8 @@ const CategoryDisplay = () => {
     };
   }
 
+  
+
   const changeCatColor = (id, curColor) => {
     // TODO get the previous color and if the color is updated
     // change all events with that color to the new color

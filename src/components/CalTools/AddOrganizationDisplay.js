@@ -16,7 +16,8 @@ const AddOrganizationDisplay = () => {
       calResources: state.calResources, 
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
-      calDateRangeEnd: state.calDateRangeEnd, 
+      calDateRangeEnd: state.calDateRangeEnd,
+      calUUID: state.calUUID,
     }})
  
   const addOrg = (orgName, parentOrgId) => {

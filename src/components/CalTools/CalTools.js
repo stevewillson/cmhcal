@@ -8,6 +8,7 @@ import AddOrganizationDisplay from './AddOrganizationDisplay';
 import AddCategoryDisplay from './AddCategoryDisplay';
 import CategoryDisplay from './CategoryDisplay';
 import OrganizationDisplay from './OrganizationDisplay';
+import RemoteCalendarSyncDisplay from './RemoteCalendarSyncDisplay';
 
 const CalTools = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,8 @@ const CalTools = () => {
       calResources: state.calResources, 
       calCategories: state.calCategories,
       calDateRangeStart: state.calDateRangeStart, 
-      calDateRangeEnd: state.calDateRangeEnd, 
+      calDateRangeEnd: state.calDateRangeEnd,
+      calUUID: state.calUUID,
     }})
 
   const handleImportDataButton = async () => {
@@ -105,6 +107,15 @@ const CalTools = () => {
           });  
         }
 
+        if (jsonData.calUUID !== null && jsonData.calUUID !== '') {
+          dispatch({
+            type: 'CAL_UUID',
+            payload: {
+              calUUID: jsonData.calUUID,
+            }
+          })
+        }
+
         // reset the input value to allow for additional files to be imported
         input.value = null;
       }
@@ -175,6 +186,7 @@ const CalTools = () => {
                 <> - </><button onClick={() => exportData(calState)}>Export</button>
                 <> - </><button onClick={() => purgeCalendar()}>Clear Calendar and Local Storage</button>
               </div>
+              <RemoteCalendarSyncDisplay />
               <DateRangeSelect />
               <AddOrganizationDisplay />
               <AddCategoryDisplay />

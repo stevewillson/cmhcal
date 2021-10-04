@@ -41,6 +41,7 @@ const initialState = {
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
+  calUUID: uuidv4(),
   editMode: true,
   displayCategories: true,
   displayOrganizations: true,
@@ -53,6 +54,7 @@ const emptyState = {
   calDateRangeStart: calDateRangeStart,
   calDateRangeEnd: calDateRangeEnd,
   datePickerStartDate: new Date(),
+  calUUID: uuidv4(),
   editMode: true,
   displayCategories: true,
   displayOrganizations: true,
@@ -271,6 +273,25 @@ const reducer = (state = initialState, action) => {
         ...state,
         calDateRangeEnd: action.payload.date,
       }  
+    }
+  } else if (action.type === 'CAL_UUID') {
+    // import the data that was read from the file
+      if (action.payload.uuid !== '') {
+        return {
+          ...state,
+          calUUID: action.payload.calUUID,
+        }  
+      }
+  } else if (action.type === 'IMPORT_DATA') {
+    // import the data that was read from the file
+    return {
+      ...state,
+      calEvents: action.payload.calEvents,
+      calResources: action.payload.calResources,
+      calCategories: action.payload.calCategories,
+      calDateRangeStart: action.payload.calDateRangeStart,
+      calDateRangeEnd: action.payload.calDateRangeEnd,
+      calUUID: action.payload.calUUID,
     }
   } else if(action.type === 'PURGE_CALENDAR') {
     //console.log('Purging calendar')
