@@ -14,7 +14,18 @@ import { customSlotLabelContent } from './slotLabelContentDisplay';
 
 const ResourceCalendar = () => {
   // get state values from redux
-  var { calDateRangeStart, calDateRangeEnd, calEvents, calCategories, calResources, editMode } = useSelector(state => state);
+  var { editMode } = useSelector(state => state);
+
+  const calState = useSelector(state => { 
+    return { 
+      calEvents: state.calEvents, 
+      calResources: state.calResources, 
+      calCategories: state.calCategories,
+      calDateRangeStart: state.calDateRangeStart, 
+      calDateRangeEnd: state.calDateRangeEnd,
+      calUUID: state.calUUID,
+    }}
+  )
  
   const handleDateSelect = (selectInfo) => {
     let calendarApi = selectInfo.view.calendar
@@ -27,9 +38,9 @@ const ResourceCalendar = () => {
 
       let eventCategory = '';
       let eventColor = '';
-      if (calCategories.length > 0) {
-        eventCategory = calCategories[0].name
-        eventColor = calCategories[0].color
+      if (calState.calCategories.length > 0) {
+        eventCategory = calState.calCategories[0].name
+        eventColor = calState.calCategories[0].color
       } 
       calendarApi.addEvent({ // will render immediately. will call handleEventAdd
         title,
@@ -87,7 +98,7 @@ const ResourceCalendar = () => {
   const handleEventClick = (clickInfo) => {
     // prevent the url link from being followed if one of the event buttons is clicked
 
-    if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Toggle Cat") {
+    if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Toggle Category") {
       clickInfo.jsEvent.preventDefault();
     } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Name") {
       clickInfo.jsEvent.preventDefault();
@@ -100,8 +111,8 @@ const ResourceCalendar = () => {
 
   const toggleEventCategory = (event) => {
     // choose the next category
-    const catNameList = calCategories.map(category => category.name)
-    const catColorList = calCategories.map(category => category.color)
+    const catNameList = calState.calCategories.map(category => category.name)
+    const catColorList = calState.calCategories.map(category => category.color)
     let curIndex = catNameList.indexOf(event.extendedProps.category)
     if (curIndex  === catNameList.length - 1 || curIndex === -1) {
       curIndex = 0;
@@ -125,7 +136,7 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Category</button>  
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
@@ -148,7 +159,7 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Cat</button>  
+            <button onClick={() => toggleEventCategory(info.event)}>Toggle Category</button>  
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
@@ -171,7 +182,7 @@ const ResourceCalendar = () => {
   // to be selected because it is not fully included in the visible range 
   const setWeekViewStartDate = () => {
     // take the input date and find the previous monday to set the start date in the week view mode
-    const calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
+    const calDateStart = DateTime.fromFormat(calState.calDateRangeStart, 'yyyy-LL-dd');
     
     // subtract days to set newCalDateStart to the prior Monday
     const newCalDateStart = calDateStart.minus({ days: (calDateStart.weekday - 1) });
@@ -181,7 +192,7 @@ const ResourceCalendar = () => {
 
   const setWeekViewEndDate = () => {
     // take the input date and find the next Monday to set the end date in the week view mode
-    const calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
+    const calDateEnd = DateTime.fromFormat(calState.calDateRangeEnd, 'yyyy-LL-dd');
       
     // add days to set newCalDateEnd to the next Monday
     const newCalDateEnd = calDateEnd.plus({ days: (8 - calDateEnd.weekday) });
@@ -194,7 +205,7 @@ const ResourceCalendar = () => {
   // to be selected because it is not fully included in the visible range 
   const setMonthViewStartDate = () => {
     // take the input date and find the first day of the month to set the start date in month view mode
-    const calDateStart = DateTime.fromFormat(calDateRangeStart, 'yyyy-LL-dd');
+    const calDateStart = DateTime.fromFormat(calState.calDateRangeStart, 'yyyy-LL-dd');
     
     // subtract days to set newCalDateStart to the first day of the month
     const newCalDateStart = calDateStart.minus({ days: (calDateStart.day - 1) });
@@ -204,7 +215,7 @@ const ResourceCalendar = () => {
 
   const setMonthViewEndDate = () => {
     // take the input date and find the first day of the next month to set the end date in month view mode
-    const calDateEnd = DateTime.fromFormat(calDateRangeEnd, 'yyyy-LL-dd');
+    const calDateEnd = DateTime.fromFormat(calState.calDateRangeEnd, 'yyyy-LL-dd');
     
     // add days to set newCalDateEnd to the first day of the next month
     const newCalDateEnd = calDateEnd.plus({ days: (calDateEnd.daysInMonth - calDateEnd.day + 1) });
@@ -231,8 +242,8 @@ const ResourceCalendar = () => {
         'DayView': {
           type: 'resourceTimeline',
           visibleRange: {
-            start: calDateRangeStart,
-            end: calDateRangeEnd, 
+            start: calState.calDateRangeStart,
+            end: calState.calDateRangeEnd, 
           },
           buttonText: 'Day View',
           slotLabelInterval: { days: 1 },
@@ -284,8 +295,8 @@ const ResourceCalendar = () => {
       // Relative 'T' Week
       // Then various settings (Day and Narrow Day of the Week or Start / Stop day for weekly view)
       slotLabelContent={customSlotLabelContent}
-      events={calEvents}
-      resources={calResources}
+      events={calState.calEvents}
+      resources={calState.calResources}
       selectable={true}
       eventClick={handleEventClick}
       select={handleDateSelect}
