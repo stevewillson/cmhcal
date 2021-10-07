@@ -15,7 +15,7 @@ export const createEvent = (plainEventObject) => {
       resourceId: plainEventObject.getResources()[0]._resource.id,
       url: plainEventObject.url,
       color: plainEventObject.backgroundColor,
-      extendedProps: { category: plainEventObject.extendedProps.category }
+      category: plainEventObject.category,
     },
   });
 }
@@ -31,10 +31,25 @@ export const updateEvent = (plainEventObject) => {
       resourceId: plainEventObject.getResources()[0]._resource.id,
       url: plainEventObject.url,
       category: plainEventObject.extendedProps.category,
+      categoryId: plainEventObject.extendedProps.categoryId,
       color: plainEventObject.backgroundColor
     },
   });
 }
+
+export const updateEventCategory = (eventId, categoryName, categoryId, eventColor) => {
+  store.dispatch({ 
+    type: 'UPDATE_EVENT', 
+    payload: {
+      id: eventId,
+      category: categoryName,
+      categoryId: categoryId,
+      color: eventColor,
+    },
+  });
+}
+
+
 
 export const deleteEvent = (eventId) => {
   store.dispatch({

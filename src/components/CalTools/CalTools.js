@@ -83,6 +83,8 @@ const CalTools = () => {
                 resourceId: event.resourceId,
                 color: event.color || '',
                 url: event.url || '',
+                category: event.extendedProps.category || '',
+                categoryId: event.extendedProps.categoryId || '',
               },
             });
           }
