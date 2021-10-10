@@ -137,6 +137,8 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
+	    <div className="tooltip">
+	      <span className="tooltiptext">Hold CTRL + Click to change category</span>
             <select
               onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
               id={"changeEventCategory"+uuidv4()}
@@ -152,6 +154,7 @@ const ResourceCalendar = () => {
               </option>
             )}
             </select> 
+	    </div>
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
@@ -174,6 +177,8 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
+	    <div className="tooltip">
+	      <span className="tooltiptext">Hold CTRL + Click to change category</span>
             <select
               onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
               id={"changeEventCategory"+uuidv4()}
@@ -189,6 +194,7 @@ const ResourceCalendar = () => {
               </option>
             )}
             </select>
+	    </div>
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
