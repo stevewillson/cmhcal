@@ -6,7 +6,8 @@ import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
-import { createEvent, updateEvent, deleteEvent } from './actions';
+// import { createEvent, updateEvent, deleteEvent } from './actions';
+import { createEvent, updateEvent, updateEventCategory, deleteEvent } from './actions';
 
 import { resourceRender } from './resourceHandler';
 
@@ -37,10 +38,12 @@ const ResourceCalendar = () => {
       // add an event to the first category
 
       let eventCategory = '';
+      let eventCategoryId = '';
       let eventColor = '';
       if (calState.calCategories.length > 0) {
-        eventCategory = calState.calCategories[0].name
-        eventColor = calState.calCategories[0].color
+        eventCategory = calState.calCategories[0].name;
+        eventCategoryId = calState.calCategories[0].id;
+        eventColor = calState.calCategories[0].color;
       } 
       calendarApi.addEvent({ // will render immediately. will call handleEventAdd
         title,
@@ -51,7 +54,8 @@ const ResourceCalendar = () => {
         resourceId: selectInfo.resource.id,
         url: '',
         backgroundColor: eventColor,
-        extendedProps: { category: eventCategory }
+        category: eventCategory,
+        categoryId: eventCategoryId,
       }, true) // temporary=true, will get overwritten when reducer gives new events
     }
   };
@@ -97,33 +101,30 @@ const ResourceCalendar = () => {
 
   const handleEventClick = (clickInfo) => {
     // prevent the url link from being followed if one of the event buttons is clicked
-
-    if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Toggle Category") {
-      clickInfo.jsEvent.preventDefault();
-    } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Name") {
+    if (clickInfo.jsEvent?.target?.id !== undefined && clickInfo.jsEvent?.target?.nodeName === "SELECT") {
+      // clickInfo.jsEvent.stopImmediatePropagation();
+    } else if (clickInfo.jsEvent?.target?.innerText !== undefined && clickInfo.jsEvent.target.innerText === "Toggle Category") {
+       clickInfo.jsEvent.preventDefault();
+    } else if (clickInfo.jsEvent?.target?.innerText !== undefined && clickInfo.jsEvent.target.innerText === "Edit Name") {
       clickInfo.jsEvent.preventDefault();
     //} else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Link") {
     //  clickInfo.jsEvent.preventDefault();
-    } else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "X") {
+    } else if (clickInfo.jsEvent?.target?.innerText !== undefined && clickInfo.jsEvent.target.innerText === "X") {
       clickInfo.jsEvent.preventDefault();
     }
+    // can prevent the default loading of a url in the same windows and open it in a new window
+    // if (info.event.url) {
+    //   window.open(info.event.url);
+    // }
+
   }
 
-  const toggleEventCategory = (event) => {
-    // choose the next category
-    const catNameList = calState.calCategories.map(category => category.name)
-    const catColorList = calState.calCategories.map(category => category.color)
-    let curIndex = catNameList.indexOf(event.extendedProps.category)
-    if (curIndex  === catNameList.length - 1 || curIndex === -1) {
-      curIndex = 0;
-    } else {
-      curIndex = curIndex + 1;
-    }
-    const newIndex = curIndex;
-    const newCategory = catNameList[newIndex];
-    const newColor = catColorList[newIndex];
-    event.setExtendedProp('category', newCategory);
-    event.setProp('backgroundColor', newColor);
+  const modifyEventCategory = (event, categoryId) => {
+    // get the color for the category to update the event
+    const selectedCategory = calState.calCategories.filter(category => category.id === categoryId);
+    const newColor = selectedCategory[0].color;
+    const categoryName = selectedCategory[0].name;;
+    updateEventCategory(event.id, categoryName, categoryId, newColor);
   }
 
   const eventRender = (info) => {
@@ -136,7 +137,24 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Category</button>  
+	    <div className="tooltip">
+	      <span className="tooltiptext">Hold CTRL + Click to change category</span>
+            <select
+              onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
+              id={"changeEventCategory"+uuidv4()}
+              // fullCalendar requires CTRL to be held down to select a form element within an event
+              value={info.event.extendedProps.categoryId}
+            >
+            {calState.calCategories.map(cat => 
+              <option 
+                key={uuidv4()} 
+                value={cat.id}
+              >
+              {cat.name}
+              </option>
+            )}
+            </select> 
+	    </div>
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
@@ -159,7 +177,24 @@ const ResourceCalendar = () => {
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
-            <button onClick={() => toggleEventCategory(info.event)}>Toggle Category</button>  
+	    <div className="tooltip">
+	      <span className="tooltiptext">Hold CTRL + Click to change category</span>
+            <select
+              onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
+              id={"changeEventCategory"+uuidv4()}
+              // fullCalendar requires CTRL to be held down to select a form element within an event
+              value={info.event.extendedProps.categoryId}
+            >
+            {calState.calCategories.map(cat => 
+              <option 
+                key={uuidv4()} 
+                value={cat.id}
+              >
+              {cat.name}
+              </option>
+            )}
+            </select>
+	    </div>
             {' - '}
             <button onClick={() => info.event.remove()}>X</button>
           </>
@@ -233,7 +268,7 @@ const ResourceCalendar = () => {
       headerToolbar={{
         left: '',
         center: 'title',
-        right: 'DayView WeekView MonthView',
+        right: 'DayView,WeekView,MonthView',
       }}
       editable={true}
       height={'auto'}

@@ -23,6 +23,7 @@ const defaultCalEvents = [
     "id": calEventUuid,
     "resourceId": calResourceUuid,
     "category":"Category 1",
+    "categoryId": calCategoryUuid,
     "color":"orange",
     "url":"",
   }];
@@ -82,6 +83,7 @@ const reducer = (state = initialState, action) => {
         let newTitle = action.payload.title || event.title;
         let newResourceId = action.payload.resourceId || event.resourceId;
         let newCategory = action.payload.category || event.category;
+        let newCategoryId = action.payload.categoryId || event.categoryId;
         let newColor = action.payload.color || event.color;
         let newUrl = action.payload.url || event.url;
         return {
@@ -91,6 +93,7 @@ const reducer = (state = initialState, action) => {
           title: newTitle,
           resourceId: newResourceId,
           category: newCategory,
+          categoryId: newCategoryId,
           color: newColor,
           url: newUrl,
         }
