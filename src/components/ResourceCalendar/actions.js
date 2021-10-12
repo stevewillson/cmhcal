@@ -49,6 +49,21 @@ export const updateEventCategory = (eventId, categoryName, categoryId, eventColo
   });
 }
 
+export const updateEventDate = (eventId, start, end) => {
+  // compare the dates to ensure that start is <= end
+  // if end is '', then use start
+  let endVal = end;
+  if (endVal === '') { endVal = start }
+  store.dispatch({ 
+    type: 'UPDATE_EVENT', 
+    payload: {
+      id: eventId,
+      start: start,
+      end: endVal,
+    },
+  });
+}
+
 
 
 export const deleteEvent = (eventId) => {

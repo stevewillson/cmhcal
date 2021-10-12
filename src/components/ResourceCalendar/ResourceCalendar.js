@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 // import { createEvent, updateEvent, deleteEvent } from './actions';
-import { createEvent, updateEvent, updateEventCategory, deleteEvent } from './actions';
+import { createEvent, updateEvent, updateEventCategory, updateEventDate, deleteEvent } from './actions';
 
 import { resourceRender } from './resourceHandler';
 
@@ -171,9 +171,22 @@ const ResourceCalendar = () => {
           <>
             <b>{info.event.title}</b>
             {' - '}
-            <b>{info.event.start.toISOString().slice(5,10)}</b>
+            <input
+              id='fromDate'
+              type='date'
+              // set update for a change in the date, don't allow the month and year to update the date
+              value={info.event.startStr}
+              onChange={event => updateEventDate(info.event.id, event.target.value, info.event.endStr)} 
+              //onC={console.log()}
+            />
             {' - '}
-            <b>{info.event.end.toISOString().slice(5,10)}</b>
+            <input
+              id='fromDate'
+              type='date'
+              value={info.event.endStr || info.event.startStr}
+              //onBlur={event => updateEventDate(info.event.id, event.target.value, info.event.endStr)}
+              onChange={event => updateEventDate(info.event.id, event.target.value, info.event.endStr)}
+            />
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}
