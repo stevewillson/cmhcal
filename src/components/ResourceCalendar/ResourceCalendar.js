@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 // import { createEvent, updateEvent, deleteEvent } from './actions';
-import { createEvent, updateEvent, updateEventCategory, updateEventDate, deleteEvent } from './actions';
+import { createEvent, updateEvent, updateEventCategory, deleteEvent } from './actions';
 
 import { resourceRender } from './resourceHandler';
 
@@ -44,6 +44,7 @@ const ResourceCalendar = () => {
         eventCategory = calState.calCategories[0].name;
         eventCategoryId = calState.calCategories[0].id;
         eventColor = calState.calCategories[0].color;
+        // textColor = calState.calCategories[0].textColor;
       } 
       calendarApi.addEvent({ // will render immediately. will call handleEventAdd
         title,
@@ -54,6 +55,7 @@ const ResourceCalendar = () => {
         resourceId: selectInfo.resource.id,
         url: '',
         backgroundColor: eventColor,
+        // textColor: textColor,
         category: eventCategory,
         categoryId: eventCategoryId,
       }, true) // temporary=true, will get overwritten when reducer gives new events
@@ -123,8 +125,9 @@ const ResourceCalendar = () => {
     // get the color for the category to update the event
     const selectedCategory = calState.calCategories.filter(category => category.id === categoryId);
     const newColor = selectedCategory[0].color;
-    const categoryName = selectedCategory[0].name;;
-    updateEventCategory(event.id, categoryName, categoryId, newColor);
+    const categoryName = selectedCategory[0].name;
+    const newTextColor = selectedCategory[0].textColor;
+    updateEventCategory(event.id, categoryName, categoryId, newColor, newTextColor);
   }
 
   const eventRender = (info) => {
@@ -171,22 +174,9 @@ const ResourceCalendar = () => {
           <>
             <b>{info.event.title}</b>
             {' - '}
-            <input
-              id='fromDate'
-              type='date'
-              // set update for a change in the date, don't allow the month and year to update the date
-              value={info.event.startStr}
-              onChange={event => updateEventDate(info.event.id, event.target.value, info.event.endStr)} 
-              //onC={console.log()}
-            />
+            <b>{info.event.start.toISOString().slice(5,10)}</b>
             {' - '}
-            <input
-              id='fromDate'
-              type='date'
-              value={info.event.endStr || info.event.startStr}
-              //onBlur={event => updateEventDate(info.event.id, event.target.value, info.event.endStr)}
-              onChange={event => updateEventDate(info.event.id, event.target.value, info.event.endStr)}
-            />
+            <b>{info.event.end.toISOString().slice(5,10)}</b>
             {' - '}
             <button onClick={() => renameEvent(info.event)}>Edit Name</button>
             {' - '}

@@ -25,6 +25,7 @@ const defaultCalEvents = [
     "category":"Category 1",
     "categoryId": calCategoryUuid,
     "color":"orange",
+    "textColor":"black",
     "url":"",
   }];
 
@@ -33,6 +34,7 @@ const defaultCalCategories = [
     "id": calCategoryUuid,
     "name":"Category 1",
     "color":"orange",
+    "textColor":"black",
   }];
 
 const initialState = {
@@ -66,7 +68,22 @@ const reducer = (state = initialState, action) => {
   // EVENT MANIPULATION
   // ADD EVENTS
   if (action.type === 'CREATE_EVENT') {
-    const updatedEvents = [...state.calEvents, action.payload]
+    // copy the current events
+    let events = state.calEvents.slice();
+    // set an event explicitly
+    let newEvent = {
+      start: action.payload.start,
+      end: action.payload.end,
+      title: action.payload.title,
+      id: action.payload.id,
+      resourceId: action.payload.resourceId,
+      category: action.payload.category,
+      categoryId: action.payload.categoryId,
+      color: action.payload.color,
+      textColor: action.payload.textColor,
+      url: action.payload.url || "",
+    }
+    const updatedEvents = [...events, newEvent];
     return {
       ...state,
       calEvents: updatedEvents,
@@ -74,7 +91,7 @@ const reducer = (state = initialState, action) => {
   } else if (action.type === 'UPDATE_EVENT') {
     // need to update to update the name supplied
     // find the event that matches the id
-    let events = state.calEvents.slice()
+    let events = state.calEvents.slice();
     const updatedEvents = events.map(event => {
       if (event.id === action.payload.id) {
         // only update things that are set in the action.payload
@@ -85,6 +102,7 @@ const reducer = (state = initialState, action) => {
         let newCategory = action.payload.category || event.category;
         let newCategoryId = action.payload.categoryId || event.categoryId;
         let newColor = action.payload.color || event.color;
+        let newTextColor = action.payload.textColor || event.textColor;
         let newUrl = action.payload.url || event.url;
         return {
           ...event,
@@ -95,6 +113,7 @@ const reducer = (state = initialState, action) => {
           category: newCategory,
           categoryId: newCategoryId,
           color: newColor,
+          textColor: newTextColor,
           url: newUrl,
         }
       }
@@ -210,7 +229,8 @@ const reducer = (state = initialState, action) => {
     const newCategories = [...state.calCategories, { 
       id: action.payload.id, 
       name: action.payload.name, 
-      color: action.payload.color 
+      color: action.payload.color,
+      textColor: action.payload.textColor,
     }]
     return {
       ...state,
@@ -250,16 +270,89 @@ const reducer = (state = initialState, action) => {
         ...category
       };
     })
+
+    // for all events that have the same category, update them with the new color
+    const updatedEvents = state.calEvents.map(event => {
+      if (event.categoryId === action.payload.id) {
+        // only update things that are set in the action.payload
+        let newColor = action.payload.color || event.color;
+        return {
+          ...event,
+          color: newColor,
+        }
+      }
+      return {
+        ...event
+      };
+    })
     return {
       ...state,
+      calEvents: updatedEvents,
       calCategories: updatedCategories,
     }
+  } else if (action.type === 'UPDATE_CATEGORY_TEXT_COLOR') {
+    // find the category that matches the id
+    const updatedCategories = state.calCategories.map(category => {
+      if (category.id === action.payload.id) {
+        return {
+          ...category,
+          textColor: action.payload.textColor,
+        };
+      }
+      return {
+        ...category
+      };
+    })
+
+    // for all events that have the same category, update them with the new text color
+    const updatedEvents = state.calEvents.map(event => {
+      if (event.categoryId === action.payload.id) {
+        // only update things that are set in the action.payload
+        let newTextColor = action.payload.textColor || event.textColor;
+        return {
+          ...event,
+          textColor: newTextColor,
+        }
+      }
+      return {
+        ...event
+      };
+    })
+    return {
+      ...state,
+      calEvents: updatedEvents,
+      calCategories: updatedCategories,      
+    }
   } else if (action.type === 'DELETE_CATEGORY') {
-    let newCalCategories = state.calCategories.slice()
-    newCalCategories = newCalCategories.filter(resource => resource.id !== action.payload.id);
+
+    // when deleting a category, assign the events with that category to the first category in the list
+    const newCalCategories = state.calCategories.filter(resource => resource.id !== action.payload.id);
+    
+    // update events to have the first category
+    const updatedEvents = state.calEvents.map(event => {
+      if (event.categoryId === action.payload.id) {
+        // only update things that are set in the action.payload
+        let newCategory = newCalCategories[0].resource;
+        let newCategoryId = newCalCategories[0].resourceId;
+        let newColor = newCalCategories[0].color;
+        let newTextColor = newCalCategories[0].textColor;
+        return {
+          ...event,
+          category: newCategory,
+          categoryId: newCategoryId,
+          color: newColor,
+          textColor: newTextColor,
+        }
+      }
+      return {
+        ...event
+      };
+    })
+
     return {
       ...state,
       calCategories: newCalCategories,
+      calEvents: updatedEvents,
     }
   } else if (action.type === 'CAL_DATE_RANGE_START') {
   // import the data that was read from the file

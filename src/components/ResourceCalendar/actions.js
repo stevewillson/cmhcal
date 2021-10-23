@@ -8,14 +8,16 @@ export const createEvent = (plainEventObject) => {
   store.dispatch({ 
     type: 'CREATE_EVENT', 
     payload: {
-      title: plainEventObject.title,
       start: plainEventObject.startStr,
       end: plainEventObject.endStr,
+      title: plainEventObject.title,
       id: plainEventObject.id,
       resourceId: plainEventObject.getResources()[0]._resource.id,
       url: plainEventObject.url,
+      category: plainEventObject.extendedProps.category,
+      categoryId: plainEventObject.extendedProps.categoryId,
       color: plainEventObject.backgroundColor,
-      category: plainEventObject.category,
+      textColor: plainEventObject.textColor,
     },
   });
 }
@@ -37,7 +39,7 @@ export const updateEvent = (plainEventObject) => {
   });
 }
 
-export const updateEventCategory = (eventId, categoryName, categoryId, eventColor) => {
+export const updateEventCategory = (eventId, categoryName, categoryId, eventColor, eventTextColor) => {
   store.dispatch({ 
     type: 'UPDATE_EVENT', 
     payload: {
@@ -45,26 +47,10 @@ export const updateEventCategory = (eventId, categoryName, categoryId, eventColo
       category: categoryName,
       categoryId: categoryId,
       color: eventColor,
+      textColor: eventTextColor,
     },
   });
 }
-
-export const updateEventDate = (eventId, start, end) => {
-  // compare the dates to ensure that start is <= end
-  // if end is '', then use start
-  let endVal = end;
-  if (endVal === '') { endVal = start }
-  store.dispatch({ 
-    type: 'UPDATE_EVENT', 
-    payload: {
-      id: eventId,
-      start: start,
-      end: endVal,
-    },
-  });
-}
-
-
 
 export const deleteEvent = (eventId) => {
   store.dispatch({

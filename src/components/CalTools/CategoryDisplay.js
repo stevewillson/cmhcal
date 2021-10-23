@@ -49,6 +49,21 @@ const CategoryDisplay = () => {
     };
   }
 
+  const changeCatTextColor = (id, curTextColor) => {
+    // TODO get the previous color and if the color is updated
+    // change all events with that color to the new color
+    const categoryTextColor = prompt("Set the category text color", curTextColor)
+    if (categoryTextColor !== '' && categoryTextColor !== null) {
+      dispatch({ 
+        type: 'UPDATE_CATEGORY_TEXT_COLOR', 
+        payload: {
+          textColor: categoryTextColor,
+          id: id,
+        },
+      });
+    };
+  }
+
   const toggleDisplayCategories = (event) => {
     dispatch({
       type: 'SET_DISPLAY_CATEGORIES',
@@ -71,10 +86,11 @@ const CategoryDisplay = () => {
         <label htmlFor="displayCategoriesCheckbox">Show</label>
       </h4>
       {displayCategories && calCategories.map((category) => 
-        <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color }}>
+        <div key={uuidv4()} data-cat-id={category.id} style={{ backgroundColor: category.color, color: category.textColor }}>
           {category.name}
           {editMode && <> - <button onClick={() => changeCatName(category.id, category.name)}>Change Name</button></>}
           {editMode && <> - <button onClick={() => changeCatColor(category.id, category.color)}>Change Color</button></>}
+          {editMode && <> - <button onClick={() => changeCatTextColor(category.id, category.textColor)}>Change Text Color</button></>}
           {editMode && <> - <button onClick={() => deleteCat(category.id, category.name)}>X</button></>}
         </div>
       )}

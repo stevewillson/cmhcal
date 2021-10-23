@@ -66,7 +66,8 @@ const CalTools = () => {
               payload: {
                 id: category.id,
                 name: category.name,
-                color: category.color,       
+                color: category.color,
+                textColor: category.textColor,    
               },
             });
           }
@@ -82,9 +83,10 @@ const CalTools = () => {
                 id: event.id,
                 resourceId: event.resourceId,
                 color: event.color || '',
+                textColor: event.textColor || '',
                 url: event.url || '',
-                category: event.extendedProps.category || '',
-                categoryId: event.extendedProps.categoryId || '',
+                category: event.category || '',
+                categoryId: event.categoryId || '',
               },
             });
           }

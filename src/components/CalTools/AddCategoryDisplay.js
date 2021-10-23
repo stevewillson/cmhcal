@@ -9,8 +9,9 @@ const AddCategoryDisplay = () => {
 
   const [addCatName, setAddCatName] = useState('');
   const [addCatColor, setAddCatColor] = useState('');
+  const [addCatTextColor, setAddCatTextColor] = useState('white');
 
-  const addCat = (catName, catColor) => {
+  const addCat = (catName, catColor, catTextColor) => {
     if (catName === '') {
       alert('Please specify a category name');
     } else {
@@ -20,10 +21,12 @@ const AddCategoryDisplay = () => {
           id: uuidv4(),
           name: catName,
           color: catColor,
+          textColor: catTextColor,
         }
       });
       setAddCatName('');
-      setAddCatColor('');  
+      setAddCatColor('');
+      setAddCatTextColor('white');
     }
   }
 
@@ -43,9 +46,16 @@ const AddCategoryDisplay = () => {
         value={addCatColor}
         onChange={event => setAddCatColor(event.target.value)}
       />
+      <label htmlFor='addCatTextColorText'>Text Color:</label>
+      <input
+        id='addCatTextColorText'
+        type='text'
+        value={addCatTextColor}
+        onChange={event => setAddCatTextColor(event.target.value)}
+      />
       <button 
         type="button" 
-        onClick={() => addCat(addCatName, addCatColor)} 
+        onClick={() => addCat(addCatName, addCatColor, addCatTextColor)} 
       >
         Add Category
       </button>
