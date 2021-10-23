@@ -72,6 +72,7 @@ const CategoryDisplay = () => {
       }
     })
   }
+  
   return (
     <React.Fragment>
       <div className="top-categories">
@@ -79,7 +80,7 @@ const CategoryDisplay = () => {
         <input
           type="checkbox" 
           id="displayCategoriesCheckbox"
-          defaultChecked={true}
+          checked={displayCategories}
           // set the redux state to capture 'displayCategories' for shared state
           onChange={toggleDisplayCategories}
         />

@@ -34,7 +34,8 @@ export const updateEvent = (plainEventObject) => {
       url: plainEventObject.url,
       category: plainEventObject.extendedProps.category,
       categoryId: plainEventObject.extendedProps.categoryId,
-      color: plainEventObject.backgroundColor
+      color: plainEventObject.backgroundColor,
+      textColor: plainEventObject.textColor,
     },
   });
 }

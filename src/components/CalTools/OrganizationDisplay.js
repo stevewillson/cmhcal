@@ -53,7 +53,7 @@ const OrganizationDisplay = () => {
       <input
         type="checkbox" 
         id="displayOrganizationsCheckbox"
-        defaultChecked={true}
+        checked={displayOrganizations}
         // set the redux state to capture 'displayOrganizations' for shared state
         onChange={toggleDisplayOrganizations}
       />

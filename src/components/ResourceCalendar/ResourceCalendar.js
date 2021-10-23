@@ -36,15 +36,15 @@ const ResourceCalendar = () => {
 
     if (title) {
       // add an event to the first category
-
       let eventCategory = '';
       let eventCategoryId = '';
       let eventColor = '';
+      let textColor = '';
       if (calState.calCategories.length > 0) {
         eventCategory = calState.calCategories[0].name;
         eventCategoryId = calState.calCategories[0].id;
         eventColor = calState.calCategories[0].color;
-        // textColor = calState.calCategories[0].textColor;
+        textColor = calState.calCategories[0].textColor || "";
       } 
       calendarApi.addEvent({ // will render immediately. will call handleEventAdd
         title,
@@ -54,8 +54,8 @@ const ResourceCalendar = () => {
         id: uuidv4(),
         resourceId: selectInfo.resource.id,
         url: '',
-        backgroundColor: eventColor,
-        // textColor: textColor,
+        color: eventColor,
+        textColor: textColor,
         category: eventCategory,
         categoryId: eventCategoryId,
       }, true) // temporary=true, will get overwritten when reducer gives new events
@@ -136,30 +136,28 @@ const ResourceCalendar = () => {
       if (editMode) {
         return (
           <>
-            <b>{info.event.title}</b>
-            {' - '}
-            <button onClick={() => renameEvent(info.event)}>Edit Name</button>
-            {' - '}
-	    <div className="tooltip">
-	      <span className="tooltiptext">Hold CTRL + Click to change category</span>
-            <select
-              onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
-              id={"changeEventCategory"+uuidv4()}
-              // fullCalendar requires CTRL to be held down to select a form element within an event
-              value={info.event.extendedProps.categoryId}
-            >
-            {calState.calCategories.map(cat => 
-              <option 
-                key={uuidv4()} 
-                value={cat.id}
-              >
-              {cat.name}
-              </option>
-            )}
-            </select> 
-	    </div>
-            {' - '}
-            <button onClick={() => info.event.remove()}>X</button>
+            {<b>{info.event.title}</b>}
+            {<> - <button onClick={() => renameEvent(info.event)}>Edit Name</button></>}
+            {<> - </>}
+	          <div className="tooltip">
+	            <span className="tooltiptext">Hold CTRL + Click to change category</span>
+                <select
+                  onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
+                  id={"changeEventCategory"+uuidv4()}
+                  // fullCalendar requires CTRL to be held down to select a form element within an event
+                  value={info.event.extendedProps.categoryId}
+                >
+                {calState.calCategories.map(cat => 
+                  <option 
+                    key={uuidv4()} 
+                    value={cat.id}
+                  >
+                  {cat.name}
+                  </option>
+                )}
+                </select> 
+	          </div>
+            {<> - <button onClick={() => info.event.remove()}>X</button></>}
           </>
         )
       }
@@ -173,33 +171,29 @@ const ResourceCalendar = () => {
         return (
           <>
             <b>{info.event.title}</b>
-            {' - '}
-            <b>{info.event.start.toISOString().slice(5,10)}</b>
-            {' - '}
-            <b>{info.event.end.toISOString().slice(5,10)}</b>
-            {' - '}
-            <button onClick={() => renameEvent(info.event)}>Edit Name</button>
-            {' - '}
-	    <div className="tooltip">
-	      <span className="tooltiptext">Hold CTRL + Click to change category</span>
-            <select
-              onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
-              id={"changeEventCategory"+uuidv4()}
-              // fullCalendar requires CTRL to be held down to select a form element within an event
-              value={info.event.extendedProps.categoryId}
-            >
-            {calState.calCategories.map(cat => 
-              <option 
-                key={uuidv4()} 
-                value={cat.id}
-              >
-              {cat.name}
-              </option>
-            )}
-            </select>
-	    </div>
-            {' - '}
-            <button onClick={() => info.event.remove()}>X</button>
+            {<> - <b>{info.event.start.toISOString().slice(5,10)}</b></>}
+            {<> - <b>{info.event.end.toISOString().slice(5,10)}</b></>}
+            {<> - <button onClick={() => renameEvent(info.event)}>Edit Name</button></>}
+            {<> - </>}
+	          <div className="tooltip">
+	            <span className="tooltiptext">Hold CTRL + Click to change category</span>
+                <select
+                  onChange={event => modifyEventCategory(info.event, event.target.selectedOptions[0].value)} 
+                  id={"changeEventCategory"+uuidv4()}
+                  // fullCalendar requires CTRL to be held down to select a form element within an event
+                  value={info.event.extendedProps.categoryId}
+                >
+                {calState.calCategories.map(cat => 
+                  <option 
+                    key={uuidv4()} 
+                    value={cat.id}
+                  >
+                  {cat.name}
+                  </option>
+                )}
+                </select>
+            </div>
+            {<> - <button onClick={() => info.event.remove()}>X</button></>}
           </>
         )
       }

@@ -28,6 +28,7 @@ const CalTools = () => {
       calDateRangeStart: state.calDateRangeStart, 
       calDateRangeEnd: state.calDateRangeEnd,
       calUUID: state.calUUID,
+      editMode: state.editMode,
     }})
 
   const handleImportDataButton = async () => {
@@ -198,7 +199,7 @@ const CalTools = () => {
                 <input
                   type="checkbox" 
                   id="editModeCheckbox"
-                  defaultChecked={true}
+                  checked={calState.editMode}
                   // set the redux state to capture 'editMode' for shared state
                   onChange={toggleEditMode}
                 />
