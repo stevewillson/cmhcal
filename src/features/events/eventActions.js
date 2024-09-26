@@ -1,6 +1,5 @@
 // src/features/events/eventActions.js
-import { updateEventInDB, deleteEventFromDB, addEventToDB } from "../../app/db"; // Import IndexedDB functions
-import { updateEvent, removeEvent, addEvent } from "./eventsSlice"; // Import Redux actions
+import { updateEvent, removeEvent } from "./eventsSlice"; // Import Redux actions
 
 // serialize the event object to a plain object
 const jsEventObj = (fcEvent) => {
@@ -30,9 +29,6 @@ const jsEventObj = (fcEvent) => {
 export const handleEventRemove = async (eventId, dispatch) => {
   // Dispatch Redux action to remove the event from the store
   dispatch(removeEvent(eventId));
-
-  // Remove the event from IndexedDB
-  await deleteEventFromDB(eventId);
 };
 
 export const modifyEventCategory = async (
@@ -52,14 +48,14 @@ export const modifyEventCategory = async (
   updatedEvent.color = newColor;
   updatedEvent.textColor = newTextColor;
 
-  handleEventUpdate(updatedEvent, dispatch);
+  dispatch(updateEvent(updatedEvent));
 };
 
 export const handleEventChange = async (info, dispatch) => {
   // eventChange is called after the eventDrop, this will update the database and redux store twice
   // TODO - only update those once
   const changedEvent = jsEventObj(info.event);
-  handleEventUpdate(changedEvent, dispatch);
+  dispatch(updateEvent(changedEvent));
 };
 
 // rename locally and also set the event name?
@@ -69,19 +65,4 @@ export const renameEvent = (event) => {
   if (eventTitle !== "" && eventTitle !== null) {
     event.setProp("title", eventTitle);
   }
-};
-
-export const handleEventAdd = async (info, dispatch) => {
-  // use this to call the create event function in the 'actions'
-  dispatch(addEvent(info.event));
-
-  await addEventToDB(info.event);
-};
-
-const handleEventUpdate = async (event, dispatch) => {
-  // Dispatch Redux action to update the event in the store
-  dispatch(updateEvent(event));
-
-  // Update the event in IndexedDB
-  await updateEventInDB(event);
 };

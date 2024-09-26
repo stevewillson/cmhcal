@@ -1,21 +1,7 @@
 // src/features/calendar/calendarActions.js
-import { getAllEventsFromDB } from "../../app/db"; // Import the utility function
 import { v4 as uuidv4 } from "uuid"; // Import the UUID package
-import { addEventToDB } from "../../app/db"; // Import IndexedDB functions
-import { addEvent, setEvents } from "../events/eventsSlice"; // Import Redux actions
+import { addEvent } from "../events/eventsSlice"; // Import Redux actions
 import { setCalendarView } from "./calendarSlice"; // Import Redux actions
-import {
-  setCalendarViewSettingsToDB,
-  getCalendarViewSettingsFromDB,
-} from "../../app/db"; // Import IndexedDB functions
-
-// Load events from IndexedDB and set them in Redux store
-export const loadEventsFromDB = async (dispatch) => {
-  const storedEvents = await getAllEventsFromDB();
-  if (storedEvents) {
-    dispatch(setEvents(storedEvents));
-  }
-};
 
 // Add a new event to both Redux and IndexedDB
 export const handleDateClick = async (info, dispatch, categories) => {
@@ -69,22 +55,6 @@ export const handleDateClick = async (info, dispatch, categories) => {
 
     // Dispatch Redux action to add the new event to the store
     dispatch(addEvent(newEvent));
-
-    // Add the new event to IndexedDB
-    await addEventToDB(newEvent);
-  }
-};
-
-// Load calendar view settings (start and end date) from IndexedDB
-export const loadCalendarViewSettings = async (dispatch) => {
-  const settings = await getCalendarViewSettingsFromDB();
-  if (settings) {
-    dispatch(
-      setCalendarView({
-        startDate: settings.startDate,
-        endDate: settings.endDate,
-      })
-    );
   }
 };
 
@@ -95,9 +65,6 @@ export const saveCalendarViewSettings = async (
   endDate
 ) => {
   const settings = { startDate, endDate };
-
-  // Save to IndexedDB
-  await setCalendarViewSettingsToDB(settings);
 
   // Dispatch to Redux store
   dispatch(setCalendarView(settings));

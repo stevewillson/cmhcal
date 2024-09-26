@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { handleAddOrganization } from "./organizationsActions";
+import { addOrganization } from "./organizationsSlice";
 
-const AddOrganizationForm = () => {
-  const [orgName, setOrgName] = useState('');
-  const [parentOrgId, setParentOrgId] = useState('None');
+const OrganizationsForm = () => {
+  const [orgName, setOrgName] = useState("");
+  const [parentOrgId, setParentOrgId] = useState("None");
 
   const dispatch = useDispatch();
   const organizations = useSelector((state) => state.organizations);
@@ -13,11 +13,11 @@ const AddOrganizationForm = () => {
   const handleAddNewOrganization = (orgName, parentOrgId) => {
     if (orgName.trim()) {
       const newOrg = {
-        "title": orgName,
-        "id": uuidv4(),
-        "parentId": parentOrgId || "None",
+        title: orgName,
+        id: uuidv4(),
+        parentId: parentOrgId || "None",
       };
-      handleAddOrganization(newOrg, dispatch);
+      dispatch(addOrganization(newOrg));
       setOrgName("");
       setParentOrgId("None");
     } else {
@@ -27,7 +27,7 @@ const AddOrganizationForm = () => {
 
   return (
     <div>
-      <label htmlFor='addOrgName'>Add Organization: </label>
+      <label htmlFor="addOrgName">Add Organization: </label>
       <input
         id="addOrgName"
         type="text"
@@ -52,9 +52,11 @@ const AddOrganizationForm = () => {
           </option>
         ))}
       </select>
-      <button onClick={()=>handleAddNewOrganization(orgName, parentOrgId)}>Add Organization</button>
+      <button onClick={() => handleAddNewOrganization(orgName, parentOrgId)}>
+        Add Organization
+      </button>
     </div>
   );
 };
 
-export default AddOrganizationForm;
+export default OrganizationsForm;

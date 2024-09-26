@@ -1,9 +1,12 @@
-// src/features/categories/categorySlice.js
 import { createSlice } from "@reduxjs/toolkit";
+import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
-const categorySlice = createSlice({
+const initialState = []; // The state is an array of categories
+
+const categoriesSlice = createSlice({
   name: "categories",
-  initialState: [], // The state is an array of categories
+  initialState,
   reducers: {
     addCategory: (state, action) => {
       state.push(action.payload); // Add a new category
@@ -27,5 +30,16 @@ const categorySlice = createSlice({
 
 // Export actions and reducer
 export const { addCategory, removeCategory, updateCategory, setCategories } =
-  categorySlice.actions;
-export default categorySlice.reducer;
+  categoriesSlice.actions;
+
+const persistConfig = {
+  key: "categories",
+  storage,
+};
+
+const persistedCategoriesReducer = persistReducer(
+  persistConfig,
+  categoriesSlice.reducer
+);
+
+export default persistedCategoriesReducer;

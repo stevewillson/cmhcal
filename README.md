@@ -1,6 +1,6 @@
 # CMHCal Consolidated Multi-echelon Horseblanket Calendar
 
-CMHCal is designed to display horseblanket calendar information in an easily modifiable format that is quickly aggregated to other echelons.
+CMHCal displays a horseblanket calendar in an easily modifiable format that can be quickly aggregated to other echelons.
 
 ![cmhcal_screenshot][screenshot_1]
 
@@ -11,18 +11,8 @@ CMHCal is designed to display horseblanket calendar information in an easily mod
 1. Clone the git repository `git clone git@gitlab.com:cmhcal/cmhcal.git`
 2. Change directory to the cloned repository `cd cmhcal`
 3. Install dependencies `npm install`
-4. Start a development server `npm start`
-5. Browse to `localhost:3000` to use cmhcal
-
-## Package to a single `index.html` file
-
-1. Clone the git repository `git clone git@gitlab.com:cmhcal/cmhcal.git`
-2. Change directory to the cloned repository `cd cmhcal`
-3. Install dependencies `npm install`
-4. Build the application `npm run build`
-5. Generate the single `index.html` file: `npx gulp`
-6. The generated file is located at: `./build/index.html`
-7. Open this file locally on a computer with a web browser to use cmhcal without connecting to the internet
+4. Start a development server `npm run dev`
+5. Browse to `http://localhost:5173/` to use cmhcal
 
 # Usage
 
@@ -46,7 +36,7 @@ To import a JSON CMHCal file, click the 'Import' button and then select the file
 
 CMHCal is designed to run 'stand-alone'. Once the single `index.html` file is delivered to a computer, all processing is done locally. This provides the ability for CMHCal to operate on disconnected computers. At this time, users must export and import CMHCal JSON files to share information.
 
-CMHCal uses the ReactJS and  the `create react app` framework. CMHCal uses Redux for state management across components. CMHCal uses the FullCalendar Resource Timeline view.
+CMHCal uses React and the Vite framework. CMHCal uses Redux for state management across components. CMHCal uses the FullCalendar Resource Timeline view.
 
 There are two components used in CMHCal (in the `src/components` folder), `CalTools` and `ResourceCalendar`.
 
@@ -199,3 +189,4 @@ CMHCal uses a stored state that can be exported and imported to display categori
     "color": "orange"
   },
 ],
+```

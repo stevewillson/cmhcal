@@ -1,17 +1,18 @@
 // src/app/store.js
 import { configureStore } from "@reduxjs/toolkit";
-import eventsReducer from "../features/events/eventsSlice";
-import categoriesReducer from "../features/categories/categorySlice";
-import organizationsReducer from "../features/organizations/organizationsSlice"; // Import organizations slice
-import calendarReducer from "../features/calendar/calendarSlice";
+import persistedEventsReducer from "../features/events/eventsSlice";
+import persistedCategoriesReducer from "../features/categories/categoriesSlice";
+import persistedOrganizationsReducer from "../features/organizations/organizationsSlice";
+import persistedCalendarReducer from "../features/calendar/calendarSlice";
+import persistStore from "redux-persist/es/persistStore";
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
-    events: eventsReducer,
-    categories: categoriesReducer,
-    organizations: organizationsReducer,
-    calendar: calendarReducer,
+    events: persistedEventsReducer,
+    categories: persistedCategoriesReducer,
+    organizations: persistedOrganizationsReducer,
+    calendar: persistedCalendarReducer,
   },
 });
 
-export default store;
+export const persistor = persistStore(store);
