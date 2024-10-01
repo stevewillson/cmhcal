@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
-const initialState = []; // The state is an array of categories
+const initialState = { list: [] }; // The state is an array of categories
 
 // Events slice to manage calendar events in Redux
 const eventsSlice = createSlice({
@@ -12,22 +12,22 @@ const eventsSlice = createSlice({
   reducers: {
     // Action to add a new event
     addEvent: (state, action) => {
-      state.push(action.payload); // Add event to the state array
+      // add the payload to the state object
+
+      state.list.push(action.payload); // Add event to the state array
     },
     // Action to remove an event by ID
     removeEvent: (state, action) => {
-      return state.filter((event) => event.id !== action.payload); // Remove the event with the matching ID
+      return state.list.filter((event) => event.id !== action.payload); // Remove the event with the matching ID
     },
     // Action to update an event
     updateEvent: (state, action) => {
-      const index = state.findIndex((event) => event.id === action.payload.id);
+      const index = state.list.findIndex(
+        (event) => event.id === action.payload.id
+      );
       if (index !== -1) {
-        state[index] = action.payload; // Update the event in the state array
+        state.list[index] = action.payload; // Update the event in the state array
       }
-    },
-    // Action to initialize the events array (usually from IndexedDB)
-    setEvents: (state, action) => {
-      return action.payload; // Replace the current state with loaded events
     },
   },
 });
@@ -39,6 +39,7 @@ export const { addEvent, removeEvent, updateEvent, setEvents } =
 const persistConfig = {
   key: "events",
   storage,
+  whitelist: ["list"], // Only persist the list of events
 };
 
 const persistedEventsReducer = persistReducer(

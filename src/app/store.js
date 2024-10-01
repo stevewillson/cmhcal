@@ -13,6 +13,12 @@ export const store = configureStore({
     organizations: persistedOrganizationsReducer,
     calendar: persistedCalendarReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoreActions: ["persist/PERSIST", "persist/REHYDRATE"],
+      },
+    }),
 });
 
 export const persistor = persistStore(store);

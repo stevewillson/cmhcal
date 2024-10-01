@@ -14,14 +14,15 @@ const CategoriesForm = () => {
   const [editCategories, setEditCategories] = useState(false);
 
   const dispatch = useDispatch();
-  const categories = useSelector((state) => state.categories); // Get categories from Redux store
+  const categories = useSelector((state) => state.categories.list || []); // Get categories from Redux store
 
   // Handle adding a new category
   const handleAddNewCategory = () => {
     if (newCategoryName.trim()) {
       // create the new category object here
+      const catId = uuidv4();
       const newCat = {
-        id: uuidv4(),
+        id: catId,
         name: newCategoryName,
         color: newCategoryColor,
         textColor: newCategoryTextColor,

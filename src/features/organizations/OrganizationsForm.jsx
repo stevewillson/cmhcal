@@ -1,49 +1,42 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { addOrganization } from "./organizationsSlice";
 
-const OrganizationsForm = () => {
-  const [orgName, setOrgName] = useState("");
-  const [parentOrgId, setParentOrgId] = useState("None");
-
+export const OrganizationsForm = () => {
   const dispatch = useDispatch();
-  const organizations = useSelector((state) => state.organizations);
+  const organizations = useSelector((state) => state.organizations.list);
 
-  const handleAddNewOrganization = (orgName, parentOrgId) => {
+  const handleAddNewOrganization = () => {
+    // get the value from the input fields
+    // get input from the field with id addOrgName
+    const orgName = document.getElementById("addOrgName").value;
+    // get the value from the select field
+    const parentOrgId = document.getElementById("addOrgParent").value;
+
     if (orgName.trim()) {
+      const orgId = uuidv4();
       const newOrg = {
         title: orgName,
-        id: uuidv4(),
-        parentId: parentOrgId || "None",
+        id: orgId,
+        parentId: parentOrgId || "",
       };
       dispatch(addOrganization(newOrg));
-      setOrgName("");
-      setParentOrgId("None");
+      // set the addOrgName field to empty
+      document.getElementById("addOrgName").value = "";
+      // set the addOrgParent field to None
+      document.getElementById("addOrgParent").value = "";
     } else {
       alert("Please specify an organization name");
     }
   };
-
   return (
     <div>
       <label htmlFor="addOrgName">Add Organization: </label>
-      <input
-        id="addOrgName"
-        type="text"
-        value={orgName}
-        onChange={(e) => setOrgName(e.target.value)}
-        placeholder="Organization Name"
-      />
+      <input id="addOrgName" type="text" placeholder="Organization Name" />
       <label htmlFor="addOrgParent">Parent Organization:</label>
-      <select
-        onChange={(event) =>
-          setParentOrgId(event.target.selectedOptions[0].value)
-        }
-        id="addOrgParent"
-        value={parentOrgId}
-      >
-        <option key={uuidv4()} value={"None"}>
+      <select id="addOrgParent">
+        <option key={uuidv4()} value={""}>
           {"None"}
         </option>
         {organizations.map((org) => (
@@ -52,9 +45,7 @@ const OrganizationsForm = () => {
           </option>
         ))}
       </select>
-      <button onClick={() => handleAddNewOrganization(orgName, parentOrgId)}>
-        Add Organization
-      </button>
+      <button onClick={handleAddNewOrganization}>Add Organization</button>
     </div>
   );
 };
