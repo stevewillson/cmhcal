@@ -60,12 +60,10 @@ export const handleDateClick = async (info, dispatch, categories) => {
 
 // Save calendar view settings (start and end date) to IndexedDB
 export const saveCalendarViewSettings = async (
-  dispatch,
   startDate,
-  endDate
+  endDate,
+  dispatch
 ) => {
   const settings = { startDate, endDate };
-
-  // Dispatch to Redux store
-  dispatch(setCalendarView(settings));
+  dispatch(setCalendarView(settings)); // Dispatch to Redux store
 };

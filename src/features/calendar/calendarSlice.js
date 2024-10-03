@@ -3,13 +3,17 @@ import { createSlice } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
+const today = new Date();
+const fortyDaysFromToday = new Date();
+fortyDaysFromToday.setDate(today.getDate() + 40);
+
 const initialState = {
-  startDate: null,
-  endDate: null,
+  startDate: today.toISOString().split("T")[0], // set startDate to today
+  endDate: fortyDaysFromToday.toISOString().split("T")[0], // set endDate to 40 days from today
 };
 
 const calendarSlice = createSlice({
-  name: "calendar",
+  name: "settings",
   initialState,
   reducers: {
     setCalendarView: (state, action) => {
@@ -24,7 +28,7 @@ export const { setCalendarView } = calendarSlice.actions;
 
 // Persist configuration for this slice
 const persistConfig = {
-  key: "calendar",
+  key: "settings",
   storage,
 };
 

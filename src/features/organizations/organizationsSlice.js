@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
-const initialState = { list: [] }; // The state is an array of categories
+const initialState = { list: [] }; // The state is an array of organizations
 
 const organizationsSlice = createSlice({
   name: "organizations",
@@ -13,7 +13,7 @@ const organizationsSlice = createSlice({
       state.list.push(action.payload); // Add a new organization
     },
     removeOrganization: (state, action) => {
-      return state.list.filter(
+      state.list = state.list.filter(
         (organization) => organization.id !== action.payload
       ); // Remove by ID
     },
@@ -29,12 +29,8 @@ const organizationsSlice = createSlice({
 });
 
 // Export actions and reducer
-export const {
-  addOrganization,
-  removeOrganization,
-  updateOrganization,
-  // setOrganizations,
-} = organizationsSlice.actions;
+export const { addOrganization, removeOrganization, updateOrganization } =
+  organizationsSlice.actions;
 
 const persistConfig = {
   key: "organizations",

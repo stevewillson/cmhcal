@@ -7,7 +7,7 @@ import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
 import { useDispatch, useSelector } from "react-redux";
 import { handleDateClick, saveCalendarViewSettings } from "./calendarActions"; // Import the new actions
 import { handleEventRemove, handleEventChange } from "../events/eventActions"; // Other event-related actions
-import { addEvent } from "../events/eventsSlice"; // Import the new action
+// import { addEvent } from "../events/eventsSlice"; // Import the new action
 import { eventRender } from "../events/eventsHelpers"; // Import the new helper function
 
 import {
@@ -26,29 +26,27 @@ const Calendar = () => {
   const events = useSelector((state) => state.events.list); // Get events from Redux store
   const categories = useSelector((state) => state.categories.list); // Get categories from Redux store
   const organizations = useSelector((state) => state.organizations.list); // Get organizations from Redux store
+  const settings = useSelector((state) => state.settings); // Get calendar settings from Redux store
 
   // Edit mode state
   const [editMode, setEditMode] = useState(false);
 
-  // Calculate today’s date and forty days from today
-  const today = new Date();
-  const fortyDaysFromToday = new Date(today);
-  fortyDaysFromToday.setDate(today.getDate() + 40);
-
   // State for start and end dates
-  const [startDate, setStartDate] = useState(today.toISOString().split("T")[0]); // Default to today's date
-  const [endDate, setEndDate] = useState(
-    fortyDaysFromToday.toISOString().split("T")[0]
-  ); // Default to 40 days from today
-
-  // Handle saving calendar view settings
-  const handleSaveCalendarView = () => {
-    saveCalendarViewSettings(dispatch, startDate, endDate);
-  };
+  const [startDate, setStartDate] = useState(settings.startDate);
+  const [endDate, setEndDate] = useState(settings.endDate);
 
   // Toggle edit mode
   const toggleEditMode = () => {
     setEditMode((prevMode) => !prevMode);
+  };
+
+  const handleSaveCalendarView = (dispatch) => {
+    //get the input for the startDateInput
+    const startDate = document.getElementById("startDateInput").value;
+    //get the input for the endDateInput
+    const endDate = document.getElementById("endDateInput").value;
+    //save the calendar view settings
+    saveCalendarViewSettings(startDate, endDate, dispatch);
   };
 
   // only update when the 'add organization' button is pressed
@@ -69,7 +67,9 @@ const Calendar = () => {
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
-        <button onClick={handleSaveCalendarView}>Set Calendar View</button>
+        <button onClick={() => handleSaveCalendarView(dispatch)}>
+          Set Calendar View
+        </button>
       </div>
       {/* Edit Mode Toggle */}
       <div>
@@ -100,9 +100,9 @@ const Calendar = () => {
         height={"auto"}
         scrollTime={null}
         views={{
-          DayView: getDayViewConfig(startDate, endDate),
-          WeekView: getWeekViewConfig(startDate, endDate),
-          MonthView: getMonthViewConfig(startDate, endDate),
+          DayView: getDayViewConfig(settings.startDate, settings.endDate),
+          WeekView: getWeekViewConfig(settings.startDate, settings.endDate),
+          MonthView: getMonthViewConfig(settings.startDate, settings.endDate),
         }}
         // set the top rows with custom data to display Month Year, Fiscal Year Week
         // Relative 'T' Week
@@ -118,19 +118,19 @@ const Calendar = () => {
         }
         // order the resources (Organizations) by Title
         resourceOrder={"title"}
-        selectable={true}
-        // when an empty part of the calendar is clicked
-        select={(info) => handleDateClick(info, dispatch, categories)}
         // set week to begin on Monday
         firstDay={"1"}
         // when the event is clicked and released, not dragged
-        eventClick={handleEventClick}
+
         eventContent={(info) =>
           eventRender(info, categories, editMode, dispatch)
         }
-        eventAdd={(info) => dispatch(addEvent(info.event))}
-        // eventDrop={(info) => handleEventDrop(info, dispatch)} // Handle event drop
-        // this sometimes does not pass events
+        // the eventAdd and eventDrop events are not handled because these
+        // actions are managed by select and eventChange
+        selectable={true}
+        // when an empty part of the calendar is clicked
+        select={(info) => handleDateClick(info, dispatch, categories)}
+        eventClick={handleEventClick}
         eventChange={(info) => handleEventChange(info, dispatch)}
         eventRemove={(info) => handleEventRemove(info.event.id, dispatch)} // Handle event removal
       />

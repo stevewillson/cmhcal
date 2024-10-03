@@ -11,7 +11,7 @@ export const store = configureStore({
     events: persistedEventsReducer,
     categories: persistedCategoriesReducer,
     organizations: persistedOrganizationsReducer,
-    calendar: persistedCalendarReducer,
+    settings: persistedCalendarReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

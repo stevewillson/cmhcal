@@ -1,5 +1,4 @@
 import { DateTime } from "luxon";
-// import { v4 as uuidv4 } from "uuid"; // Import the UUID package
 
 // start weekView on a Monday,
 // if not, then fullCalendar will not allow the left most date column
@@ -7,12 +6,10 @@ import { DateTime } from "luxon";
 export const setWeekViewStartDate = (inputDate) => {
   // take the input date and find the previous monday to set the start date in the week view mode
   const calDateStart = DateTime.fromFormat(inputDate, "yyyy-LL-dd");
-
   // subtract days to set newCalDateStart to the prior Monday
   const newCalDateStart = calDateStart.minus({
     days: calDateStart.weekday - 1,
   });
-
   return newCalDateStart.toISODate();
 };
 
@@ -22,7 +19,6 @@ export const setWeekViewEndDate = (inputDate) => {
 
   // add days to set newCalDateEnd to the next Monday
   const newCalDateEnd = calDateEnd.plus({ days: 8 - calDateEnd.weekday });
-
   return newCalDateEnd.toISODate();
 };
 
@@ -57,7 +53,6 @@ export const customSlotLabelContent = (arg) => {
   // FY Week
   // T Week
   // Date / Day of Week
-
   if (arg.level === 0) {
     return arg.text.toUpperCase();
   }
@@ -89,9 +84,7 @@ export const customSlotLabelContent = (arg) => {
 
     // subtract days to set calPrevMonday to the prior Monday
     let calPrevMonday = calDate.minus({ days: calDate.weekday - 1 });
-
     const nowDate = DateTime.local();
-
     const nowPrevMonday = nowDate.minus({ days: nowDate.weekday - 1 });
 
     let weekDiff = calPrevMonday.diff(nowPrevMonday, ["weeks"]);
