@@ -11,13 +11,13 @@ export const handleDateClick = async (info, dispatch, categories) => {
 
   if (title.trim()) {
     // add an event to the first category
-    let eventCategory = "";
-    // let eventCategoryId = "";
+    let eventCategory = "Uncategorized";
+    let eventCategoryId = "";
     let eventColor = "blue";
     let textColor = "white";
     if (categories.length > 0) {
       eventCategory = categories[0].name;
-      // eventCategoryId = categories[0].id;
+      eventCategoryId = categories[0].id;
       eventColor = categories[0].color;
       textColor = categories[0].textColor;
     }
@@ -29,9 +29,10 @@ export const handleDateClick = async (info, dispatch, categories) => {
       end: info.endStr, // End date is optional
       resourceId: info.resource?.id, // Resource if in resource view
       url: "", // Default empty URL
-      category: eventCategory || "Uncategorized", // Default category
-      color: eventColor || "blue", // Use category color or default
-      textColor: textColor || "white", // Use category text color or default
+      category: eventCategory,
+      categoryId: eventCategoryId,
+      color: eventColor,
+      textColor: textColor,
     };
     // }
     // calendarApi.addEvent(

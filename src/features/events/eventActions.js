@@ -12,7 +12,8 @@ const jsEventObj = (fcEvent) => {
       ? fcEvent.getResources()[0].id
       : null, // Update resourceId if applicable
     url: fcEvent.url || "", // Keep or update the URL
-    category: fcEvent.extendedProps.category || "Uncategorized", // Update the category if available
+    categoryId: fcEvent.extendedProps.categoryId || "", // Update the categoryId if available
+    // category: fcEvent.extendedProps.category || "Uncategorized", // Update the category if available
     color: fcEvent.backgroundColor || "blue", // Update the color if applicable
     textColor: fcEvent.textColor || "white",
   };
@@ -44,7 +45,8 @@ export const modifyEventCategory = async (
   const newTextColor = selectedCategory[0].textColor;
 
   const updatedEvent = jsEventObj(event);
-  updatedEvent.category = selectedCategory[0].name;
+  // updatedEvent.category = selectedCategory[0].name;
+  updatedEvent.categoryId = selectedCategory[0].id;
   updatedEvent.color = newColor;
   updatedEvent.textColor = newTextColor;
 
