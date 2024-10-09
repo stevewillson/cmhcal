@@ -1,8 +1,5 @@
 import { updateOrganization, removeOrganization } from "./organizationsSlice";
 
-// handleUpdateOrganization function
-
-// TODO rename organizations
 const handleRenameOrganization = (info, dispatch) => {
   // prompt for new organization name
   const newOrgName = prompt(

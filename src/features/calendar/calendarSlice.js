@@ -10,6 +10,7 @@ fortyDaysFromToday.setDate(today.getDate() + 40);
 const initialState = {
   startDate: today.toISOString().split("T")[0], // set startDate to today
   endDate: fortyDaysFromToday.toISOString().split("T")[0], // set endDate to 40 days from today
+  editMode: false,
 };
 
 const calendarSlice = createSlice({
@@ -20,11 +21,14 @@ const calendarSlice = createSlice({
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
     },
+    setEditMode: (state, action) => {
+      state.editMode = action.payload;
+    },
   },
 });
 
 // Export the action and reducer
-export const { setCalendarView } = calendarSlice.actions;
+export const { setCalendarView, setEditMode } = calendarSlice.actions;
 
 // Persist configuration for this slice
 const persistConfig = {
