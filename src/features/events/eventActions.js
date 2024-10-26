@@ -1,8 +1,9 @@
 // src/features/events/eventActions.js
-import { updateEvent, removeEvent } from "./eventsSlice"; // Import Redux actions
+import { updateEvent, removeEvent, addEvent } from "./eventsSlice"; // Import Redux actions
+// import { v4 as uuidv4 } from "uuid"; // Import uuidv4 function
 
 // Serialize the event object to a plain object
-const jsEventObj = (fcEvent) => ({
+export const myToJSON = (fcEvent) => ({
   id: fcEvent.id,
   title: fcEvent.title,
   start: fcEvent.startStr, // Updated start date
@@ -12,7 +13,7 @@ const jsEventObj = (fcEvent) => ({
     : null, // Update resourceId if applicable
   url: fcEvent.url || "", // Keep or update the URL
   categoryId: fcEvent.extendedProps.categoryId || "", // Update the categoryId if available
-  color: fcEvent.backgroundColor || "blue", // Update the color if applicable
+  backgroundColor: fcEvent.backgroundColor || "blue", // Update the color if applicable
   textColor: fcEvent.textColor || "white",
 });
 
@@ -32,7 +33,7 @@ export const modifyEventCategory = (
   if (!selectedCategory) return;
 
   const updatedEvent = {
-    ...jsEventObj(event),
+    ...myToJSON(event),
     categoryId: selectedCategory.id,
     color: selectedCategory.color,
     textColor: selectedCategory.textColor,
@@ -41,8 +42,13 @@ export const modifyEventCategory = (
   dispatch(updateEvent(updatedEvent));
 };
 
-export const handleEventChange = (info, dispatch) => {
-  const changedEvent = jsEventObj(info.event);
+// called when using the edit modal, the event data is already in a JSON format
+export const handleEventEdit = (eventData, dispatch) => {
+  dispatch(updateEvent(eventData));
+};
+
+export const handleEventChange = (eventData, dispatch) => {
+  const changedEvent = myToJSON(eventData);
   dispatch(updateEvent(changedEvent));
 };
 
@@ -52,4 +58,13 @@ export const renameEvent = (event) => {
   if (eventTitle) {
     event.setProp("title", eventTitle);
   }
+};
+
+export const handleEventAdd = (data, dispatch) => {
+  if (!data.title.trim()) return;
+
+  data.title = data.title.trim();
+
+  // Dispatch Redux action to add the new event to the store
+  dispatch(addEvent(data));
 };

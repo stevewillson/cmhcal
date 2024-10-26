@@ -1,11 +1,9 @@
 import { v4 as uuidv4 } from "uuid"; // Import the UUID package
-import { renameEvent, modifyEventCategory } from "./eventActions"; // Other event-related actions
+import { modifyEventCategory } from "./eventActions"; // Other event-related actions
 
 const renderEditMode = (info, categories, dispatch) => (
   <>
     <b>{info.event.title}</b>
-    {" - "}
-    <button onClick={() => renameEvent(info.event)}>Edit Name</button>
     {" - "}
     <div className="tooltip">
       <span className="tooltiptext">Hold CTRL + Click to change category</span>

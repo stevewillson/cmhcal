@@ -1,18 +1,27 @@
 // src/Calendar.jsx
 import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+
 import DateSelectForm from "./DateSelectForm";
 import FullCalendar from "@fullcalendar/react";
 import EditModeForm from "./EditModeForm";
 import interactionPlugin from "@fullcalendar/interaction";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
 
-import { handleDateClick } from "./calendarActions"; // Import the new actions
-import { handleEventRemove, handleEventChange } from "../events/eventActions"; // Other event-related actions
+import {
+  handleEventRemove,
+  handleEventChange,
+  handleEventEdit,
+  handleEventAdd,
+  myToJSON,
+} from "../events/eventActions"; // Other event-related actions
 import { eventRender } from "../events/eventsHelpers"; // Import the new helper function
+
+import EditEventModal from "../../components/EditEventModal/EditEventModal";
 
 import {
   customSlotLabelContent,
-  handleEventClick,
   getDayViewConfig,
   getMonthViewConfig,
   getWeekViewConfig,
@@ -27,9 +36,62 @@ const Calendar = () => {
   const organizations = useSelector((state) => state.organizations.list); // Get organizations from Redux store
   const settings = useSelector((state) => state.settings); // Get calendar settings from Redux store
 
+  const [isEditEventModalOpen, setEditEventModalOpen] = useState(false);
+  const [eventFormData, setEventFormData] = useState(null);
+
+  const handleOpenAddEventModal = (dateSelectArg, categories) => {
+    const calendarApi = dateSelectArg.view.calendar;
+    calendarApi.unselect(); // clear date selection
+
+    const newEvent = {
+      id: uuidv4(), // Generate a unique ID using UUID
+      title: "New Event",
+      start: dateSelectArg.startStr, // Start date of the event
+      end: dateSelectArg.endStr, // End date is optional
+      resourceId: dateSelectArg.resource?.id, // Resource if in resource view
+      url: "", // Default empty URL
+      // if the categories exist, use the first one, otherwise use the default
+      categoryId: categories[0] ? categories[0].id : "",
+      backgroundColor: categories[0] ? categories[0].color : "blue",
+      textColor: categories[0] ? categories[0].textColor : "white",
+      isNewEvent: true,
+    };
+    setEventFormData(newEvent);
+    setEditEventModalOpen(true);
+  };
+
+  const handleOpenEditEventModal = (eventData) => {
+    let editEvent = myToJSON(eventData);
+    editEvent.isNewEvent = false;
+
+    setEventFormData(editEvent);
+    setEditEventModalOpen(true);
+  };
+
+  const handleCloseEditEventModal = () => {
+    // reset the form data
+    setEventFormData(null);
+    setEditEventModalOpen(false);
+  };
+
+  const handleFormSubmit = (eventData) => {
+    if (eventData.isNewEvent) {
+      handleEventAdd(eventData, dispatch);
+    } else {
+      handleEventEdit(eventData, dispatch);
+    }
+    handleCloseEditEventModal();
+  };
+
   // update when the 'add organization' button is pressed
   return (
     <div>
+      <EditEventModal
+        isOpen={isEditEventModalOpen}
+        onSubmit={handleFormSubmit}
+        onClose={handleCloseEditEventModal}
+        initialData={eventFormData ? eventFormData : null}
+      />
       <DateSelectForm />
       <EditModeForm />
       <FullCalendar
@@ -74,10 +136,12 @@ const Calendar = () => {
         // actions are managed by select and eventChange
         selectable={true}
         // when an empty part of the calendar is clicked
-        select={(info) => handleDateClick(info, dispatch, categories)}
+        select={(dateSelectArg) =>
+          handleOpenAddEventModal(dateSelectArg, categories)
+        }
         // handles when the event is clicked and released, not dragged
-        eventClick={(info) => handleEventClick(info)}
-        eventChange={(info) => handleEventChange(info, dispatch)}
+        eventClick={(info) => handleOpenEditEventModal(info.event)}
+        eventChange={(info) => handleEventChange(info.event, dispatch)}
         eventRemove={(info) => handleEventRemove(info.event.id, dispatch)} // Handle event removal
       />
     </div>

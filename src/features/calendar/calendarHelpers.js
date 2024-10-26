@@ -127,13 +127,6 @@ export const handleEventClick = (clickInfo) => {
     clickInfo.jsEvent.preventDefault();
   } else if (
     clickInfo.jsEvent?.target?.innerText !== undefined &&
-    clickInfo.jsEvent.target.innerText === "Edit Name"
-  ) {
-    clickInfo.jsEvent.preventDefault();
-    //} else if (clickInfo.jsEvent?.toElement?.innerText !== undefined && clickInfo.jsEvent.toElement.innerText === "Edit Link") {
-    //  clickInfo.jsEvent.preventDefault();
-  } else if (
-    clickInfo.jsEvent?.target?.innerText !== undefined &&
     clickInfo.jsEvent.target.innerText === "X"
   ) {
     clickInfo.jsEvent.preventDefault();
