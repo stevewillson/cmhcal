@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import "./EditEventModal.css";
+import { v4 as uuidv4 } from "uuid";
 import Modal from "../Modal/Modal";
 
 const initialEventModalData = {
   title: "",
   start: "",
   end: "",
-  category: "",
+  categories: [],
 };
 
 const EditEventModal = ({ onSubmit, isOpen, onClose, initialData }) => {
@@ -64,7 +65,8 @@ const EditEventModal = ({ onSubmit, isOpen, onClose, initialData }) => {
             onChange={handleInputChange}
             placeholder="Start Date"
           />
-
+        </div>
+        <div className="form-row">
           <label htmlFor="end">End Date</label>
           <input
             type="date"
@@ -74,15 +76,22 @@ const EditEventModal = ({ onSubmit, isOpen, onClose, initialData }) => {
             placeholder="End Date"
           />
         </div>
-
-        {/* allow the user to select the category */}
-        {/* <input
-          type="text"
-          name="category"
-          value={modalState.category ? modalState.category : ""}
-          onChange={handleInputChange}
-          placeholder="Category"
-        /> */}
+        <div className="form-row">
+          <label htmlFor="categoryId">Category</label>
+          <select
+            onChange={handleInputChange}
+            type="text"
+            name="categoryId"
+            // id={"changeEventCategory" + uuidv4()}
+            value={modalState.categoryId}
+          >
+            {modalState.categories.map((cat) => (
+              <option key={uuidv4()} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="form-row">
           <button type="submit">Submit</button>
         </div>

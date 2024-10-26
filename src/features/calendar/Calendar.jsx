@@ -43,6 +43,11 @@ const Calendar = () => {
     const calendarApi = dateSelectArg.view.calendar;
     calendarApi.unselect(); // clear date selection
 
+    // make a list of the categories with the values of id and name
+    const categoriesList = categories.map((category) => {
+      return { id: category.id, name: category.name };
+    });
+
     const newEvent = {
       id: uuidv4(), // Generate a unique ID using UUID
       title: "New Event",
@@ -55,14 +60,51 @@ const Calendar = () => {
       backgroundColor: categories[0] ? categories[0].color : "blue",
       textColor: categories[0] ? categories[0].textColor : "white",
       isNewEvent: true,
+
+      categories: categoriesList,
     };
     setEventFormData(newEvent);
     setEditEventModalOpen(true);
   };
 
+  const handleEventClick = (clickInfo) => {
+    // prevent the url link from being followed if one of the event buttons is clicked
+    if (
+      clickInfo.jsEvent?.target?.id !== undefined &&
+      clickInfo.jsEvent?.target?.nodeName === "SELECT"
+    ) {
+      // clickInfo.jsEvent.stopImmediatePropagation();
+    } else if (
+      // update category button is clicked
+      clickInfo.jsEvent?.target?.innerText !== undefined &&
+      clickInfo.jsEvent.target.innerText === "Toggle Category"
+    ) {
+      clickInfo.jsEvent.preventDefault();
+    } else if (
+      // event will be removed if the 'X' button is clicked
+      clickInfo.jsEvent?.target?.innerText !== undefined &&
+      clickInfo.jsEvent.target.innerText === "X"
+    ) {
+      clickInfo.jsEvent.preventDefault();
+    } else {
+      handleOpenEditEventModal(clickInfo.event);
+    }
+    // can prevent the default loading of a url in the same windows and open it in a new window
+    // if (info.event.url) {
+    //   window.open(info.event.url);
+    // }
+  };
+
   const handleOpenEditEventModal = (eventData) => {
+    // make a list of the categories with the values of id and name
+    const categoriesList = categories.map((category) => {
+      return { id: category.id, name: category.name };
+    });
+
     let editEvent = myToJSON(eventData);
     editEvent.isNewEvent = false;
+
+    editEvent.categories = categoriesList;
 
     setEventFormData(editEvent);
     setEditEventModalOpen(true);
@@ -75,6 +117,15 @@ const Calendar = () => {
   };
 
   const handleFormSubmit = (eventData) => {
+    // update the event with the category color and text color
+    const selectedCategory = categories.find(
+      (category) => category.id === eventData.categoryId
+    );
+    if (selectedCategory) {
+      eventData.backgroundColor = selectedCategory.color;
+      eventData.textColor = selectedCategory.textColor;
+    }
+
     if (eventData.isNewEvent) {
       handleEventAdd(eventData, dispatch);
     } else {
@@ -140,7 +191,7 @@ const Calendar = () => {
           handleOpenAddEventModal(dateSelectArg, categories)
         }
         // handles when the event is clicked and released, not dragged
-        eventClick={(info) => handleOpenEditEventModal(info.event)}
+        eventClick={(info) => handleEventClick(info)}
         eventChange={(info) => handleEventChange(info.event, dispatch)}
         eventRemove={(info) => handleEventRemove(info.event.id, dispatch)} // Handle event removal
       />

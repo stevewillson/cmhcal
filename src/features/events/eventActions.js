@@ -35,7 +35,7 @@ export const modifyEventCategory = (
   const updatedEvent = {
     ...myToJSON(event),
     categoryId: selectedCategory.id,
-    color: selectedCategory.color,
+    backgroundColor: selectedCategory.color,
     textColor: selectedCategory.textColor,
   };
 

@@ -113,30 +113,6 @@ export const customSlotLabelContent = (arg) => {
   }
 };
 
-export const handleEventClick = (clickInfo) => {
-  // prevent the url link from being followed if one of the event buttons is clicked
-  if (
-    clickInfo.jsEvent?.target?.id !== undefined &&
-    clickInfo.jsEvent?.target?.nodeName === "SELECT"
-  ) {
-    // clickInfo.jsEvent.stopImmediatePropagation();
-  } else if (
-    clickInfo.jsEvent?.target?.innerText !== undefined &&
-    clickInfo.jsEvent.target.innerText === "Toggle Category"
-  ) {
-    clickInfo.jsEvent.preventDefault();
-  } else if (
-    clickInfo.jsEvent?.target?.innerText !== undefined &&
-    clickInfo.jsEvent.target.innerText === "X"
-  ) {
-    clickInfo.jsEvent.preventDefault();
-  }
-  // can prevent the default loading of a url in the same windows and open it in a new window
-  // if (info.event.url) {
-  //   window.open(info.event.url);
-  // }
-};
-
 // Function to get the configuration for the Day View
 export const getDayViewConfig = (startDate, endDate) => ({
   type: "resourceTimeline",
